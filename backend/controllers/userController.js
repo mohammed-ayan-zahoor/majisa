@@ -72,6 +72,12 @@ const getUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+        // Auto-generate referral code for vendors if missing
+        if (user.role === 'vendor' && !user.referralCode) {
+            user.referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            await user.save();
+        }
+
         res.json({
             _id: user._id,
             name: user.name,
