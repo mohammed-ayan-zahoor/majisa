@@ -33,29 +33,19 @@ app.use('/api/categories', categoryRoutes);
 
 const path = require('path');
 
-// ... (existing imports)
+// Serve frontend (ALWAYS try to serve static files, regarding of NODE_ENV)
+// This ensures it works if NODE_ENV isn't set perfectly
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
 
-// Routes
-app.use('/api/users', userRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/categories', categoryRoutes);
-
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-    app.get('*', (req, res) =>
-        res.sendFile(path.resolve(__dirname, '../', 'frontend', 'dist', 'index.html'))
-    );
-} else {
-    app.get('/', (req, res) => {
-        res.send('Majisa Jewellers API is running...');
-    });
-}
+app.get('*', (req, res) => {
+    const indexPath = path.join(frontendPath, 'index.html');
+    if (require('fs').existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.send('Majisa Jewellers API is running... (Frontend not built or path incorrect)');
+    }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
