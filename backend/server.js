@@ -38,7 +38,7 @@ const path = require('path');
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
-app.get('*', (req, res) => {
+app.get('(.*)', (req, res) => {
     const indexPath = path.join(frontendPath, 'index.html');
     if (require('fs').existsSync(indexPath)) {
         res.sendFile(indexPath);
