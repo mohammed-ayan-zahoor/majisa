@@ -107,6 +107,11 @@ const ReferralGate = ({ children }) => {
                         </button>
                     </form>
                 </div>
+                <div className="absolute bottom-8 text-center w-full">
+                    <a href="/login" className="text-white/50 hover:text-white text-sm transition-colors">
+                        Admin Login
+                    </a>
+                </div>
             </div>
         );
     }
