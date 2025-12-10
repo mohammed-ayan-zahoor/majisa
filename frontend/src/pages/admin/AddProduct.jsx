@@ -16,7 +16,6 @@ const AddProduct = () => {
     const [formData, setFormData] = useState({
         name: '',
         productCode: '',
-        productCode: '',
         description: '',
         category: '',
         metal: 'Gold',
