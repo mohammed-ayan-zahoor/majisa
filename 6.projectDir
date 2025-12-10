@@ -1,0 +1,355 @@
+
+
+Project root (recommended name: jewellery-catalogue-backend)
+
+jewellery-catalogue-backend/
+├─ src/
+│  ├─ api/
+│  │  ├─ auth/
+│  │  │  ├─ auth.controller.js
+│  │  │  ├─ auth.routes.js
+│  │  │  └─ auth.service.js
+│  │  ├─ users/
+│  │  │  ├─ users.controller.js
+│  │  │  ├─ users.routes.js
+│  │  │  └─ users.service.js
+│  │  ├─ products/
+│  │  │  ├─ products.controller.js
+│  │  │  ├─ products.routes.js
+│  │  │  └─ products.service.js
+│  │  ├─ categories/
+│  │  │  ├─ categories.controller.js
+│  │  │  ├─ categories.routes.js
+│  │  │  └─ categories.service.js
+│  │  ├─ orders/
+│  │  │  ├─ orders.controller.js
+│  │  │  ├─ orders.routes.js
+│  │  │  └─ orders.service.js
+│  │  ├─ vendor-requests/
+│  │  │  ├─ vendorRequests.controller.js
+│  │  │  ├─ vendorRequests.routes.js
+│  │  │  └─ vendorRequests.service.js
+│  │  ├─ goldsmith/
+│  │  │  ├─ goldsmith.controller.js
+│  │  │  ├─ goldsmith.routes.js
+│  │  │  └─ goldsmith.service.js
+│  │  ├─ notifications/
+│  │  │  ├─ notifications.controller.js
+│  │  │  ├─ notifications.routes.js
+│  │  │  └─ notifications.service.js
+│  │  └─ admin/
+│  │     ├─ admin.controller.js
+│  │     └─ admin.routes.js
+│  │
+│  ├─ config/
+│  │  ├─ index.js                # exports config from env
+│  │  ├─ db.js                   # mongoose connection
+│  │  └─ cloudinary.js           # cloudinary init
+│  │
+│  ├─ controllers/               # optional shared controllers (if not under api/*)
+│  │
+│  ├─ middleware/
+│  │  ├─ auth.middleware.js      # JWT auth + role guard
+│  │  ├─ validate.middleware.js  # request body validation
+│  │  ├─ error.middleware.js     # centralized error handler
+│  │  └─ upload.middleware.js    # multer / direct-to-cloudinary helper
+│  │
+│  ├─ models/
+│  │  ├─ User.js
+│  │  ├─ Product.js
+│  │  ├─ Category.js
+│  │  ├─ Order.js
+│  │  ├─ VendorRequest.js
+│  │  ├─ Notification.js
+│  │  ├─ Rate.js
+│  │  ├─ SiteSettings.js
+│  │  └─ Counter.js              # for daily order counters
+│  │
+│  ├─ routes/
+│  │  └─ index.js                # mounts all api routes
+│  │
+│  ├─ services/
+│  │  ├─ email.service.js        # email notifications (nodemailer / provider)
+│  │  ├─ notification.service.js
+│  │  ├─ orderId.service.js      # atomic order-id generation (counters)
+│  │  └─ search.service.js       # optional: text search helpers
+│  │
+│  ├─ utils/
+│  │  ├─ logger.js               # winston/pino wrapper
+│  │  ├─ errors.js               # custom error classes
+│  │  ├─ helpers.js              # small helpers (formatOrderId, pad)
+│  │  └─ validators/             # Joi or Yup schemas (product, order, vendor)
+│  │
+│  ├─ jobs/
+│  │  └─ rates.job.js            # CRON to fetch gold/silver rates (optional)
+│  │
+│  ├─ sockets/
+│  │  └─ socket.js               # optional real-time notifications via socket.io
+│  │
+│  ├─ app.js                     # express app definition
+│  └─ server.js                  # starts server & jobs
+│
+├─ tests/                        # unit & integration tests
+│  ├─ auth.test.js
+│  └─ orders.test.js
+│
+├─ scripts/
+│  └─ migrate.js                 # optional data migration scripts
+│
+├─ docker/
+│  ├─ Dockerfile
+│  └─ nginx.conf                 # optional reverse-proxy config
+│
+├─ .env.example
+├─ .gitignore
+├─ package.json
+├─ README.md
+└─ LICENSE
+
+
+---
+
+Quick file responsibilities & examples
+
+src/config/index.js
+
+Exports configuration constants pulled from process.env (DB URI, JWT secret, Cloudinary keys, etc.). Keep secret values in environment variables only.
+
+export default {
+  port: process.env.PORT || 4000,
+  mongoUri: process.env.MONGO_URI,
+  jwtSecret: process.env.JWT_SECRET,
+  cloudinary: {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  }
+};
+
+
+---
+
+src/config/db.js
+
+Mongoose connection with basic reconnect logic.
+
+import mongoose from "mongoose";
+import config from "./index.js";
+
+export const connectDB = async () => {
+  await mongoose.connect(config.mongoUri, {
+    useNewUrlParser: true, useUnifiedTopology: true
+  });
+  console.log("MongoDB connected");
+};
+
+
+---
+
+src/models/Counter.js
+
+Used for atomic daily counters for order ID generation.
+
+import mongoose from "mongoose";
+
+const CounterSchema = new mongoose.Schema({
+  _id: { type: String }, // e.g., "2025-11-17"
+  seq: { type: Number, default: 0 }
+}, { timestamps: true });
+
+export default mongoose.model("Counter", CounterSchema);
+
+
+---
+
+src/services/orderId.service.js
+
+Atomic daily increment with findOneAndUpdate.
+
+import Counter from "../models/Counter.js";
+
+export async function getNextOrderId() {
+  const dateKey = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+  const res = await Counter.findOneAndUpdate(
+    { _id: dateKey },
+    { $inc: { seq: 1 } },
+    { upsert: true, new: true }
+  );
+  const seq = String(res.seq).padStart(2, "0"); // pad to 2 digits
+  const d = new Date();
+  const DD = String(d.getDate()).padStart(2,"0");
+  const MM = String(d.getMonth()+1).padStart(2,"0");
+  const YY = String(d.getFullYear()).slice(-2);
+  return `${DD}${MM}${YY}${seq}`; // e.g., 17112505
+}
+
+> Note: pad width can be increased if you expect >99 orders/day.
+
+
+
+
+---
+
+src/middleware/auth.middleware.js
+
+JWT validation + role guard. Example pattern:
+
+export const authenticate = (req, res, next) => {
+  // parse token, verify, attach req.user
+};
+
+export const authorize = (...allowedRoles) => (req, res, next) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+  if (!allowedRoles.includes(req.user.role)) return res.status(403).json({ message: "Forbidden" });
+  next();
+};
+
+
+---
+
+src/routes/index.js
+
+Mount all routes and error middleware.
+
+import express from "express";
+import authRoutes from "../api/auth/auth.routes.js";
+// ... import other routers
+
+const router = express.Router();
+
+router.use("/auth", authRoutes);
+router.use("/products", productsRoutes);
+// admin routes prefixed with /admin + authenticate + authorize('admin')
+router.use("/admin", adminRoutes);
+
+export default router;
+
+
+---
+
+src/app.js
+
+Main express app setup: security middleware, body-parsers, CORS, helmet, rate-limit, routes, error handler.
+
+Important middleware to include:
+
+helmet() (security headers)
+
+express.json() & urlencoded
+
+cors() with allowed origins
+
+express-rate-limit for auth endpoints
+
+xss-clean / input sanitizer
+
+logging (morgan/winston)
+
+
+
+---
+
+src/server.js
+
+Start app, connect DB, optionally start socket & cron jobs.
+
+import app from "./app.js";
+import { connectDB } from "./config/db.js";
+import config from "./config/index.js";
+
+await connectDB();
+app.listen(config.port, () => console.log(`Server listening on ${config.port}`));
+
+
+---
+
+Dev / Prod tooling & extras
+
+Env: Use .env locally, and set env vars in Hostinger or production environment.
+
+Docker: Provide Dockerfile and docker-compose (if you want local Mongo + app).
+
+Healthcheck: GET /health returns status and DB connection state.
+
+Logging: Use winston or pino with daily rotate.
+
+Testing: Jest + Supertest for routes.
+
+
+
+---
+
+Recommended package.json scripts
+
+"scripts": {
+  "start": "node -r dotenv/config src/server.js",
+  "dev": "nodemon --watch src --exec babel-node src/server.js",
+  "lint": "eslint . --ext .js,.mjs",
+  "test": "jest --runInBand",
+  "migrate": "node scripts/migrate.js",
+  "docker:build": "docker build -t jewellery-backend ."
+}
+
+
+---
+
+Security & Production Notes (must-do)
+
+1. JWT secret: store in env, rotate periodically. Use refresh tokens if long sessions required.
+
+
+2. HTTPS: Use nginx (reverse proxy) with TLS (Let's Encrypt) in production.
+
+
+3. CORS: restrict origins.
+
+
+4. Rate-limit: brute-force protection on login.
+
+
+5. File uploads: Use direct client → Cloudinary signed uploads to reduce server bandwidth. If server uploads, validate file types and sizes.
+
+
+6. Database backups: enable automated backups (MongoDB Atlas or manual dump).
+
+
+7. Monitoring: add Sentry (errors) and a simple uptime ping.
+
+
+8. Secrets: never check .env into git.
+
+
+
+
+---
+
+Quick development checklist to get running (minimal MVP)
+
+1. Create repo and paste this folder structure.
+
+
+2. Implement User, Product, Order, Counter models (you already have).
+
+
+3. Implement auth (register/login JWT).
+
+
+4. Implement products CRUD (admin) + GET /products public listing.
+
+
+5. Implement Cloudinary integration and direct upload for images.
+
+
+6. Implement orders create endpoint using orderId.service to generate ID.
+
+
+7. Implement simple admin UI or test via Postman.
+
+
+8. Deploy to Hostinger VPS (Node, pm2) and connect MongoDB Atlas.
+
+
+
+
+---
+

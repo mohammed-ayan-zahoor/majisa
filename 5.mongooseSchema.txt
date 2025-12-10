@@ -1,0 +1,445 @@
+Roger that — I’ll run this like a smooth corporate-deployment sprint.
+We’ll deliver both:
+
+
+---
+
+✅ PART 1 — MONGOOSE MODELS (Production-Ready)
+
+These are clean, scalable, index-optimized schemas you can directly paste into your Node.js backend.
+
+
+---
+
+📌 models/User.js
+
+import mongoose from "mongoose";
+
+const UserSchema = new mongoose.Schema({
+  role: { type: String, enum: ["admin", "customer", "vendor", "goldsmith"], required: true },
+
+  email: { type: String, trim: true, lowercase: true },
+  phone: { type: String, trim: true },
+
+  passwordHash: { type: String },
+
+  name: { type: String, required: true },
+
+  vendorId: { type: String, default: null },
+
+  vendorInfo: {
+    businessName: String,
+    gst: String,
+    city: String,
+    approvedAt: Date
+  },
+
+  isActive: { type: Boolean, default: true },
+
+  meta: Object,
+
+}, { timestamps: true });
+
+UserSchema.index({ phone: 1 });
+UserSchema.index({ email: 1 });
+UserSchema.index({ role: 1 });
+
+export default mongoose.model("User", UserSchema);
+
+
+---
+
+📌 models/Category.js
+
+import mongoose from "mongoose";
+
+const CategorySchema = new mongoose.Schema({
+  name: String,
+  slug: { type: String, unique: true },
+  iconUrl: String,
+  order: Number
+}, { timestamps: true });
+
+CategorySchema.index({ slug: 1 });
+
+export default mongoose.model("Category", CategorySchema);
+
+
+---
+
+📌 models/Product.js
+
+import mongoose from "mongoose";
+
+const ProductSchema = new mongoose.Schema({
+  sku: String,
+  name: String,
+  slug: { type: String, unique: true },
+
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+
+  images: {
+    original: String,
+    thumbnails: {
+      small: String,
+      medium: String,
+      large: String
+    }
+  },
+
+  description: String,
+
+  attributes: {
+    metalType: String,
+    purity: String,
+    stoneType: String,
+    weightGrams: Number
+  },
+
+  price: Number,
+  wastage: Number,
+
+  isFeatured: Boolean,
+  stock: Number,
+
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+
+}, { timestamps: true });
+
+ProductSchema.index({ slug: 1 });
+ProductSchema.index({ categoryId: 1 });
+
+ProductSchema.index({
+  name: "text",
+  description: "text"
+});
+
+export default mongoose.model("Product", ProductSchema);
+
+
+---
+
+📌 models/Order.js
+
+import mongoose from "mongoose";
+
+const OrderSchema = new mongoose.Schema({
+  orderId: { type: String, unique: true },
+
+  placedBy: {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    role: String
+  },
+
+  customerSnapshot: {
+    name: String,
+    phone: String,
+    address: String,
+    email: String
+  },
+
+  vendorId: String,
+
+  items: [
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      productSnapshot: Object,
+      quantity: Number,
+      priceAtOrder: Number,
+      wastageAtOrder: Number
+    }
+  ],
+
+  totalAmount: Number,
+
+  status: {
+    type: String,
+    enum: ["ordered", "accepted", "under_process", "completed", "dispatched", "delivered"],
+    default: "ordered"
+  },
+
+  assignedGoldsmithId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+  assignedAt: Date,
+  completedAt: Date,
+  dispatchedAt: Date,
+  deliveredAt: Date,
+
+  notes: String
+
+}, { timestamps: true });
+
+OrderSchema.index({ orderId: 1 });
+OrderSchema.index({ status: 1 });
+OrderSchema.index({ assignedGoldsmithId: 1 });
+
+export default mongoose.model("Order", OrderSchema);
+
+
+---
+
+📌 models/VendorRequest.js
+
+import mongoose from "mongoose";
+
+const VendorRequestSchema = new mongoose.Schema({
+  businessName: String,
+  ownerName: String,
+  phone: String,
+  gst: String,
+  city: String,
+
+  status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+
+  reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  reviewedAt: Date,
+
+  notes: String
+
+}, { timestamps: true });
+
+VendorRequestSchema.index({ status: 1 });
+
+export default mongoose.model("VendorRequest", VendorRequestSchema);
+
+
+---
+
+📌 models/Notification.js
+
+import mongoose from "mongoose";
+
+const NotificationSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  type: String,
+  payload: Object,
+  isRead: { type: Boolean, default: false }
+}, { timestamps: true });
+
+NotificationSchema.index({ userId: 1, isRead: 1 });
+
+export default mongoose.model("Notification", NotificationSchema);
+
+
+---
+
+📌 models/Rate.js
+
+import mongoose from "mongoose";
+
+const RateSchema = new mongoose.Schema({
+  metal: String,
+  ratePerGram: Number,
+  currency: String,
+  source: String
+}, { timestamps: true });
+
+RateSchema.index({ metal: 1 });
+
+export default mongoose.model("Rate", RateSchema);
+
+
+---
+
+📌 models/SiteSettings.js
+
+import mongoose from "mongoose";
+
+const SiteSettingsSchema = new mongoose.Schema({
+  _id: { type: String, default: "site_settings" },
+
+  siteName: String,
+  logoUrl: String,
+  heroImageUrl: String,
+
+  contactEmail: String,
+  contactPhone: String,
+  footerText: String
+
+}, { timestamps: true });
+
+export default mongoose.model("SiteSettings", SiteSettingsSchema);
+
+
+---
+
+🚀 PART 2 — API ENDPOINTS (REST + Role Access + Business Logic)
+
+Below is the full production API suite divided by modules.
+
+
+---
+
+🔐 AUTH MODULE
+
+POST /auth/register-customer
+
+Create customer.
+
+POST /auth/login
+
+JWT login.
+
+POST /auth/logout
+
+
+---
+
+👤 USER MANAGEMENT (Admin Only)
+
+POST /admin/users/goldsmith
+
+Create goldsmith user.
+
+PATCH /admin/users/:id/status
+
+Enable/disable user.
+
+GET /admin/users/vendors
+
+List vendor users.
+
+
+---
+
+🛒 PRODUCT MODULE
+
+GET /products
+
+List all products with search + filters.
+
+GET /products/:slug
+
+POST /admin/products
+
+Create product.
+
+PATCH /admin/products/:id
+
+DELETE /admin/products/:id
+
+Soft delete recommended.
+
+
+---
+
+🗂 CATEGORY MODULE
+
+GET /categories
+
+POST /admin/categories
+
+PATCH /admin/categories/:id
+
+DELETE /admin/categories/:id
+
+
+---
+
+🛍 ORDER MODULE
+
+POST /orders
+
+→ Customer or vendor places order.
+→ Generates orderId (DDMMYYSS).
+→ Saves product snapshot.
+
+GET /orders/my
+
+→ Customer/Vendor sees only their orders.
+
+GET /orders/:orderId
+
+→ Visibility filtered by role.
+
+Admin Endpoints
+
+GET /admin/orders
+
+List every order.
+
+PATCH /admin/orders/:orderId/accept
+
+PATCH /admin/orders/:orderId/assign-goldsmith
+
+PATCH /admin/orders/:orderId/status
+
+Move status from accepted → under_process → dispatched → delivered.
+
+
+---
+
+🪬 GOLD-SMITH MODULE
+
+GET /goldsmith/orders
+
+List assigned orders (no customer info).
+
+PATCH /goldsmith/orders/:orderId/complete
+
+
+---
+
+🧾 VENDOR REQUEST MODULE
+
+POST /vendors/request
+
+Vendor registration.
+
+GET /admin/vendor-requests
+
+Admin sees pending requests.
+
+PATCH /admin/vendor-requests/:id/accept
+
+PATCH /admin/vendor-requests/:id/reject
+
+
+---
+
+🔔 NOTIFICATION MODULE
+
+GET /notifications
+
+User sees notifications.
+
+PATCH /notifications/:id/read
+
+
+---
+
+📈 RATES MODULE
+
+GET /rates/latest
+
+POST /admin/rates
+
+Update gold/silver manually.
+
+
+---
+
+⚙ SITE SETTINGS MODULE
+
+GET /site/settings
+
+PATCH /admin/site/settings
+
+
+---
+
+⚠ ORDER-ID GENERATION ENDPOINT (Internal Service)
+
+POST /internal/order-counter
+
+Atomic increment per day.
+
+
+---
+
+🧩 COMPONENT BREAKDOWN (FRONTEND)
+
+(Sent earlier — reusable UI components)
+
+
+---

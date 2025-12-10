@@ -1,0 +1,133 @@
+
+---
+                            **sitemap**
+
+        /                       (Home)
+        ├─ /home
+        │    ├─ Header (search + realtime rates + nav)
+        │    ├─ Category strip (circular icons)
+        │    ├─ Hero
+        │    ├─ Featured / Example product cards
+        │    └─ Footer
+        │
+        ├─ /products
+        │    ├─ /products?category=<slug>&page=<n>&q=<search>&sort=<…>
+        │    └─ product card listing (pagination / infinite scroll)
+        │
+        ├─ /product/:productSlugOrId
+        │    ├─ Product images (gallery / zoom)
+        │    ├─ Product details (no price/wastage for public/customers)
+        │    └─ CTA: Enquire / Add to Cart (if logged in)
+        │
+        ├─ /about
+        ├─ /contact
+        ├─ /login
+        │    ├─ /login/customer
+        │    ├─ /login/vendor
+        │    ├─ /login/goldsmith
+        │    └─ /login/admin
+        │
+        ├─ /vendor-register
+        │    └─ vendor registration form (business name, owner name, phone, GST, city)
+        │
+        ├─ /404
+        └─ /500
+
+        /authenticated (common routes available after login — adjusted per role)
+        ├─ /profile
+        │    ├─ /profile/view
+        │    └─ /profile/edit
+        │
+        ├─ /cart
+        │    ├─ /cart/view
+        │    └─ /checkout
+        │         └─ /order-confirmation (generates OrderID DDMMYYSS)
+        │
+        ├─ /orders
+        │    └─ /orders/:orderId (order details / status)   -- visibility based on role
+        │
+        ├─ /notifications
+
+        /role: Customer (after login)
+        ├─ /customer/dashboard
+        │    ├─ recent orders (full details for the customer)
+        │    └─ quick links
+        ├─ /customer/orders
+        │    └─ /customer/orders/:orderId
+        └─ /customer/wishlist (optional)
+
+        /role: Vendor (after approval & login)
+        ├─ /vendor/dashboard
+        │    ├─ vendor status (Approved / Pending / Rejected)
+        │    ├─ vendor id displayed
+        │    └─ quick actions (place order, view orders)
+        ├─ /vendor/orders
+        │    └─ /vendor/orders/:orderId
+        └─ /vendor/cart (same as customer cart)
+
+        /role: Goldsmith (login credentials created by Admin)
+        ├─ /goldsmith/dashboard
+        │    ├─ list of assigned orders (orderId + product details only)
+        │    └─ quick actions: View Product Details | Mark Completed
+        └─ /goldsmith/orders/:orderId
+            └─ shows only: orderId, product details, images, instructions, deadlines
+
+        /role: Admin (login)
+        ├─ /admin/dashboard
+        │    ├─ KPIs (total products, pending orders, goldsmiths, vendor requests)
+        │    └─ alerts (vendor registrations, completed jobs)
+        ├─ /admin/products
+        │    ├─ /admin/products/list
+        │    ├─ /admin/products/add
+        │    └─ /admin/products/edit/:productId
+        ├─ /admin/orders
+        │    ├─ /admin/orders/list (filter by status)
+        │    ├─ /admin/orders/:orderId (full order details)
+        │    ├─ /admin/orders/assign/:orderId (assign to goldsmith)
+        │    ├─ /admin/orders/update-status/:orderId (Accept / Dispatch / Delivered)
+        │    └─ order-status-flow UI
+        ├─ /admin/goldsmiths
+        │    ├─ list (create / edit / enable / disable / remove)
+        │    └─ create-goldsmith (email/username + temporary password)
+        ├─ /admin/vendors
+        │    ├─ vendor-registrations (view form submissions)
+        │    ├─ vendor-registrations/:id (view details → Accept / Reject)
+        │    └─ vendor-list (after approved)
+        ├─ /admin/categories
+        │    ├─ list
+        │    ├─ add
+        │    └─ edit
+        ├─ /admin/rates
+        │    └─ gold-and-silver-rates (manual update or API settings)
+        ├─ /admin/site-settings
+        │    ├─ logo, hero image
+        │    └─ contact info, footer text
+        └─ /admin/notifications & audit logs
+
+        /static assets & admin helpers
+        ├─ /uploads (handled by Cloudinary – referenced URLs only)
+        └─ /sitemap.xml
+
+
+  Notes & mapping decisions (short)
+
+Order visibility:
+
+Customer & Vendor who placed the order: full order details (including contact/payment).
+
+Goldsmith: only Order ID + product details + instructions (no personal info).
+
+Admin: full access (assign, accept, change statuses).
+
+
+Order ID generation: must be created server-side at checkout: DDMMYYSS (DD=day, MM=month, YY=year, SS=sequential index-of-day padded).
+
+Vendor registration: public form stores submission in vendor_requests → Admin reviews → on Accept, Admin creates vendor account & system auto-generates Vendor ID.
+
+Realtime rates: displayed in header; Admin can update via /admin/rates or connect to a rates API.
+
+Images / uploads: all images are stored on Cloudinary; the app stores URLs in MongoDB.
+
+Public Products view: must hide price & wastage for customers; vendor view (if needed) can include additional fields.
+
+Notifications: push or in-app for Admin when goldsmith marks complete; for Goldsmith when assigned.

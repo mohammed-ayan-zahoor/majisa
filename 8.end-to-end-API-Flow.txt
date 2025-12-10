@@ -1,0 +1,520 @@
+2) END-TO-END API FLOW MAPPING — Swagger-style (OpenAPI v3)
+
+Below is a concise but usable OpenAPI YAML scaffold covering auth, products, categories, orders, admin endpoints, vendor requests, goldsmith, notifications, and rates. It includes schemas and example responses. Save as openapi.yaml and load into Swagger UI or Postman.
+
+> Note: This is a compact, implementable spec — expand descriptions & security details as needed.
+
+
+
+openapi: 3.0.3
+info:
+  title: Jewellery Catalogue API
+  version: 1.0.0
+  description: API for jewellery catalogue, orders, admin, vendor & goldsmith workflows.
+servers:
+  - url: https://api.example.com
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        role:
+          type: string
+          enum: [admin, customer, vendor, goldsmith]
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        vendorId:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Product:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        slug: { type: string }
+        categoryId: { type: string }
+        images:
+          type: object
+          properties:
+            original: { type: string }
+            thumbnails:
+              type: object
+              properties:
+                small: { type: string }
+                medium: { type: string }
+                large: { type: string }
+        description: { type: string }
+        attributes:
+          type: object
+          properties:
+            metalType: { type: string }
+            purity: { type: string }
+            stoneType: { type: string }
+            weightGrams: { type: number }
+        price: { type: number, nullable: true }
+        wastage: { type: number, nullable: true }
+        isFeatured: { type: boolean }
+        stock: { type: number }
+
+    OrderItem:
+      type: object
+      properties:
+        productId: { type: string }
+        productSnapshot:
+          type: object
+        quantity: { type: integer }
+
+    Order:
+      type: object
+      properties:
+        _id: { type: string }
+        orderId: { type: string, example: "17112505" }
+        placedBy:
+          type: object
+          properties:
+            userId: { type: string }
+            role: { type: string }
+        customerSnapshot:
+          type: object
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/OrderItem' }
+        status:
+          type: string
+          enum: [ordered, accepted, under_process, completed, dispatched, delivered]
+        assignedGoldsmithId: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    VendorRequest:
+      type: object
+      properties:
+        _id: { type: string }
+        businessName: { type: string }
+        ownerName: { type: string }
+        phone: { type: string }
+        gst: { type: string }
+        city: { type: string }
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        submittedAt: { type: string, format: date-time }
+
+    Notification:
+      type: object
+      properties:
+        _id: { type: string }
+        userId: { type: string }
+        type: { type: string }
+        payload: { type: object }
+        isRead: { type: boolean, default: false }
+        createdAt: { type: string, format: date-time }
+
+paths:
+
+  /auth/login:
+    post:
+      summary: Login (returns JWT)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone: { type: string }
+                password: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+
+  /products:
+    get:
+      summary: List products (public)
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: product list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Product' }
+                  total: { type: integer }
+
+    post:
+      summary: Create product (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                categoryId: { type: string }
+                description: { type: string }
+                price: { type: number }
+                wastage: { type: number }
+                images: { type: string, format: binary }
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /products/{id}:
+    get:
+      summary: Get product by id/slug
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+    patch:
+      summary: Update product (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+      responses:
+        "200":
+          description: updated
+
+    delete:
+      summary: Delete product (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: deleted
+
+  /orders:
+    post:
+      summary: Place an order (customer or vendor)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId: { type: string }
+                      quantity: { type: integer }
+                customerSnapshot:
+                  type: object
+                  properties:
+                    name: { type: string }
+                    phone: { type: string }
+                    address: { type: string }
+      responses:
+        "201":
+          description: created with orderId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+    get:
+      summary: Get orders of current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: list of orders
+
+  /orders/{orderId}:
+    get:
+      summary: Get order by orderId (visibility filtered by role)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: order detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /admin/orders:
+    get:
+      summary: Admin - list all orders with filters
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: orders list
+
+  /admin/orders/{orderId}/accept:
+    patch:
+      summary: Admin accepts an order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: accepted
+
+  /admin/orders/{orderId}/assign-goldsmith:
+    patch:
+      summary: Assign order to goldsmith
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                goldsmithId: { type: string }
+      responses:
+        "200":
+          description: assigned
+
+  /goldsmith/orders:
+    get:
+      summary: Goldsmith - list assigned orders (no customer info)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: list of assigned orders
+
+  /goldsmith/orders/{orderId}/complete:
+    patch:
+      summary: Goldsmith – mark order completed
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: completed
+
+  /vendors/request:
+    post:
+      summary: Vendor registration request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+      responses:
+        "201":
+          description: submitted
+
+  /admin/vendor-requests:
+    get:
+      summary: Admin - see vendor requests
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: list
+
+  /admin/vendor-requests/{id}/accept:
+    patch:
+      summary: Admin - accept vendor request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: vendor approved
+
+  /rates/latest:
+    get:
+      summary: Get latest gold/silver rates
+      responses:
+        "200":
+          description: latest rates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rate'
+
+  /admin/rates:
+    post:
+      summary: Admin - update rates
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  metal: { type: string }
+                  ratePerGram: { type: number }
+      responses:
+        "200":
+          description: updated
+
+  /notifications:
+    get:
+      summary: Get user notifications
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: list of notifications
+
+components:
+  schemas:
+    Rate:
+      type: object
+      properties:
+        metal: { type: string }
+        ratePerGram: { type: number }
+        currency: { type: string, default: "INR" }
+        updatedAt: { type: string, format: date-time }
+
+
+---
+
+How to use this OpenAPI YAML
+
+1. Save as openapi.yaml.
+
+
+2. Drop it into Swagger UI / Redoc / Postman to visualize.
+
+
+3. Use the paths & schemas as the basis for building controllers and tests.
+
+
+4. Expand request/response examples for each endpoint as you implement.
+
+
+
+
+---
+
+Quick Implementation Tips (based on flows above)
+
+Order ID generation: implement orderId.service that atomically increments daily counter (Counter collection). Use findOneAndUpdate with upsert & returnNew.
+
+Visibility enforcement: always run a server projection step before returning orders:
+
+if req.user.role === 'goldsmith' → remove customerSnapshot and any price fields from items.
+
+else if admin → full doc.
+
+
+Notifications: when admin assigns, create Notification docs for goldsmith & send optional email/SMS.
+
+Vendor accept: when admin approves vendor request, create users doc with vendorId, set vendorInfo.approvedAt, and send notification.
+
+Image uploads: use Cloudinary direct upload (signed) from frontend; admin/product endpoints accept returned URLs not raw files.
+
+Audit logs: critical admin actions should write to audit_logs collection.
+
+

@@ -1,0 +1,482 @@
+
+
+✅ MASTER PAGE LIST (FINAL BLUEPRINT)
+
+Covers:
+
+✔ All roles (Admin, Customer, Vendor, Goldsmith)
+✔ Permissions
+✔ Order life-cycle
+✔ Vendor registration pipeline
+✔ Internal user management
+
+Let’s go section by section.
+
+
+---
+
+🏠 A. PUBLIC PAGES (Accessible by Everyone)
+
+These are the pages visible without login — for Customers, Vendors, Goldsmiths, and visitors.
+
+1. Home Page
+
+Search Bar
+
+Real-time gold/silver rates
+
+Nav bar
+
+Category strip (circle icons)
+
+Hero banner
+
+Featured product cards
+
+Footer
+
+
+2. Products Page
+
+All products listing
+
+Category filter
+
+Search
+
+Product tags
+
+
+3. Product Details Page
+
+All product details except price & wastage for customers
+
+(Optional) Vendors see extra fields
+
+Multiple images, description, category
+
+
+4. About Page
+
+5. Contact Page
+
+6. Login Page
+
+Customer login
+
+Vendor login
+
+Goldsmith login
+
+Admin login
+
+
+7. Vendor Registration Page
+
+Form fields:
+
+Business name
+
+Owner name
+
+Phone
+
+GST No
+
+City
+
+Auto-generated Vendor ID (hidden until Admin approves)
+
+
+
+---
+
+👤 B. CUSTOMER-SIDE PAGES (After Login)
+
+8. Customer Dashboard
+
+Recent orders
+
+Order statuses
+
+Profile
+
+Logout
+
+
+9. Cart Page
+
+Add/remove products
+
+Checkout
+
+
+10. Order Confirmation Page
+
+Generates Order ID (Format: DDMMYYSS)
+
+Payment (if needed)
+
+Final summary
+
+
+11. Customer Order History Page
+
+Order ID
+
+Order status
+
+Order date
+
+Details
+
+
+
+---
+
+🏬 C. VENDOR-SIDE PAGES (After Approval)
+
+Vendors can do everything a customer can + extras.
+
+12. Vendor Dashboard
+
+Vendor ID shown
+
+Business verification status
+
+Orders placed
+
+Order statuses
+
+Account status
+
+
+13. Vendor Registration Status Page
+
+Approved / Pending / Rejected
+
+Comments (optional)
+
+
+They share:
+
+14. Vendor Cart Page (same as customer)
+
+15. Vendor Order History Page
+
+
+---
+
+⚒ D. GOLDSMITH PAGES
+
+16. Goldsmith Dashboard
+
+Orders assigned by admin
+
+Status: Under Process → Completed
+
+Button: "Mark as Completed"
+
+Order details
+
+
+17. Goldsmith Order Details Page
+
+Product details
+
+Customer/Vendor info
+
+Special instructions (if any)
+
+
+
+---
+
+🛠 E. ADMIN-SIDE PAGES (Mission Control Center)
+
+This is the biggest section.
+
+
+---
+
+ADMIN PRODUCT MANAGEMENT
+
+18. Admin Dashboard
+
+Total products
+
+Total orders
+
+Goldsmith status
+
+Vendor requests pending
+
+Quick stats
+
+
+19. Product List Page
+
+Search
+
+Filters
+
+Add / Edit / Delete
+
+
+20. Add Product Page
+
+21. Edit Product Page
+
+
+---
+
+ADMIN USER MANAGEMENT
+
+22. Goldsmith User Management Page
+
+Create goldsmith
+
+Edit
+
+Disable / Enable
+
+Remove
+
+
+23. Vendor Approval Page
+
+View all registrations
+
+Accept / Reject
+
+Auto-generate Vendor ID when approved (e.g., "VND024")
+
+
+
+---
+
+ADMIN ORDER MANAGEMENT
+
+24. Order List Page
+
+Status filter
+
+Assign to goldsmith
+
+View details
+
+
+25. Order Details Page
+
+Status flow:
+
+1. Ordered
+
+
+2. Accepted (admin clicks “Accept”)
+
+
+3. Under Process (assign to goldsmith)
+
+
+4. Completed (goldsmith marks)
+
+
+5. Dispatched (admin marks)
+
+
+6. Delivered (admin marks)
+
+
+
+26. Assign to Goldsmith Page
+
+Drop-down of goldsmiths
+
+Confirm assignment
+
+
+27. Order Status Update Page
+
+Admin manually sets Dispatched / Delivered
+
+
+
+---
+
+ADMIN SETTINGS
+
+28. Manage Categories Page
+
+Add category
+
+Delete
+
+Update icon (circle image)
+
+
+29. Live Gold & Silver Rates Page
+
+Admin can update rates (or via API)
+
+
+30. Site Settings Page
+
+Logo upload
+
+Hero image
+
+Contact info
+
+
+
+---
+
+🧩 F. SHARED / SYSTEM PAGES
+
+31. 404 Page
+
+32. 500 Error Page
+
+33. Profile Settings (for all logged-in users)
+
+34. Change Password Page
+
+35. Notifications Page
+
+(for Admin & Goldsmith especially)
+
+
+---
+
+🎯 SUMMARY OF TOTAL PAGES
+
+You now have:
+
+✔ 35 pages
+
+covering
+💎 jewellery catalogue
+🛒 order system
+📦 status tracking
+⚒ goldsmith workflow
+🏪 vendor pipeline
+🛠 admin control
+
+This is a full enterprise-grade system — you can proudly quote it anywhere.
+
+
+Absolutely — operational update locked in.
+Deploying the new compliance rule to your system architecture. ✔️
+
+
+---
+
+🔧 UPDATED GOLDSMITH ACCESS RULE (FINAL)
+
+Goldsmith Can See:
+
+Order ID
+
+Product details
+
+Product images
+
+Quantity
+
+Special instructions (if any)
+
+Due date / delivery deadline (if you choose to add this later)
+
+
+Goldsmith Cannot See:
+
+🚫 Customer name
+🚫 Customer address
+🚫 Customer phone
+🚫 Vendor information
+🚫 Any personal or business info
+🚫 Price, wastage, or cost
+🚫 Payment details
+
+This makes the workflow clean, privacy-safe, and domain-appropriate.
+
+
+---
+
+🔄 Affected Pages Updated
+
+1. Goldsmith Dashboard
+
+Now shows:
+
+Order ID
+
+Product name
+
+Category
+
+Thumbnail
+
+Status (Under Process → Completed)
+
+“Mark Completed” button
+
+
+No customer/vendor info.
+
+
+---
+
+2. Goldsmith Order Details Page
+
+Now includes:
+
+Order ID
+
+Product images
+
+Product description
+
+Instructions (optional)
+
+Expected completion date (optional)
+
+
+Removed: ❌ Customer details
+❌ Vendor details
+
+
+---
+
+3. Admin Order Details Page (unchanged)
+
+Admin sees full info including:
+
+Customer/vendor details
+
+Goldsmith assigned
+
+Full order details
+
+
+
+---
+
+4. Customer/Vendor Order Page (unchanged)
+
+They see:
+
+Full order details
+
+Progress
+
+
+Goldsmith name optional (normally not needed).
+
+
+---
+
+
+
+

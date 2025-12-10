@@ -1,0 +1,158 @@
+
+
+1) ADMIN WORKFLOWS — diagrams & step-by-step
+
+Each workflow shows actors, sequence of actions, role guards, and side-effects (notifications, DB writes).
+
+
+---
+
+A. Vendor Approval Workflow (Admin)
+
+[Vendor] --submits form--> /vendors/request  --> (vendor_requests: pending)
+      (vendor_request created)
+               |
+               v
+[Admin] --views--> /admin/vendor-requests (list)
+               |
+               v
+[Admin] --view detail--> /admin/vendor-requests/{id}
+               |
+ decision: Accept? / Reject?
+   /Accept\            /Reject\
+   |                    |
+   v                    v
+create User(role=vendor)  update vendor_request.status = "rejected"
+generate vendorId (VNDxxx) notify vendor via notification + email
+   |
+   v
+send notification to vendor (payload: { vendorId, status: "accepted" })
+
+Side effects & notes
+
+On Accept: create users record with role: "vendor" and vendorInfo. Set vendorId. Optionally send auto-password or vendor sets password via e-mail flow.
+
+Admin can enable/disable vendors later via /admin/users/:id/status.
+
+Admin sees pending list and audits.
+
+
+
+---
+
+B. Product Add / Edit / Delete (Admin)
+
+[Admin UI] -> POST /admin/products (form + image upload)
+   -> (upload image to Cloudinary) -> returns image URL(s)
+   -> create product doc in `products` with image URLs & thumbnails
+   -> send success notification, include productId
+
+Edit:
+
+GET /admin/products/:id (view)
+PATCH /admin/products/:id (update fields)
+-> update product doc
+-> audit log entry
+
+Delete:
+
+DELETE /admin/products/:id (soft-delete recommended: isActive=false)
+-> optionally remove images from Cloudinary (manual)
+-> audit log
+
+Notes
+
+Use direct-to-Cloudinary signed uploads from admin UI to reduce server load.
+
+Validate inputs on server side.
+
+
+
+---
+
+C. Order Acceptance → Assignment → Completion → Dispatch → Delivery (Admin + Goldsmith)
+
+Sequence diagram (simplified):
+
+[Customer/Vendor] --POST /orders--> (orders: status="ordered", orderId generated)
+    |
+    v
+[Admin] --GET /admin/orders--> view new order
+    |
+    v
+[Admin] --PATCH /admin/orders/{orderId}/accept--> status="accepted"
+    -> notification to initiating vendor/customer
+    |
+    v
+[Admin] --PATCH /admin/orders/{orderId}/assign-goldsmith (goldsmithId)--> status="under_process", assignedGoldsmithId set, assignedAt set
+    -> notification to goldsmith (payload: { orderId, items })
+    |
+    v
+[Goldsmith] --GET /goldsmith/orders--> sees assigned orders (no customer info)
+    |
+    v
+[Goldsmith] --PATCH /goldsmith/orders/{orderId}/complete--> marks completed
+    -> server sets completedAt, status="completed"
+    -> notify Admin via /notifications
+    |
+    v
+[Admin] --PATCH /admin/orders/{orderId}/status (dispatch)--> status="dispatched" (admin sets dispatchedAt)
+    -> notify customer/vendor
+    |
+    v
+[Admin] --PATCH /admin/orders/{orderId}/status (delivered)--> status="delivered"
+    -> notify customer/vendor
+
+Business rules
+
+Goldsmith endpoint excludes customerSnapshot. Only orderId, items, notes.
+
+Admin can unassign or reassign if needed.
+
+Each status change is audited.
+
+
+
+---
+
+D. Goldsmith User Creation & Management (Admin)
+
+[Admin] -> POST /admin/users/goldsmith (name, phone, email, tempPassword)
+ -> create user role=goldsmith
+ -> send credentials to goldsmith via SMS/email (secure flow)
+ -> goldsmith logs in -> change password
+ -> admin can disable/enable via PATCH /admin/users/:id/status
+
+Notes
+
+Prefer a password reset flow rather than sending raw password.
+
+Use role-based middleware to prevent goldsmith accessing admin routes.
+
+
+
+---
+
+E. Rates Management (Admin)
+
+[Rates API (optional external)] -> Cron job -> POST /admin/rates or update /rates/latest
+Admin UI -> PATCH /admin/rates -> store in `rates` collection
+Header Component -> GET /rates/latest -> show in header realtime
+
+Notes
+
+Cache rates in DB and optionally in Redis if high traffic.
+
+
+
+---
+
+F. Notifications & Audit Flow (Admin + System)
+
+System Events (order assigned, completed, vendor accepted) -> write to `notifications` -> push to user (in-app / email)
+Admin Dashboard -> GET /admin/notifications -> mark read via PATCH /notifications/:id/read
+Audit Logs -> write for critical admin actions (product CRUD, vendor accept, assign goldsmith)
+
+
+---
+

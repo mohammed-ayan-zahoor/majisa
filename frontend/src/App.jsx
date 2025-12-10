@@ -1,0 +1,123 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import { OrderProvider } from './context/OrderContext';
+
+import Layout from './components/layout/Layout';
+import Home from './pages/Home';
+import Products from './pages/Products';
+import ProductDetails from './pages/ProductDetails';
+import Login from './pages/Login';
+import VendorRegister from './pages/VendorRegister';
+
+import AdminLayout from './components/layout/AdminLayout';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminProducts from './pages/admin/Products';
+import AddProduct from './pages/admin/AddProduct';
+import AdminOrders from './pages/admin/Orders';
+import OrderDetails from './pages/admin/OrderDetails';
+import AdminVendors from './pages/admin/Vendors';
+import AdminGoldsmiths from './pages/admin/Goldsmiths';
+import AdminNotifications from './pages/admin/Notifications';
+import AdminSettings from './pages/admin/Settings';
+import CustomerVisits from './pages/admin/CustomerVisits';
+import Categories from './pages/admin/Categories';
+
+import VendorLayout from './components/layout/VendorLayout';
+import VendorDashboard from './pages/vendor/Dashboard';
+import VendorOrder from './pages/vendor/VendorOrder';
+import MyOrders from './pages/vendor/MyOrders';
+import VendorProfile from './pages/vendor/Profile';
+
+import GoldsmithLayout from './components/layout/GoldsmithLayout';
+import GoldsmithDashboard from './pages/goldsmith/Dashboard';
+import JobDetails from './pages/goldsmith/JobDetails';
+
+import Cart from './pages/Cart';
+import About from './pages/About';
+import Contact from './pages/Contact';
+
+// Placeholder pages
+const NotFound = () => <div className="p-10 text-center">404 Not Found</div>;
+
+import ReferralGate from './components/common/ReferralGate';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <OrderProvider>
+            <Toaster position="top-center" />
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={
+                  <ReferralGate>
+                    <Home />
+                  </ReferralGate>
+                } />
+                <Route path="products" element={
+                  <ReferralGate>
+                    <Products />
+                  </ReferralGate>
+                } />
+                <Route path="product/:id" element={
+                  <ReferralGate>
+                    <ProductDetails />
+                  </ReferralGate>
+                } />
+                <Route path="about" element={<About />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+
+              {/* Auth Routes (No Header/Footer) */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/vendor-register" element={<VendorRegister />} />
+
+              {/* Admin Routes */}
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="products/new" element={<AddProduct />} />
+                <Route path="products/edit/:id" element={<AddProduct />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="orders/:id" element={<OrderDetails />} />
+                <Route path="vendors" element={<AdminVendors />} />
+                <Route path="goldsmiths" element={<AdminGoldsmiths />} />
+                <Route path="visits" element={<CustomerVisits />} />
+                <Route path="categories" element={<Categories />} />
+                <Route path="notifications" element={<AdminNotifications />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+
+              {/* Goldsmith Routes */}
+              <Route path="/goldsmith" element={<GoldsmithLayout />}>
+                <Route index element={<GoldsmithDashboard />} />
+                <Route path="dashboard" element={<GoldsmithDashboard />} />
+                <Route path="jobs" element={<GoldsmithDashboard />} />
+                <Route path="jobs/:id" element={<JobDetails />} />
+              </Route>
+
+              {/* Vendor Routes */}
+              <Route path="/vendor" element={<VendorLayout />}>
+                <Route index element={<VendorDashboard />} />
+                <Route path="dashboard" element={<VendorDashboard />} />
+                <Route path="place-order" element={<VendorOrder />} />
+                <Route path="orders" element={<MyOrders />} />
+                <Route path="profile" element={<VendorProfile />} />
+              </Route>
+            </Routes>
+          </OrderProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;

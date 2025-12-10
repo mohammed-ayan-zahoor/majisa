@@ -1,0 +1,400 @@
+
+---
+
+✅ A. FULL SITEMAP (TREE STRUCTURE)
+
+(Your entire system architecture as a clean, hierarchical map)
+
+
+---
+
+🌐 PUBLIC PAGES (No Login Needed)
+
+Home /
+│── Search Bar
+│── Live Gold/Silver Rates
+│── Category Strip
+│── Hero Banner
+│── Featured Products
+│── Footer
+│
+├── Products /
+│     ├── Product Listing
+│     ├── Product Details
+│
+├── About /
+├── Contact /
+│
+└── Vendor Registration /
+       ├── Business Name
+       ├── Owner Name
+       ├── Phone
+       ├── GST No
+       ├── City
+       └── Submit (goes to Admin Pending List)
+
+
+---
+
+🧑 Customer Area (No Login Required Unless You Want to Track Orders)
+
+(You didn't specify login for customers, so keeping it optional)
+
+Customer /
+├── Cart
+├── Checkout
+└── Order Confirmation
+
+
+---
+
+🏢 Vendor Area
+
+Vendor /
+├── Login
+├── Dashboard
+│     ├── View Products
+│     ├── Place Order
+│     ├── Order Status Tracking
+│
+└── Profile
+      ├── Business Name
+      ├── Vendor ID
+      ├── GST
+      └── City
+
+
+---
+
+⚙️ Admin Panel
+
+Admin /
+├── Dashboard
+│     ├── Total Products
+│     ├── Orders by Status
+│     ├── Pending Vendor Requests
+│
+├── Product Management /
+│     ├── Add Product
+│     ├── Edit Product
+│     ├── Remove Product
+│
+├── Vendor Management /
+│     ├── Pending Applications
+│     ├── Accept / Reject
+│     ├── Enable / Disable Vendor
+│
+├── Goldsmith Management /
+│     ├── Create Goldsmith Users
+│     ├── Disable / Enable Goldsmith
+│
+├── Order Management /
+│     ├── All Orders
+│     ├── Accept Order
+│     ├── Assign to Goldsmith
+│     ├── Mark Dispatched
+│     └── Mark Delivered
+│
+└── Notifications /
+      ├── Goldsmith Completed Orders
+      └── Vendor Registration Updates
+
+
+---
+
+🛠️ Goldsmith Dashboard
+
+Goldsmith /
+├── Login
+├── Assigned Orders
+│     ├── Order ID
+│     ├── Product Details
+│     └── Mark as Completed
+│
+└── Work History
+
+
+---
+
+📦 Order Status Pipeline (Universal)
+
+Order Flow:
+Ordered → Accepted → Under Process → Completed → Dispatched → Delivered
+
+---
+
+✅ B. UI/UX WIREFRAMES (LOW-FIDELITY)
+
+
+---
+
+1. HOME PAGE — Wireframe
+
+-------------------------------------------------------------
+| LOGO | Search Bar [______________] | Live Gold/Silver Rates |
+-------------------------------------------------------------
+| NAV: Home | Products | Categories | About | Contact |
+-------------------------------------------------------------
+
+[ Category Strip ]
+ (●) Gold  (●) Silver  (●) Rings  (●) Necklace  (●) Bangles ...
+
+-------------------------------------------------------------
+|                   HERO BANNER (big image)                 |
+|   CTA Button: [Explore Collections]                       |
+-------------------------------------------------------------
+
+[ Featured Products Section ]
+-------------------------------------------------------------
+| Img | Product Name  |  View Details →                    |
+| Img | Product Name  |  View Details →                    |
+| Img | Product Name  |  View Details →                    |
+-------------------------------------------------------------
+
+------------------------- FOOTER -----------------------------
+| About | Contact | Privacy | Terms | Social Icons          |
+-------------------------------------------------------------
+
+
+---
+
+2. PRODUCTS PAGE — Wireframe
+
+-------------------------------------------------------------
+| LOGO | Search Bar | Live Rates | NAV                      |
+-------------------------------------------------------------
+
+[ Filter / Sort Bar ]
+-------------------------------------------------------------
+| Category ▾ | Metal Type ▾ | Weight Range ▾ | Sort By ▾    |
+-------------------------------------------------------------
+
+[ Product Grid ]
+-------------------------------------------------------------
+| Img | Name |  View →     | Img | Name | View →           |
+| Img | Name |  View →     | Img | Name | View →           |
+-------------------------------------------------------------
+
+
+---
+
+3. PRODUCT DETAILS PAGE
+
+-------------------------------------------------------------
+| Image Gallery (vertical thumbnails) | Large Preview       |
+-------------------------------------------------------------
+
+Product Title
+Category
+Metal: Gold/Silver
+Weight: ___ g
+Purity: ___
+
+[ ADD TO CART ]   [ BACK TO PRODUCTS ]
+
+Note: Customer cannot see price or wastage.
+
+
+---
+
+4. ABOUT PAGE
+
+-------------------------------------------------------------
+| Hero Image / Brand Story                                  |
+-------------------------------------------------------------
+| Mission | Craftsmanship | Trusted Since ...                |
+-------------------------------------------------------------
+
+
+---
+
+5. CONTACT PAGE
+
+-------------------------------------------------------------
+| Contact Form                                              |
+-------------------------------------------------------------
+| Name  [__________]                                        |
+| Email [__________]                                        |
+| Phone [__________]                                        |
+| Message [_______________________________]                 |
+| [ SEND MESSAGE ]                                          |
+-------------------------------------------------------------
+Address | Phone | Email | Map
+
+
+---
+
+6. VENDOR REGISTRATION
+
+-------------------------------------------------------------
+| Vendor Registration Form                                  |
+-------------------------------------------------------------
+| Business Name [____________________]                      |
+| Owner Name    [____________________]                      |
+| Phone         [____________________]                      |
+| GST No        [____________________]                      |
+| City          [____________________]                      |
+|                                                   (auto)  |
+| [ SUBMIT APPLICATION ] → goes to Admin for approval       |
+-------------------------------------------------------------
+
+
+---
+
+7. VENDOR LOGIN
+
+-------------------------------------------------------------
+| Vendor Login                                              |
+-------------------------------------------------------------
+| Phone / Username [_____________]                          |
+| Password        [_____________]                           |
+| [ LOGIN ]                                                |
+-------------------------------------------------------------
+
+
+---
+
+8. VENDOR DASHBOARD
+
+-------------------------------------------------------------
+| Sidebar: Products | Orders | Profile | Logout             |
+-------------------------------------------------------------
+
+[ Dashboard ]
+-------------------------------------------------------------
+| Quick Stats:                                             |
+| Total Orders • Pending • In Process • Completed          |
+-------------------------------------------------------------
+
+[ Place New Order ]
+| Product Selector ▾                                       |
+| Quantity [__]                                            |
+| [ PLACE ORDER ]                                          |
+-------------------------------------------------------------
+
+[ My Orders ]
+-------------------------------------------------------------
+| Order ID | Product | Status | Date | View Details        |
+-------------------------------------------------------------
+
+
+---
+
+9. ADMIN LOGIN
+
+-------------------------------------------------------------
+| Admin Login                                               |
+-------------------------------------------------------------
+| Username [__________]                                     |
+| Password [__________]                                     |
+| [ LOGIN ]                                                 |
+-------------------------------------------------------------
+
+
+---
+
+10. ADMIN DASHBOARD
+
+-------------------------------------------------------------
+| Sidebar: Products | Vendors | Goldsmith | Orders | Notifs |
+-------------------------------------------------------------
+
+[ Dashboard Overview ]
+-------------------------------------------------------------
+| Total Products | Pending Vendors | Orders by Status       |
+| Graph: Orders Timeline                                   |
+-------------------------------------------------------------
+
+
+---
+
+11. ADMIN → PRODUCT MANAGEMENT
+
+-------------------------------------------------------------
+| Add Product  |  Product List                              |
+-------------------------------------------------------------
+
+[ Add Product ]
+| Name [____]  Category [__]  Metal Type [__]               |
+| Weight [__]  Purity [__]                                  |
+| Upload Images (Cloudinary)                               |
+| [ SAVE ]                                                  |
+
+[ Product List Table ]
+-------------------------------------------------------------
+| Img | Name | Category | Actions: Edit | Delete           |
+-------------------------------------------------------------
+
+
+---
+
+12. ADMIN → VENDOR MANAGEMENT
+
+-------------------------------------------------------------
+| Pending Applications                                      |
+-------------------------------------------------------------
+| Vendor Name | GST | City | Accept | Reject               |
+-------------------------------------------------------------
+
+[ Registered Vendors ]
+-------------------------------------------------------------
+| Vendor ID | Name | Status: Enable/Disable                |
+-------------------------------------------------------------
+
+
+---
+
+13. ADMIN → GOLDSMITH MANAGEMENT
+
+-------------------------------------------------------------
+| Add Goldsmith User                                       |
+-------------------------------------------------------------
+| Name [____] Username [____] Password [____]              |
+| [ CREATE USER ]                                          |
+
+[ Goldsmith Table ]
+-------------------------------------------------------------
+| Name | Status: Enable/Disable | Orders Completed         |
+-------------------------------------------------------------
+
+
+---
+
+14. ADMIN → ORDER MANAGEMENT
+
+-------------------------------------------------------------
+| All Orders                                                |
+-------------------------------------------------------------
+| Order ID | Customer/Vendor | Product | Status | Actions   |
+-------------------------------------------------------------
+Actions:
+- Accept Order
+- Assign to Goldsmith ▾
+- Mark Dispatched
+- Mark Delivered
+
+
+---
+
+15. GOLDSMITH DASHBOARD
+
+-------------------------------------------------------------
+| Assigned Orders                                           |
+-------------------------------------------------------------
+| Order ID | Product Details | [ MARK COMPLETED ]          |
+-------------------------------------------------------------
+
+[ Work History ]
+-------------------------------------------------------------
+| Order ID | Product | Completed Date                      |
+-------------------------------------------------------------
+
+
+---
+
+16. ORDER STATUS TRACKER (GLOBAL UI)
+
+Ordered → Accepted → Under Process → Completed → Dispatched → Delivered
+
+
+---

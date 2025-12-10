@@ -1,0 +1,90 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, ShoppingBag } from 'lucide-react';
+import QuickViewModal from './QuickViewModal';
+import { useCart } from '../../context/CartContext';
+
+const ProductCard = ({ product }) => {
+    const [showQuickView, setShowQuickView] = useState(false);
+    const { addToCart } = useCart();
+
+    return (
+        <>
+            <div className="group relative bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+                {/* Image Container */}
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4">
+                    <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    />
+
+                    {/* Badges */}
+                    {product.isNew && (
+                        <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-charcoal-500 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm">
+                            New
+                        </span>
+                    )}
+
+                    {/* Hover Actions */}
+                    <div className="absolute inset-x-3 bottom-3 translate-y-[120%] group-hover:translate-y-0 transition-transform duration-300 flex gap-2 z-10">
+                        <button
+                            onClick={() => setShowQuickView(true)}
+                            className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-3 text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
+                        >
+                            Quick View
+                        </button>
+                        {['vendor'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
+                            <button
+                                onClick={() => addToCart(product, 1)}
+                                className="w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition-all rounded-lg shadow-lg"
+                                title="Add to Cart"
+                            >
+                                <ShoppingBag size={18} />
+                            </button>
+                        )}
+                        <button className="w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:text-red-500 transition-all rounded-lg shadow-lg">
+                            <Heart size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="text-center px-2 pb-2">
+                    <p className="text-xs text-gold-600 mb-1 uppercase tracking-widest font-medium">{product.category}</p>
+                    <h3 className="text-base font-serif text-charcoal-600 mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">
+                        <Link to={`/product/${product._id}`}>
+                            {product.name}
+                        </Link>
+                    </h3>
+                    <div className="text-sm text-gray-500 space-y-1">
+                        {/* Technical Details - Only for Vendors/Admins */}
+                        {['vendor', 'admin'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
+                            <>
+                                <p>Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
+                                <div className="flex justify-center items-center gap-4 text-xs text-gray-400">
+                                    <span>{product.weight}g</span>
+                                    <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                    <span>{product.purity || '22K'}</span>
+                                </div>
+                                <p className="text-primary-600 font-medium text-xs mt-2 bg-primary-50 inline-block px-2 py-1 rounded">
+                                    Wastage: {product.wastage || 'N/A'}
+                                </p>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick View Modal */}
+            {showQuickView && (
+                <QuickViewModal
+                    product={product}
+                    onClose={() => setShowQuickView(false)}
+                />
+            )}
+        </>
+    );
+};
+
+export default ProductCard;

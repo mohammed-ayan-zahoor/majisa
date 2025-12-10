@@ -1,0 +1,439 @@
+
+
+📦 Overview — Collections
+
+1. users (all roles: admin, customer, vendor, goldsmith)
+
+
+2. products
+
+
+3. categories
+
+
+4. orders
+
+
+5. vendor_requests (registration submissions)
+
+
+6. notifications (in-app alerts)
+
+
+7. rates (gold & silver live rates)
+
+
+8. site_settings (logo, contact, hero images, etc.)
+
+
+9. audit_logs (optional, activity history)
+
+
+
+
+---
+
+1) users
+
+Single collection for all user types. Use role field to differentiate.
+
+Schema
+
+{
+  _id: ObjectId,
+  role: String,              // "admin"|"customer"|"vendor"|"goldsmith"
+  email: String,             // optional for vendor/customer
+  phone: String,             // recommended indexed for login
+  passwordHash: String,      // bcrypt / argon2 (nullable for SSO)
+  name: String,              // person name or owner name
+  vendorId: String,          // for vendor accounts (e.g., "VND001") or null
+  vendorInfo: {              // extra business info (for vendor role)
+    businessName: String,
+    gst: String,
+    city: String,
+    approvedAt: Date | null
+  },
+  isActive: Boolean,         // enabled/disabled
+  createdAt: Date,
+  updatedAt: Date,
+  meta: Object               // free-form (e.g., address for customers if needed)
+}
+
+Indexes
+
+{ phone: 1 } (unique optional)
+
+{ email: 1 } (unique optional)
+
+{ role: 1 }
+
+
+Notes
+
+Goldsmith accounts are created by Admin (password generated & delivered).
+
+Customers can be guest (no account) — orders can store separate contact data in orders.customerSnapshot.
+
+
+
+---
+
+2) categories
+
+Category metadata and UI icon/thumbnail.
+
+Schema
+
+{
+  _id: ObjectId,
+  name: String,          // "Rings"
+  slug: String,          // "rings", indexed
+  iconUrl: String,       // Cloudinary URL (circle icon)
+  order: Number,         // display order
+  createdAt: Date,
+  updatedAt: Date
+}
+
+Indexes
+
+{ slug: 1 } (unique)
+
+{ order: 1 }
+
+
+
+---
+
+3) products
+
+Main product catalogue.
+
+Schema
+
+{
+  _id: ObjectId,
+  sku: String,             // optional internal code
+  name: String,
+  slug: String,            // for SEO / friendly URLs
+  categoryId: ObjectId,
+  images: {
+    original: String,      // Cloudinary URL
+    thumbnails: {
+      small: String,
+      medium: String,
+      large: String
+    }
+  },
+  description: String,
+  attributes: {
+    metalType: String,     // e.g., "22KT Gold"
+    purity: String,        // "22KT"
+    stoneType: String,     // "Diamond", "CZ"
+    weightGrams: Number
+  },
+  price: Number | null,    // null if not shown to customer
+  wastage: Number | null,  // hidden field (not visible to customer)
+  isFeatured: Boolean,
+  stock: Number | null,
+  createdAt: Date,
+  updatedAt: Date,
+  createdBy: ObjectId      // user id (admin id)
+}
+
+Indexes
+
+{ slug: 1 } (unique)
+
+{ categoryId: 1, isFeatured: 1 }
+
+Text index on { name: "text", description: "text" } for search
+
+{ "attributes.metalType": 1 } if filtering by metal
+
+
+Notes
+
+Store only Cloudinary URLs, not image binary data.
+
+Keep thumbnails pre-generated (Cloudinary transformations).
+
+
+
+---
+
+4) orders
+
+Everything about orders, status lifecycle, snapshots of customer/vendor at time of order, assignment to goldsmith.
+
+Schema
+
+{
+  _id: ObjectId,
+  orderId: String,            // business ID like "17112505" (DDMMYYSS)
+  placedBy: {
+    userId: ObjectId | null,  // user who placed (customer or vendor) or null for guest
+    role: String              // "customer"|"vendor"|"admin" (who created)
+  },
+  customerSnapshot: {         // data visible to admin & vendor but NOT to goldsmith
+    name: String | null,
+    phone: String | null,
+    address: String | null,
+    email: String | null
+  },
+  vendorId: String | null,    // optional: vendor who placed the order
+  items: [
+    {
+      productId: ObjectId,
+      productSnapshot: { name, images, attributes }, // product detail copy
+      quantity: Number,
+      priceAtOrder: Number | null,  // price stored if needed (hidden from customers maybe)
+      wastageAtOrder: Number | null
+    }
+  ],
+  totalAmount: Number | null,
+  status: String,             // "ordered","accepted","under_process","completed","dispatched","delivered"
+  assignedGoldsmithId: ObjectId | null,
+  assignedAt: Date | null,
+  completedAt: Date | null,
+  dispatchedAt: Date | null,
+  deliveredAt: Date | null,
+  createdAt: Date,
+  updatedAt: Date,
+  notes: String | null
+}
+
+Indexes
+
+{ orderId: 1 } (unique)
+
+{ status: 1 }
+
+{ createdAt: -1 } (recent orders)
+
+{ assignedGoldsmithId: 1 } (for goldsmith queries)
+
+
+Important Business Logic
+
+Order ID Generation (DDMMYYSS):
+
+DD = day (2 digits), MM = month, YY = year (last two digits), SS = sequential count-of-day padded to 2 digits (or more if needed).
+
+Implement server-side using an atomic counter per day. Example approach:
+
+counters collection keyed by YYYY-MM-DD with seq integer.
+
+On order placement: findOneAndUpdate({ _id: "2025-11-17" }, { $inc: { seq: 1 } }, { upsert: true, returnNew: true }) → returns seq.
+
+Format: ${DD}${MM}${YY}${pad(seq,2)} → ensures uniqueness and ordering.
+
+
+Use transactions/atomic ops to avoid collisions.
+
+
+
+Visibility Rules
+
+customerSnapshot is visible to Admin and to the customer who placed the order (and the vendor if vendor placed it).
+
+Goldsmith: only sees orderId, items.productSnapshot, quantity, notes and createdAt (no customerSnapshot, no prices).
+
+Admin sees all fields.
+
+
+
+---
+
+5) vendor_requests
+
+Stores registration submissions pending admin review.
+
+Schema
+
+{
+  _id: ObjectId,
+  businessName: String,
+  ownerName: String,
+  phone: String,
+  gst: String,
+  city: String,
+  submittedAt: Date,
+  status: String,       // "pending"|"accepted"|"rejected"
+  reviewedBy: ObjectId | null,
+  reviewedAt: Date | null,
+  notes: String | null
+}
+
+Indexes
+
+{ phone: 1 }
+
+{ status: 1 }
+
+
+On Accept
+
+Admin creates a users document with role vendor and vendorId generated (e.g., VND001). Transfer necessary fields.
+
+
+
+---
+
+6) notifications
+
+Simple in-app notification system for Admin / Goldsmith / Vendor.
+
+Schema
+
+{
+  _id: ObjectId,
+  userId: ObjectId,      // recipient
+  type: String,          // "order_assigned","order_completed","vendor_request",...
+  payload: Object,       // e.g., { orderId: "17112505", productId: ... }
+  isRead: Boolean,
+  createdAt: Date
+}
+
+Indexes
+
+{ userId: 1, isRead: 1 }
+
+
+
+---
+
+7) rates
+
+Gold & silver live rates (can be stored or fetched from API and cached)
+
+Schema
+
+{
+  _id: ObjectId,
+  metal: String,        // "gold" | "silver"
+  ratePerGram: Number,
+  currency: String,     // "INR"
+  source: String,       // "manual"|"api:xyz"
+  updatedAt: Date
+}
+
+Usage
+
+Show latest rates.findOne({ metal: "gold" }, { sort: { updatedAt: -1 } }) in header.
+
+
+
+---
+
+8) site_settings
+
+Single doc with site-level configs.
+
+Schema
+
+{
+  _id: "site_settings",
+  siteName: String,
+  logoUrl: String,
+  heroImageUrl: String,
+  contactEmail: String,
+  contactPhone: String,
+  footerText: String,
+  createdAt: Date,
+  updatedAt: Date
+}
+
+
+---
+
+9) audit_logs (optional but recommended)
+
+Track actions like product add/edit/delete, vendor acceptance, goldsmith completion.
+
+Schema
+
+{
+  _id: ObjectId,
+  actorId: ObjectId,
+  actorRole: String,
+  action: String,       // "product.create", "order.assign", ...
+  resource: {
+    type: String,       // "product","order","vendor_request"
+    id: ObjectId
+  },
+  meta: Object,
+  timestamp: Date
+}
+
+Indexes
+
+{ actorId: 1 }, { resource.id: 1 }, { timestamp: -1 }
+
+
+
+---
+
+🔐 Security & Access Control Notes
+
+Use role-based access control (RBAC) at API layer. Example: middleware checks req.user.role.
+
+Never return customerSnapshot in responses to Goldsmith endpoints.
+
+Keep admin-only routes protected with strong auth (JWT with short expiry + refresh tokens or session-based on VPS).
+
+Hash passwords (bcrypt/argon2). Never store plaintext.
+
+Sanitize inputs to avoid injection / MongoDB operator injection.
+
+Use HTTPS and secure cookies if session-based.
+
+
+
+---
+
+📈 Performance & Indexing — Practical Advice
+
+Pagination: use indexed createdAt or _id cursor-based pagination, not skip/limit for large collections.
+
+Text Search: use MongoDB text indexes for name/description search; consider Algolia if you need advanced search.
+
+Indexes: keep only necessary indexes — each index costs storage & write overhead.
+
+Shard later: If data grows heavily, MongoDB Atlas allows horizontal scaling. Start with free/shared, then scale.
+
+Thumbnails: Always use Cloudinary small thumbnails in listing pages. Store URLs in products.images.thumbnails.small.
+
+Cache rates: Store gold/silver rates and update every few minutes rather than calling external API on every request.
+
+
+
+---
+
+💾 Estimated Storage (First Year)
+
+Products metadata (5,000 × 1KB) ≈ 5 MB.
+
+Orders metadata (10,000 orders × 2KB) ≈ 20 MB.
+
+Images stored in Cloudinary (not in DB). Cloudinary handles storage.
+
+Indexes & overhead — keep modest, < 100 MB for initial scale.
+
+
+
+---
+
+✅ Implementation Tips / Quick Checklist
+
+Use counters collection for generating daily sequential order number safely.
+
+Store product snapshots in orders.items.productSnapshot to keep historical integrity.
+
+Use assignedGoldsmithId and notifications for assigning workflow and alerts.
+
+Write API endpoints to return role-filtered projections (e.g., goldsmith endpoints omit customerSnapshot).
+
+Implement soft-delete (isActive=false) for users/products instead of hard delete, and log actions in audit_logs.
+
+
+
