@@ -88,30 +88,30 @@ const CustomerVisits = () => {
     if (loading) return <div className="p-8 text-center">Loading visits...</div>;
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-8 gap-4">
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-serif font-bold text-gray-900">Customer Visits</h1>
-                    <p className="text-gray-500 hidden md:block">Track customers entering via Referral Codes</p>
+                    <h1 className="text-xl font-serif font-bold text-gray-900">Customer Visits</h1>
+                    <p className="text-xs text-gray-500 hidden md:block">Track customers entering via Referral Codes</p>
                 </div>
                 <button
                     onClick={exportPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap"
                 >
-                    <Printer size={18} />
+                    <Printer size={16} />
                     <span className="hidden md:inline">Export PDF</span>
                     <span className="md:hidden">PDF</span>
                 </button>
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4">
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row gap-3">
                 <div className="relative flex-1">
-                    <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search by name, phone..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -120,7 +120,7 @@ const CustomerVisits = () => {
                     <select
                         value={selectedVendor}
                         onChange={(e) => setSelectedVendor(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 bg-white"
+                        className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 bg-white"
                     >
                         <option value="">All Vendors</option>
                         {vendors.map(vendor => (
@@ -135,45 +135,47 @@ const CustomerVisits = () => {
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                    <table className="w-full text-left min-w-[700px]">
+                        <thead className="bg-gray-50 text-gray-500 text-[10px] uppercase font-medium">
                             <tr>
-                                <th className="px-6 py-4">Customer</th>
-                                <th className="px-6 py-4">Contact</th>
-                                <th className="px-6 py-4">Referred By (Vendor)</th>
-                                <th className="px-6 py-4">Code Used</th>
-                                <th className="px-6 py-4">Time</th>
+                                <th className="px-4 py-2">Customer</th>
+                                <th className="px-4 py-2">Contact</th>
+                                <th className="px-4 py-2">Referred By (Vendor)</th>
+                                <th className="px-4 py-2">Code Used</th>
+                                <th className="px-4 py-2">Time</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {filteredVisits.map((visit) => (
                                 <tr key={visit._id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="bg-primary-50 p-2 rounded-full text-primary-600">
-                                                <User size={16} />
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="bg-primary-50 p-1.5 rounded-full text-primary-600">
+                                                <User size={14} />
                                             </div>
-                                            <span className="font-medium text-gray-900">{visit.name}</span>
+                                            <span className="font-medium text-gray-900 text-sm">{visit.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600">
-                                        <div className="flex items-center gap-2">
-                                            <Phone size={14} className="text-gray-400" />
+                                    <td className="px-4 py-3 text-gray-600">
+                                        <div className="flex items-center gap-2 text-xs">
+                                            <Phone size={12} className="text-gray-400" />
                                             {visit.phone}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2 text-gray-700">
-                                            <Store size={14} className="text-gray-400" />
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2 text-gray-700 text-xs">
+                                            <Store size={12} className="text-gray-400" />
                                             {visit.vendor?.businessName || visit.vendor?.name || 'Unknown Vendor'}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 font-mono text-xs text-primary-600 bg-primary-50 inline-block rounded px-2 py-1 mt-3">
-                                        {visit.referralCode}
+                                    <td className="px-4 py-3">
+                                        <span className="font-mono text-[10px] text-primary-600 bg-primary-50 inline-block rounded px-1.5 py-0.5">
+                                            {visit.referralCode}
+                                        </span>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-500 text-sm">
+                                    <td className="px-4 py-3 text-gray-500 text-xs">
                                         <div className="flex items-center gap-2">
-                                            <Calendar size={14} className="text-gray-400" />
+                                            <Calendar size={12} className="text-gray-400" />
                                             {new Date(visit.visitedAt).toLocaleString()}
                                         </div>
                                     </td>

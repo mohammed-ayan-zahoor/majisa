@@ -112,15 +112,15 @@ const AdminVendors = () => {
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center gap-4 mb-8">
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-serif font-bold text-gray-900">Vendors</h1>
-                    <p className="text-sm text-gray-500 hidden md:block">Manage vendor registrations and approvals</p>
+                    <h1 className="text-xl font-serif font-bold text-gray-900">Vendors</h1>
+                    <p className="text-xs text-gray-500 hidden md:block">Manage vendor registrations and approvals</p>
                 </div>
                 <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
+                    className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
                 >
                     <span>+</span>
                     <span>Add <span className="hidden md:inline">New Vendor</span></span>
@@ -128,21 +128,21 @@ const AdminVendors = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4">
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row gap-3">
                 <div className="flex-1 relative">
-                    <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search vendors..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                     />
                 </div>
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
                     {['All', 'Pending', 'Approved', 'Rejected'].map(status => (
                         <button
                             key={status}
                             onClick={() => setFilterStatus(status)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${filterStatus === status
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${filterStatus === status
                                 ? 'bg-primary-600 text-white'
                                 : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                                 }`}
@@ -156,68 +156,68 @@ const AdminVendors = () => {
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                    <table className="w-full text-left min-w-[700px]">
+                        <thead className="bg-gray-50 text-gray-500 text-[10px] uppercase font-medium">
                             <tr>
-                                <th className="px-6 py-4">Vendor Name</th>
-                                <th className="px-6 py-4">Business Name</th>
-                                <th className="px-6 py-4">Contact</th>
-                                <th className="px-6 py-4">Ref Code</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
+                                <th className="px-4 py-2">Vendor Name</th>
+                                <th className="px-4 py-2">Business Name</th>
+                                <th className="px-4 py-2">Contact</th>
+                                <th className="px-4 py-2">Ref Code</th>
+                                <th className="px-4 py-2">Status</th>
+                                <th className="px-4 py-2 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {filteredVendors.map((vendor) => (
                                 <tr key={vendor._id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-medium text-gray-900">{vendor.name}</td>
-                                    <td className="px-6 py-4 text-gray-600">{vendor.businessName}</td>
-                                    <td className="px-6 py-4 text-gray-600">
-                                        <div>{vendor.email}</div>
+                                    <td className="px-4 py-3 font-medium text-gray-900 text-sm">{vendor.name}</td>
+                                    <td className="px-4 py-3 text-gray-600 text-sm">{vendor.businessName}</td>
+                                    <td className="px-4 py-3 text-gray-600">
+                                        <div className="text-sm">{vendor.email}</div>
                                         <div className="text-xs text-gray-400">{vendor.phone}</div>
                                     </td>
-                                    <td className="px-6 py-4 font-mono text-xs text-primary-600">{vendor.referralCode}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${vendor.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                    <td className="px-4 py-3 font-mono text-xs text-primary-600">{vendor.referralCode}</td>
+                                    <td className="px-4 py-3">
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${vendor.status === 'Approved' ? 'bg-green-100 text-green-700' :
                                             vendor.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
                                                 'bg-red-100 text-red-700'
                                             }`}>
                                             {vendor.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-1">
                                             <button
                                                 onClick={() => openEditModal(vendor)}
-                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
                                                 title="Edit Details"
                                             >
-                                                <MoreVertical size={18} />
+                                                <MoreVertical size={16} />
                                             </button>
                                             {vendor.status === 'Pending' && (
                                                 <>
                                                     <button
                                                         onClick={() => handleStatusUpdate(vendor._id, 'Approved')}
-                                                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                                                        className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"
                                                         title="Approve"
                                                     >
-                                                        <CheckCircle size={18} />
+                                                        <CheckCircle size={16} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusUpdate(vendor._id, 'Rejected')}
-                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
                                                         title="Reject"
                                                     >
-                                                        <XCircle size={18} />
+                                                        <XCircle size={16} />
                                                     </button>
                                                 </>
                                             )}
                                             <button
                                                 onClick={() => handleDelete(vendor._id)}
-                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
                                                 title="Delete"
                                             >
-                                                <XCircle size={18} />
+                                                <XCircle size={16} />
                                             </button>
                                         </div>
                                     </td>

@@ -113,32 +113,32 @@ const VendorOrder = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen bg-gray-50 py-6">
             <div className="container mx-auto px-4 max-w-3xl">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">Place New Order</h1>
-                    <p className="text-gray-500">Enter the product code to fetch details and place an order.</p>
+                <div className="mb-6">
+                    <h1 className="text-xl font-serif font-bold text-gray-900 mb-1">Place New Order</h1>
+                    <p className="text-xs text-gray-500">Enter the product code to fetch details and place an order.</p>
                 </div>
 
                 {/* Search Section */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-                    <form onSubmit={handleSearch} className="flex gap-4">
+                <div className="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-100 mb-4 md:mb-6">
+                    <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-2 md:gap-3">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                             <input
                                 type="text"
                                 value={productCode}
                                 onChange={(e) => setProductCode(e.target.value)}
                                 placeholder="Enter Product Code (e.g., RNG-001)"
-                                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 transition-colors"
+                                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 transition-colors"
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-70"
+                            className="bg-primary-600 text-white px-4 py-2 text-sm rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-70 w-full md:w-auto"
                         >
-                            {loading ? 'Searching...' : 'Fetch Details'}
+                            {loading ? 'Searching...' : 'Fetch'}
                         </button>
                     </form>
                 </div>
@@ -146,8 +146,8 @@ const VendorOrder = () => {
                 {/* Product Details & Order Form */}
                 {product && (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
-                        <div className="p-6 border-b border-gray-100 flex gap-6">
-                            <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4">
+                            <div className="w-full md:w-24 h-48 md:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                                 <img
                                     src={product.images && product.images.length > 0 ? product.images[0] : product.image}
                                     alt={product.name}
@@ -156,13 +156,13 @@ const VendorOrder = () => {
                             </div>
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-bold uppercase tracking-wider rounded">
+                                    <span className="px-2 py-0.5 bg-primary-50 text-primary-700 text-[10px] font-bold uppercase tracking-wider rounded">
                                         {product.category}
                                     </span>
-                                    <span className="text-sm text-gray-500">Code: {product.productCode}</span>
+                                    <span className="text-xs text-gray-500">Code: {product.productCode}</span>
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h2>
-                                <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm text-gray-600">
+                                <h2 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h2>
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
                                     <p>Weight: <span className="font-medium text-gray-900">{product.weight}</span></p>
                                     <p>Purity: <span className="font-medium text-gray-900">{product.purity}</span></p>
                                     <p>Wastage: <span className="font-medium text-primary-600">{product.wastage}</span></p>
@@ -170,17 +170,17 @@ const VendorOrder = () => {
                             </div>
                         </div>
 
-                        <div className="p-6 bg-gray-50/50">
-                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <ShoppingBag size={18} />
+                        <div className="p-4 bg-gray-50/50">
+                            <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2 text-sm">
+                                <ShoppingBag size={16} />
                                 Order Configuration
                             </h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 {/* Dynamic Fields from Category */}
                                 {category && category.customFields.map((field, index) => (
                                     <div key={index}>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">
                                             {field.name} {field.required && <span className="text-red-500">*</span>}
                                         </label>
 
@@ -188,7 +188,7 @@ const VendorOrder = () => {
                                             <select
                                                 value={customFieldValues[field.name] || ''}
                                                 onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 bg-white"
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 bg-white"
                                             >
                                                 <option value="">Select {field.name}</option>
                                                 {field.options.map((opt, idx) => (
@@ -200,7 +200,7 @@ const VendorOrder = () => {
                                                 type={field.type === 'number' ? 'number' : 'text'}
                                                 value={customFieldValues[field.name] || ''}
                                                 onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
                                                 placeholder={`Enter ${field.name}`}
                                             />
                                         )}
@@ -209,47 +209,47 @@ const VendorOrder = () => {
 
                                 {/* Fallback if no category or no custom fields (Optional: keep standard fields if needed) */}
                                 {!category && (
-                                    <div className="col-span-full text-center p-4 bg-yellow-50 text-yellow-700 rounded-lg text-sm">
-                                        <AlertCircle size={16} className="inline mr-2" />
+                                    <div className="col-span-full text-center p-3 bg-yellow-50 text-yellow-700 rounded-lg text-xs">
+                                        <AlertCircle size={14} className="inline mr-2" />
                                         No specific category configuration found. Please add notes below.
                                     </div>
                                 )}
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
                                     <input
                                         type="number"
                                         min="1"
                                         value={quantity}
                                         onChange={(e) => setQuantity(parseInt(e.target.value))}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                                 <div className="col-span-full">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Additional Notes</label>
                                     <textarea
                                         value={notes}
                                         onChange={(e) => setNotes(e.target.value)}
                                         placeholder="Any specific customization or instructions..."
-                                        rows="3"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                        rows="2"
+                                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
                                     ></textarea>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
+                            <div className="flex flex-col-reverse md:flex-row items-center justify-end gap-3 pt-3 border-t border-gray-200">
                                 <button
                                     onClick={() => setProduct(null)}
-                                    className="px-6 py-2 text-gray-600 hover:text-gray-900 font-medium"
+                                    className="w-full md:w-auto px-4 py-1.5 text-sm text-gray-600 hover:text-gray-900 font-medium"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handlePlaceOrder}
-                                    className="bg-primary-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center gap-2 shadow-lg shadow-primary-600/20"
+                                    className="w-full md:w-auto bg-primary-600 text-white px-6 py-2 text-sm rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20"
                                 >
                                     Place Order
-                                    <ArrowRight size={18} />
+                                    <ArrowRight size={16} />
                                 </button>
                             </div>
                         </div>
@@ -257,11 +257,11 @@ const VendorOrder = () => {
                 )}
 
                 {!product && !loading && productCode && (
-                    <div className="mt-8 text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-                            <Search size={24} />
+                    <div className="mt-6 text-center py-8 bg-white rounded-xl border border-dashed border-gray-300">
+                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
+                            <Search size={20} />
                         </div>
-                        <p className="text-gray-500">Search for a product to view details and place an order.</p>
+                        <p className="text-sm text-gray-500">Search for a product to view details and place an order.</p>
                     </div>
                 )}
             </div>

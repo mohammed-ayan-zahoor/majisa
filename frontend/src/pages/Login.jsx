@@ -120,10 +120,10 @@ const Login = () => {
             </div>
 
             {/* Right Panel - Interaction */}
-            <div className={`w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-24 relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <div className={`w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-24 relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 <div className="max-w-md w-full mx-auto">
                     {/* Back to Home - Absolute on Mobile, Relative on Desktop */}
-                    <div className="mb-8">
+                    <div className="mb-8 pt-6 lg:pt-0">
                         <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
                             <ArrowRight className="rotate-180" size={16} />
                             Back to Home
@@ -154,10 +154,10 @@ const Login = () => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h2 className={`text-3xl font-serif font-bold mb-2 ${isDark ? 'text-white' : 'text-charcoal-600'}`}>
+                        <h2 className={`text-2xl md:text-3xl font-serif font-bold mb-2 ${isDark ? 'text-white' : 'text-charcoal-600'}`}>
                             {currentConfig.title}
                         </h2>
-                        <p className={`mb-10 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <p className={`mb-8 md:mb-10 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                             Please enter your details to continue.
                         </p>
 

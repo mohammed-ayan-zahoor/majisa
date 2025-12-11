@@ -177,54 +177,46 @@ const Categories = () => {
                 </div>
             </div>
 
-            {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredCategories.map((category) => (
-                    <div key={category._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-primary-50 p-3 rounded-lg text-primary-600 overflow-hidden w-12 h-12 flex items-center justify-center">
-                                    {category.image ? (
-                                        <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Layers size={24} />
-                                    )}
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">{category.name}</h3>
-                                    <p className="text-sm text-gray-500">{category.customFields?.length || 0} Custom Fields</p>
-                                </div>
+                    <div key={category._id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden group">
+                        <div className="relative h-32 bg-gray-100">
+                            <img
+                                src={category.image}
+                                alt={category.name}
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                                <h3 className="text-white font-bold text-lg">{category.name}</h3>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => handleOpenModal(category)}
-                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    className="p-1.5 bg-white text-blue-600 rounded-lg shadow-sm hover:bg-gray-50"
                                 >
-                                    <Edit size={18} />
+                                    <Edit size={14} />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(category._id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    className="p-1.5 bg-white text-red-600 rounded-lg shadow-sm hover:bg-gray-50"
                                 >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={14} />
                                 </button>
                             </div>
                         </div>
-
-                        {category.description && (
-                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{category.description}</p>
-                        )}
-
-                        <div className="space-y-2">
-                            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Fields</h4>
-                            <div className="flex flex-wrap gap-2">
+                        <div className="p-3">
+                            <div className="flex items-center gap-2 mb-2 text-xs text-gray-500 font-medium uppercase tracking-wider">
+                                <Layers size={14} />
+                                <span>Custom Fields ({category.customFields?.length || 0})</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
                                 {category.customFields?.slice(0, 3).map((field, idx) => (
-                                    <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md border border-gray-200">
+                                    <span key={idx} className="px-2 py-0.5 bg-gray-50 text-gray-600 text-[10px] rounded border border-gray-100">
                                         {field.name}
                                     </span>
                                 ))}
-                                {(category.customFields?.length > 3) && (
-                                    <span className="px-2 py-1 bg-gray-50 text-gray-400 text-xs rounded-md">
+                                {category.customFields?.length > 3 && (
+                                    <span className="px-2 py-0.5 bg-gray-50 text-gray-500 text-[10px] rounded border border-gray-100">
                                         +{category.customFields.length - 3} more
                                     </span>
                                 )}

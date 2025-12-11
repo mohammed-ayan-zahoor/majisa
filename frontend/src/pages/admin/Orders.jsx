@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Eye, Clock, CheckCircle, Truck, XCircle, User } from 'lucide-react';
+import { Search, Filter, Eye, Clock, CheckCircle, Truck, XCircle, User, Store } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
 
 const AdminOrders = () => {
@@ -31,81 +31,99 @@ const AdminOrders = () => {
     if (loading) return <div className="p-8 text-center">Loading orders...</div>;
 
     return (
-        <div className="p-8">
-            <div className="mb-8">
-                <h1 className="text-2xl font-serif font-bold text-gray-900">Orders</h1>
-                <p className="text-gray-500">Manage and track all orders</p>
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
+                <div>
+                    <h1 className="text-xl font-serif font-bold text-gray-900">Orders</h1>
+                    <p className="text-xs text-gray-500 hidden md:block">Manage and track vendor orders</p>
+                </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 justify-between">
-                <div className="relative flex-1 max-w-md">
-                    <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row gap-3">
+                <div className="flex-1 relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Search by Order ID or Customer..."
+                        placeholder="Search by Order ID..."
+                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                     />
                 </div>
-                <div className="flex items-center gap-2">
-                    <Filter size={20} className="text-gray-400" />
-                    <select
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        className="border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-primary-500"
-                    >
-                        <option value="All">All Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Accepted">Accepted</option>
-                        <option value="In Process">In Process</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Dispatched">Dispatched</option>
-                        <option value="Delivered">Delivered</option>
-                    </select>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
+                    {['All', 'Pending', 'In Process', 'Completed', 'Cancelled'].map(status => (
+                        <button
+                            key={status}
+                            onClick={() => setFilterStatus(status)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${filterStatus === status
+                                ? 'bg-primary-600 text-white'
+                                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                                }`}
+                        >
+                            {status}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Orders Table */}
+            {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                        <thead className="bg-gray-50 text-gray-500 text-[10px] uppercase font-medium">
                             <tr>
-                                <th className="px-6 py-4">Order ID</th>
-                                <th className="px-6 py-4">Date</th>
-                                <th className="px-6 py-4">Customer</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4">Goldsmith</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
+                                <th className="px-4 py-2">Order ID</th>
+                                <th className="px-4 py-2">Vendor</th>
+                                <th className="px-4 py-2">Items</th>
+                                <th className="px-4 py-2">Total</th>
+                                <th className="px-4 py-2">Date</th>
+                                <th className="px-4 py-2">Status</th>
+                                <th className="px-4 py-2 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {filteredOrders.map((order) => (
                                 <tr key={order._id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-medium text-primary-600">#{order._id.substring(0, 8)}...</td>
-                                    <td className="px-6 py-4 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 py-3 font-medium text-primary-600 text-xs">
+                                        #{order._id.slice(-6).toUpperCase()}
+                                    </td>
+                                    <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
-                                            <User size={16} className="text-gray-400" />
-                                            <span className="text-gray-900">{order.user ? order.user.name : 'Unknown'}</span>
+                                            <div className="bg-gray-100 p-1.5 rounded-full">
+                                                <Store size={14} className="text-gray-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-900">{order.user?.businessName || 'Unknown'}</p>
+                                                <p className="text-[10px] text-gray-500">{order.user?.name}</p>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                            {order.status}
-                                        </span>
+                                    <td className="px-4 py-3 text-gray-600 text-xs">
+                                        {order.orderItems?.length || 0} items
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600">
-                                        {order.goldsmith ? 'Assigned' : <span className="text-gray-400 italic">Unassigned</span>}
+                                    <td className="px-4 py-3 font-medium text-sm">₹{order.totalPrice?.toLocaleString()}</td>
+                                    <td className="px-4 py-3 text-gray-500 text-xs">
+                                        {new Date(order.createdAt).toLocaleDateString()}
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-4 py-3">
+                                        <select
+                                            value={order.status}
+                                            onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                                            className={`px-2 py-1 rounded-lg text-[10px] font-medium border-0 cursor-pointer focus:ring-1 focus:ring-primary-500 ${getStatusColor(order.status)}`}
+                                        >
+                                            <option value="Pending">Pending</option>
+                                            <option value="In Process">In Process</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
                                         <Link
                                             to={`/admin/orders/${order._id}`}
-                                            className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium text-sm"
+                                            className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                                         >
-                                            View Details
+                                            <Eye size={16} />
                                         </Link>
                                     </td>
                                 </tr>

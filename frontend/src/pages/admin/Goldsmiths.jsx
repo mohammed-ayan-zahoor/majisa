@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, UserCheck, UserX, X } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, UserCheck, UserX, X, Hammer, Edit2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -85,9 +85,9 @@ const AdminGoldsmiths = () => {
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-700 transition-colors whitespace-nowrap"
+                    className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
                 >
-                    <Plus size={20} />
+                    <Plus size={16} />
                     <span className="hidden md:inline">Add Goldsmith</span>
                     <span className="md:hidden">Add</span>
                 </button>
@@ -108,49 +108,59 @@ const AdminGoldsmiths = () => {
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                    <table className="w-full text-left min-w-[600px]">
+                        <thead className="bg-gray-50 text-gray-500 text-[10px] uppercase font-medium">
                             <tr>
-                                <th className="px-6 py-4">Name</th>
-                                <th className="px-6 py-4">Contact</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
+                                <th className="px-4 py-2">Name</th>
+                                <th className="px-4 py-2">Contact</th>
+                                <th className="px-4 py-2">Status</th>
+                                <th className="px-4 py-2 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {goldsmiths.map((goldsmith) => (
                                 <tr key={goldsmith._id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-medium text-gray-900">{goldsmith.name}</td>
-                                    <td className="px-6 py-4 text-gray-600">
-                                        <div>{goldsmith.email}</div>
-                                        <div className="text-xs text-gray-400">{goldsmith.phone}</div>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="bg-primary-50 p-1.5 rounded-full text-primary-600">
+                                                <Hammer size={14} />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900 text-sm">{goldsmith.name}</p>
+                                                <p className="text-[10px] text-gray-500">{goldsmith.role}</p>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${goldsmith.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                                    <td className="px-4 py-3 text-gray-600">
+                                        <div className="text-xs">{goldsmith.email}</div>
+                                        <div className="text-[10px] text-gray-400">{goldsmith.phone}</div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${goldsmith.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                                             }`}>
                                             {goldsmith.status || 'Active'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-1">
                                             <button
                                                 onClick={() => handleToggleStatus(goldsmith._id, goldsmith.status)}
-                                                className={`p-2 rounded-lg transition-colors ${goldsmith.status === 'Active'
+                                                className={`p-1.5 rounded-lg transition-colors ${goldsmith.status === 'Active'
                                                     ? 'text-orange-500 hover:bg-orange-50'
                                                     : 'text-green-600 hover:bg-green-50'
                                                     }`}
                                                 title={goldsmith.status === 'Active' ? 'Deactivate' : 'Activate'}
                                             >
-                                                {goldsmith.status === 'Active' ? <UserX size={18} /> : <UserCheck size={18} />}
+                                                {goldsmith.status === 'Active' ? <UserX size={16} /> : <UserCheck size={16} />}
                                             </button>
-                                            <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
-                                                <Edit size={18} />
+                                            <button className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                                                <Edit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(goldsmith._id)}
-                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                             >
-                                                <Trash2 size={18} />
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
                                     </td>
