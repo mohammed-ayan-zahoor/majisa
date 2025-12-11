@@ -78,9 +78,9 @@ userSchema.methods.getResetPasswordToken = function () {
 };
 
 // Encrypt password using bcrypt
-userSchema.pre('save', async function (next) { // Adjusted to accept next
+userSchema.pre('save', async function () {
     if (!this.isModified('password')) {
-        next(); // Call next
+        return;
     }
 
     const salt = await bcrypt.genSalt(10);
