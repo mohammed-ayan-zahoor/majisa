@@ -29,9 +29,10 @@ const forgotPassword = async (req, res) => {
     // OR we explicitly construct the frontend URL because the link is for the USER to click in email.
     // Let's assume standard frontend route /resetpassword/:token
 
-    const frontendUrl = process.env.NODE_ENV === 'production'
-        ? `https://majisa.co.in/resetpassword/${resetToken}`
-        : `http://localhost:5173/resetpassword/${resetToken}`;
+    const baseUrl = process.env.BASE_URL ||
+        (process.env.NODE_ENV === 'production' ? 'https://majisa.co.in' : 'http://localhost:5173');
+
+    const frontendUrl = `${baseUrl}/resetpassword/${resetToken}`;
 
     const message = `
       <h1>You have requested a password reset</h1>
