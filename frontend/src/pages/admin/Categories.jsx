@@ -148,31 +148,32 @@ const Categories = () => {
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-serif font-bold text-gray-900">Categories</h1>
-                    <p className="text-gray-500">Manage product categories and custom fields</p>
+                    <h1 className="text-xl font-serif font-bold text-gray-900">Categories</h1>
+                    <p className="text-xs text-gray-500 hidden md:block">Manage product categories and custom fields</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-700 transition-colors"
+                    className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg flex items-center gap-2 hover:bg-primary-700 transition-colors whitespace-nowrap"
                 >
-                    <Plus size={20} />
-                    Add Category
+                    <Plus size={16} />
+                    <span className="hidden md:inline">Add Category</span>
+                    <span className="md:hidden">Add</span>
                 </button>
             </div>
 
             {/* Search */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
                 <div className="relative">
-                    <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search categories..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                     />
                 </div>
             </div>
@@ -187,9 +188,9 @@ const Categories = () => {
                                 className="w-full h-full object-cover"
                             />
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                                <h3 className="text-white font-bold text-lg">{category.name}</h3>
+                                <h3 className="text-white font-bold text-md">{category.name}</h3>
                             </div>
-                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute top-2 right-2 flex gap-1 group-hover:opacity-100 transition-opacity md:opacity-0 opacity-100">
                                 <button
                                     onClick={() => handleOpenModal(category)}
                                     className="p-1.5 bg-white text-blue-600 rounded-lg shadow-sm hover:bg-gray-50"
