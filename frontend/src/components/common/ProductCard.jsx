@@ -27,7 +27,9 @@ const ProductCard = ({ product }) => {
                     )}
 
                     {/* Hover Actions */}
-                    <div className="absolute inset-x-3 bottom-3 translate-y-[120%] group-hover:translate-y-0 transition-transform duration-300 flex gap-2 z-10">
+                    {/* Actions - Always visible on mobile, Hover on Desktop */}
+                    <div className="absolute inset-x-3 bottom-3 flex gap-2 z-10 transition-all duration-300
+                        translate-y-0 lg:translate-y-[120%] lg:group-hover:translate-y-0">
                         <button
                             onClick={() => setShowQuickView(true)}
                             className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-3 text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"

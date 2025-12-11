@@ -162,7 +162,7 @@ const Home = () => {
             {/* Featured Products - Clean & Spacious */}
             <section className="bg-white py-24">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                         <div>
                             <span className="text-gold-600 uppercase tracking-widest text-xs font-bold mb-2 block">New Arrivals</span>
                             <h2 className="text-3xl md:text-4xl font-serif text-charcoal-500">Featured Collection</h2>

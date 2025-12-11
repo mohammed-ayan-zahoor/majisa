@@ -115,11 +115,37 @@ const Header = () => {
                         <Link to="/products?category=necklaces" onClick={() => setIsMenuOpen(false)}>Necklaces</Link>
                         <Link to="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link>
                         <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-                        {(user?.role === 'admin' || user?.role === 'vendor') && (
-                            <Link to={user.role === 'admin' ? "/admin/dashboard" : "/vendor/dashboard"} onClick={() => setIsMenuOpen(false)} className="font-bold hover:text-gold-500 transition-colors">
-                                {user.role === 'admin' ? 'Admin Dashboard' : 'Vendor Dashboard'}
-                            </Link>
-                        )}
+
+                        <div className="pt-4 border-t border-gray-100 flex flex-col gap-4">
+                            {user ? (
+                                <>
+                                    {(user.role === 'admin' || user.role === 'vendor') && (
+                                        <Link to={user.role === 'admin' ? "/admin/dashboard" : "/vendor/dashboard"} onClick={() => setIsMenuOpen(false)} className="font-bold text-primary-600">
+                                            Dashboard
+                                        </Link>
+                                    )}
+                                    <button
+                                        onClick={() => { logout(); setIsMenuOpen(false); }}
+                                        className="text-left text-red-500 font-medium"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/login" onClick={() => setIsMenuOpen(false)} className="text-charcoal-500">
+                                        Login
+                                    </Link>
+                                    <Link to="/login?role=vendor" onClick={() => setIsMenuOpen(false)} className="text-gold-600 font-medium flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 512 512">
+                                            <path d="M35.42 188.21l207.75 269.46a16.17 16.17 0 0025.66 0l207.75-269.46a16.52 16.52 0 00.95-18.75L407.06 55.71A16.22 16.22 0 00393.27 48H118.73a16.22 16.22 0 00-13.79 7.71L34.47 169.46a16.52 16.52 0 00.95 18.75zM48 176h416" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="32" />
+                                            <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="32" d="M400 64l-48 112-96-128M112 64l48 112 96-128M256 448l-96-272M256 448l96-272" />
+                                        </svg>
+                                        Vendor Login
+                                    </Link>
+                                </>
+                            )}
+                        </div>
                     </nav>
                 </div>
             )}
