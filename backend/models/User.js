@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = mongoose.Schema({
     name: {
@@ -43,9 +44,6 @@ const userSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
-    const crypto = require('crypto');
-
-    // ... (existing schema definition)
     referralCode: {
         type: String,
         unique: true,

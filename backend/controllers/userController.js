@@ -12,7 +12,7 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-        res.status(404).send('User not found');
+        res.status(404).json({ message: 'User not found' });
         return;
     }
 
@@ -54,7 +54,7 @@ const forgotPassword = async (req, res) => {
 
         await user.save({ validateBeforeSave: false });
 
-        res.status(500).send('Email could not be sent');
+        res.status(500).json({ message: 'Email could not be sent', error: error.message });
     }
 };
 
@@ -74,7 +74,7 @@ const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-        res.status(400).send('Invalid token');
+        res.status(400).json({ message: 'Invalid token' });
         return;
     }
 
@@ -353,6 +353,31 @@ const getUserById = async (req, res) => {
     }
 };
 
+// @desc    Update user password
+// @route   PUT /api/users/profile/password
+// @access  Private
+const updateUserPassword = async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        if (req.body.password) {
+            user.password = req.body.password;
+            const updatedUser = await user.save();
+            res.json({
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                token: generateToken(updatedUser._id),
+            });
+        } else {
+            res.status(400).send('No password provided');
+        }
+    } else {
+        res.status(404).send('User not found');
+    }
+};
+
 module.exports = {
     authUser,
     registerUser,
@@ -366,5 +391,6 @@ module.exports = {
     getCustomerVisits,
     getUserById,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateUserPassword
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { User, Lock, ArrowRight, Loader, Hexagon, Gem } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -195,9 +195,9 @@ const Login = () => {
                                     <input type="checkbox" className={`rounded border-gray-300 ${isDark ? 'bg-white/10 border-transparent text-gold-500 focus:ring-offset-charcoal-600' : 'text-primary-600'} focus:ring-0`} />
                                     <span className={`ml-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Remember me</span>
                                 </label>
-                                <a href="#" className={`font-medium ${isDark ? 'text-gold-400 hover:text-gold-300' : 'text-primary-600 hover:text-primary-500'}`}>
+                                <Link to="/forgotpassword" className={`font-medium ${isDark ? 'text-gold-400 hover:text-gold-300' : 'text-primary-600 hover:text-primary-500'}`}>
                                     Forgot password?
-                                </a>
+                                </Link>
                             </div>
 
                             <button

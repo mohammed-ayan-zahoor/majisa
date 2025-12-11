@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -30,6 +31,40 @@ const addOrderItems = async (req, res) => {
         });
 
         const createdOrder = await order.save();
+
+        // Send Email Notification
+        try {
+            // Email to Vendor
+            await sendEmail({
+                email: req.user.email,
+                subject: `Order Confirmation - #${createdOrder._id}`,
+                message: `
+                    <h1>Order Received</h1>
+                    <p>Hi ${req.user.name},</p>
+                    <p>We have received your order. Order ID: ${createdOrder._id}</p>
+                    <p>Total Amount: ₹${totalPrice?.toLocaleString()}</p>
+                    <p>We will notify you once it is processed.</p>
+                `
+            });
+
+            // Email to Admin (Optional: sends to the sender/admin email)
+            if (process.env.EMAIL_FROM) {
+                await sendEmail({
+                    email: process.env.EMAIL_FROM,
+                    subject: `New Order Received - #${createdOrder._id}`,
+                    message: `
+                        <h1>New Order Alert</h1>
+                        <p>Vendor: ${req.user.name} (${req.user.businessName})</p>
+                        <p>Order ID: ${createdOrder._id}</p>
+                        <p>Total Amount: ₹${totalPrice?.toLocaleString()}</p>
+                    `
+                });
+            }
+
+        } catch (error) {
+            console.error('Order Email Logic Error:', error);
+            // We don't want to fail the order creation just because email failed
+        }
 
         res.status(201).json(createdOrder);
     }

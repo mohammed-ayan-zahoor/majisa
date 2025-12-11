@@ -13,7 +13,8 @@ const {
     getCustomerVisits,
     getUserById,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateUserPassword
 } = require('../controllers/userController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -21,6 +22,7 @@ router.post('/', registerUser);
 router.post('/login', authUser);
 router.post('/forgotpassword', forgotPassword);
 router.put('/resetpassword/:resetToken', resetPassword);
+router.put('/profile/password', protect, updateUserPassword);
 router.post('/verify-referral', verifyReferral);
 router.get('/visits', protect, admin, getCustomerVisits);
 router.route('/profile').get(protect, getUserProfile);

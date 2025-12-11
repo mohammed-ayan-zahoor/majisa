@@ -57,7 +57,7 @@ const AdminSettings = () => {
             return;
         }
         try {
-            await api.put('/users/profile', {
+            await api.put('/users/profile/password', {
                 password: passwordData.new,
                 // We might need to send current password for verification depending on backend implementation
                 // For now assuming standard profile update
