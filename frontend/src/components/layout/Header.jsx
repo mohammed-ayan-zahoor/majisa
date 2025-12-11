@@ -22,10 +22,26 @@ const Header = () => {
     }, []);
 
     // Header style based on scroll and page
-    const headerClass = `fixed w-full z-50 transition-all duration-300 ${isScrolled
-        ? 'bg-white/95 backdrop-blur-md text-charcoal-500 shadow-sm py-4'
-        : `bg-transparent py-6 ${isHome ? 'text-white' : 'text-transparent opacity-0 pointer-events-none'}`
-        }`;
+    const getHeaderClass = () => {
+        // Base classes
+        let classes = 'fixed w-full z-[100] transition-all duration-300 ';
+
+        if (isHome) {
+            // Home Page: Transparent at top, White when scrolled
+            if (isScrolled) {
+                classes += 'bg-white shadow-sm py-4 text-charcoal-500';
+            } else {
+                classes += 'bg-transparent py-6 text-white';
+            }
+        } else {
+            // Other Pages: Always White and Visible
+            classes += 'bg-white shadow-sm py-4 text-charcoal-500';
+        }
+
+        return classes;
+    };
+
+    const headerClass = getHeaderClass();
 
     return (
         <header className={headerClass}>

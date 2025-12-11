@@ -36,7 +36,7 @@ const Products = () => {
     return (
         <div className="bg-white min-h-screen">
             {/* Header */}
-            <div className="bg-primary-900 text-white py-12">
+            <div className="bg-primary-900 text-white py-12 pt-24">
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl font-serif font-bold mb-4">Our Collection</h1>
                     <p className="text-primary-100">Discover our exquisite range of handcrafted jewellery</p>

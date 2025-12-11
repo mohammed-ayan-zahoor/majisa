@@ -122,6 +122,14 @@ const Login = () => {
             {/* Right Panel - Interaction */}
             <div className={`w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-24 relative ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 <div className="max-w-md w-full mx-auto">
+                    {/* Back to Home - Absolute on Mobile, Relative on Desktop */}
+                    <div className="mb-8">
+                        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+                            <ArrowRight className="rotate-180" size={16} />
+                            Back to Home
+                        </Link>
+                    </div>
+
                     {/* Role Navigation */}
                     {!roleParam && (
                         <div className="flex gap-6 mb-12 overflow-x-auto pb-2 scrollbar-hide">
