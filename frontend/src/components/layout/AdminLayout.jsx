@@ -32,7 +32,7 @@ const AdminLayout = () => {
     return (
         <div className="min-h-screen bg-gray-100 flex">
             {/* Mobile Header */}
-            <div className="lg:hidden fixed top-0 w-full bg-gray-900 text-white z-50 px-4 py-3 flex items-center justify-between">
+            <div className="lg:hidden fixed top-0 w-full bg-gray-900 text-white z-[60] px-4 py-3 flex items-center justify-between">
                 <span className="font-serif font-bold">MAJISA ADMIN</span>
                 <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                     {isSidebarOpen ? <LogOut className="rotate-180" size={24} /> : <div className="space-y-1.5">
