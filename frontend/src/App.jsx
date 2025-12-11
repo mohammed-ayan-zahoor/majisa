@@ -46,9 +46,12 @@ const NotFound = () => <div className="p-10 text-center">404 Not Found</div>;
 
 import ReferralGate from './components/common/ReferralGate';
 
+import PageTitleUpdater from './components/common/PageTitleUpdater';
+
 function App() {
   return (
     <BrowserRouter>
+      <PageTitleUpdater />
       <AuthProvider>
         <CartProvider>
           <OrderProvider>
