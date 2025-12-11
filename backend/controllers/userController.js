@@ -54,7 +54,7 @@ const forgotPassword = async (req, res) => {
 
         await user.save({ validateBeforeSave: false });
 
-        res.status(500).json({ message: 'Email could not be sent', error: error.message });
+        res.status(500).json({ message: `Email failed: ${error.message}` });
     }
 };
 
