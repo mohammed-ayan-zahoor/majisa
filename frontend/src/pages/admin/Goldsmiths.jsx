@@ -78,17 +78,18 @@ const AdminGoldsmiths = () => {
 
     return (
         <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-2xl font-serif font-bold text-gray-900">Goldsmiths</h1>
-                    <p className="text-gray-500">Manage your manufacturing team</p>
+                    <p className="text-gray-500 hidden md:block">Manage your manufacturing team</p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-700 transition-colors"
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary-700 transition-colors whitespace-nowrap"
                 >
                     <Plus size={20} />
-                    Add Goldsmith
+                    <span className="hidden md:inline">Add Goldsmith</span>
+                    <span className="md:hidden">Add</span>
                 </button>
             </div>
 
@@ -106,56 +107,58 @@ const AdminGoldsmiths = () => {
 
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
-                        <tr>
-                            <th className="px-6 py-4">Name</th>
-                            <th className="px-6 py-4">Contact</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {goldsmiths.map((goldsmith) => (
-                            <tr key={goldsmith._id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 font-medium text-gray-900">{goldsmith.name}</td>
-                                <td className="px-6 py-4 text-gray-600">
-                                    <div>{goldsmith.email}</div>
-                                    <div className="text-xs text-gray-400">{goldsmith.phone}</div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${goldsmith.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                                        }`}>
-                                        {goldsmith.status || 'Active'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button
-                                            onClick={() => handleToggleStatus(goldsmith._id, goldsmith.status)}
-                                            className={`p-2 rounded-lg transition-colors ${goldsmith.status === 'Active'
-                                                ? 'text-orange-500 hover:bg-orange-50'
-                                                : 'text-green-600 hover:bg-green-50'
-                                                }`}
-                                            title={goldsmith.status === 'Active' ? 'Deactivate' : 'Activate'}
-                                        >
-                                            {goldsmith.status === 'Active' ? <UserX size={18} /> : <UserCheck size={18} />}
-                                        </button>
-                                        <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
-                                            <Edit size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(goldsmith._id)}
-                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                            <tr>
+                                <th className="px-6 py-4">Name</th>
+                                <th className="px-6 py-4">Contact</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {goldsmiths.map((goldsmith) => (
+                                <tr key={goldsmith._id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-gray-900">{goldsmith.name}</td>
+                                    <td className="px-6 py-4 text-gray-600">
+                                        <div>{goldsmith.email}</div>
+                                        <div className="text-xs text-gray-400">{goldsmith.phone}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${goldsmith.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                                            }`}>
+                                            {goldsmith.status || 'Active'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleToggleStatus(goldsmith._id, goldsmith.status)}
+                                                className={`p-2 rounded-lg transition-colors ${goldsmith.status === 'Active'
+                                                    ? 'text-orange-500 hover:bg-orange-50'
+                                                    : 'text-green-600 hover:bg-green-50'
+                                                    }`}
+                                                title={goldsmith.status === 'Active' ? 'Deactivate' : 'Activate'}
+                                            >
+                                                {goldsmith.status === 'Active' ? <UserX size={18} /> : <UserCheck size={18} />}
+                                            </button>
+                                            <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                                                <Edit size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(goldsmith._id)}
+                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
                 {goldsmiths.length === 0 && (
                     <div className="p-8 text-center text-gray-500">

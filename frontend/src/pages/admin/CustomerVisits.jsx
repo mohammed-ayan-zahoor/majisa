@@ -89,17 +89,18 @@ const CustomerVisits = () => {
 
     return (
         <div className="p-8">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-2xl font-serif font-bold text-gray-900">Customer Visits</h1>
-                    <p className="text-gray-500">Track customers entering via Referral Codes</p>
+                    <p className="text-gray-500 hidden md:block">Track customers entering via Referral Codes</p>
                 </div>
                 <button
                     onClick={exportPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap"
                 >
                     <Printer size={18} />
-                    Export PDF
+                    <span className="hidden md:inline">Export PDF</span>
+                    <span className="md:hidden">PDF</span>
                 </button>
             </div>
 
@@ -133,52 +134,54 @@ const CustomerVisits = () => {
 
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
-                        <tr>
-                            <th className="px-6 py-4">Customer</th>
-                            <th className="px-6 py-4">Contact</th>
-                            <th className="px-6 py-4">Referred By (Vendor)</th>
-                            <th className="px-6 py-4">Code Used</th>
-                            <th className="px-6 py-4">Time</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {filteredVisits.map((visit) => (
-                            <tr key={visit._id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-primary-50 p-2 rounded-full text-primary-600">
-                                            <User size={16} />
-                                        </div>
-                                        <span className="font-medium text-gray-900">{visit.name}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-gray-600">
-                                    <div className="flex items-center gap-2">
-                                        <Phone size={14} className="text-gray-400" />
-                                        {visit.phone}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <Store size={14} className="text-gray-400" />
-                                        {visit.vendor?.businessName || visit.vendor?.name || 'Unknown Vendor'}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 font-mono text-xs text-primary-600 bg-primary-50 inline-block rounded px-2 py-1 mt-3">
-                                    {visit.referralCode}
-                                </td>
-                                <td className="px-6 py-4 text-gray-500 text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar size={14} className="text-gray-400" />
-                                        {new Date(visit.visitedAt).toLocaleString()}
-                                    </div>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                            <tr>
+                                <th className="px-6 py-4">Customer</th>
+                                <th className="px-6 py-4">Contact</th>
+                                <th className="px-6 py-4">Referred By (Vendor)</th>
+                                <th className="px-6 py-4">Code Used</th>
+                                <th className="px-6 py-4">Time</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {filteredVisits.map((visit) => (
+                                <tr key={visit._id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-primary-50 p-2 rounded-full text-primary-600">
+                                                <User size={16} />
+                                            </div>
+                                            <span className="font-medium text-gray-900">{visit.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">
+                                        <div className="flex items-center gap-2">
+                                            <Phone size={14} className="text-gray-400" />
+                                            {visit.phone}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2 text-gray-700">
+                                            <Store size={14} className="text-gray-400" />
+                                            {visit.vendor?.businessName || visit.vendor?.name || 'Unknown Vendor'}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 font-mono text-xs text-primary-600 bg-primary-50 inline-block rounded px-2 py-1 mt-3">
+                                        {visit.referralCode}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-500 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar size={14} className="text-gray-400" />
+                                            {new Date(visit.visitedAt).toLocaleString()}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
                 {filteredVisits.length === 0 && (
                     <div className="p-8 text-center text-gray-500">

@@ -129,7 +129,7 @@ const VendorDashboard = () => {
                     <h3 className="font-bold text-gray-900">Recent Orders</h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
+                    <table className="w-full text-left text-sm min-w-[600px]">
                         <thead className="bg-gray-50 text-gray-500">
                             <tr>
                                 <th className="px-6 py-3 font-medium">Order ID</th>

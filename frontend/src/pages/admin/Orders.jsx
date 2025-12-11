@@ -69,48 +69,50 @@ const AdminOrders = () => {
 
             {/* Orders Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
-                        <tr>
-                            <th className="px-6 py-4">Order ID</th>
-                            <th className="px-6 py-4">Date</th>
-                            <th className="px-6 py-4">Customer</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4">Goldsmith</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {filteredOrders.map((order) => (
-                            <tr key={order._id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 font-medium text-primary-600">#{order._id.substring(0, 8)}...</td>
-                                <td className="px-6 py-4 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <User size={16} className="text-gray-400" />
-                                        <span className="text-gray-900">{order.user ? order.user.name : 'Unknown'}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-gray-600">
-                                    {order.goldsmith ? 'Assigned' : <span className="text-gray-400 italic">Unassigned</span>}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <Link
-                                        to={`/admin/orders/${order._id}`}
-                                        className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium text-sm"
-                                    >
-                                        View Details
-                                    </Link>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                            <tr>
+                                <th className="px-6 py-4">Order ID</th>
+                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4">Customer</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Goldsmith</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {filteredOrders.map((order) => (
+                                <tr key={order._id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-primary-600">#{order._id.substring(0, 8)}...</td>
+                                    <td className="px-6 py-4 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            <User size={16} className="text-gray-400" />
+                                            <span className="text-gray-900">{order.user ? order.user.name : 'Unknown'}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">
+                                        {order.goldsmith ? 'Assigned' : <span className="text-gray-400 italic">Unassigned</span>}
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <Link
+                                            to={`/admin/orders/${order._id}`}
+                                            className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium text-sm"
+                                        >
+                                            View Details
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
                 {filteredOrders.length === 0 && (
                     <div className="p-12 text-center text-gray-500">

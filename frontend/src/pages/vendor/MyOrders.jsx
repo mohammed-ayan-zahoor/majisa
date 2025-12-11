@@ -68,42 +68,44 @@ const MyOrders = () => {
 
             {/* Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
-                        <tr>
-                            <th className="px-6 py-4">Order ID</th>
-                            <th className="px-6 py-4">Date</th>
-                            <th className="px-6 py-4">Items</th>
-                            <th className="px-6 py-4">Total Amount</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {filteredOrders.map((order) => (
-                            <tr key={order._id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 font-medium text-primary-600">#{order._id.slice(-6).toUpperCase()}</td>
-                                <td className="px-6 py-4 text-gray-500">
-                                    {new Date(order.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 text-gray-600">
-                                    {order.orderItems?.length || 0} items
-                                </td>
-                                <td className="px-6 py-4 font-medium">₹{order.totalPrice?.toLocaleString()}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
-                                        <Eye size={18} />
-                                    </button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-medium">
+                            <tr>
+                                <th className="px-6 py-4">Order ID</th>
+                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4">Items</th>
+                                <th className="px-6 py-4">Total Amount</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4 text-right">Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {filteredOrders.map((order) => (
+                                <tr key={order._id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-primary-600">#{order._id.slice(-6).toUpperCase()}</td>
+                                    <td className="px-6 py-4 text-gray-500">
+                                        {new Date(order.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">
+                                        {order.orderItems?.length || 0} items
+                                    </td>
+                                    <td className="px-6 py-4 font-medium">₹{order.totalPrice?.toLocaleString()}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                                            <Eye size={18} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
                 {filteredOrders.length === 0 && (
                     <div className="p-8 text-center text-gray-500">
