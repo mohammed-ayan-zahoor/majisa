@@ -11,6 +11,8 @@ import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
 import VendorRegister from './pages/VendorRegister';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -77,6 +79,8 @@ function App() {
               {/* Auth Routes (No Header/Footer) */}
               <Route path="/login" element={<Login />} />
               <Route path="/vendor-register" element={<VendorRegister />} />
+              <Route path="/forgotpassword" element={<ForgotPassword />} />
+              <Route path="/resetpassword/:resetToken" element={<ResetPassword />} />
 
               {/* Admin Routes */}
               {/* Admin Routes */}

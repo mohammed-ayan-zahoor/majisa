@@ -130,8 +130,8 @@ const Login = () => {
                                     key={r}
                                     onClick={() => setRole(r)}
                                     className={`text-xs font-bold uppercase tracking-widest transition-all duration-300 ${role === r
-                                            ? `${isDark ? 'text-gold-400 border-b-2 border-gold-400' : 'text-primary-600 border-b-2 border-primary-600'} pb-1`
-                                            : `${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`
+                                        ? `${isDark ? 'text-gold-400 border-b-2 border-gold-400' : 'text-primary-600 border-b-2 border-primary-600'} pb-1`
+                                        : `${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`
                                         }`}
                                 >
                                     {r}

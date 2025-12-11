@@ -1,5 +1,96 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
+
+// ... (existing generateToken)
+
+// @desc    Forgot Password
+// @route   POST /api/users/forgotpassword
+// @access  Public
+const forgotPassword = async (req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+        res.status(404).send('User not found');
+        return;
+    }
+
+    // Get reset token
+    const resetToken = user.getResetPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset url
+    const resetUrl = `${req.protocol}://${req.get('host')}/resetpassword/${resetToken}`;
+    // Note: In production, this should ideally point to the Frontend URL, e.g.
+    // const resetUrl = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
+    // But since we are serving frontend from backend in production, logic might hold, 
+    // OR we explicitly construct the frontend URL because the link is for the USER to click in email.
+    // Let's assume standard frontend route /resetpassword/:token
+
+    const frontendUrl = process.env.NODE_ENV === 'production'
+        ? `https://majisa.co.in/resetpassword/${resetToken}`
+        : `http://localhost:5173/resetpassword/${resetToken}`;
+
+    const message = `
+      <h1>You have requested a password reset</h1>
+      <p>Please go to this link to reset your password:</p>
+      <a href=${frontendUrl} clicktracking=off>${frontendUrl}</a>
+    `;
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Password Reset Request',
+            message,
+        });
+
+        res.status(200).json({ success: true, data: 'Email sent' });
+    } catch (error) {
+        console.log("Email send error: ", error);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save({ validateBeforeSave: false });
+
+        res.status(500).send('Email could not be sent');
+    }
+};
+
+// @desc    Reset Password
+// @route   PUT /api/users/resetpassword/:resetToken
+// @access  Public
+const resetPassword = async (req, res) => {
+    // Get hashed token
+    const resetPasswordToken = crypto
+        .createHash('sha256')
+        .update(req.params.resetToken)
+        .digest('hex');
+
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        res.status(400).send('Invalid token');
+        return;
+    }
+
+    // Set new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(201).json({
+        success: true,
+        data: 'Password updated success',
+        token: generateToken(user._id),
+    });
+};
 
 // Generate JWT
 const generateToken = (id) => {
@@ -262,4 +353,18 @@ const getUserById = async (req, res) => {
     }
 };
 
-module.exports = { authUser, registerUser, getUserProfile, getUsers, updateUserStatus, deleteUser, createUser, updateUser, verifyReferral, getCustomerVisits, getUserById };
+module.exports = {
+    authUser,
+    registerUser,
+    getUserProfile,
+    getUsers,
+    updateUserStatus,
+    deleteUser,
+    createUser,
+    updateUser,
+    verifyReferral,
+    getCustomerVisits,
+    getUserById,
+    forgotPassword,
+    resetPassword
+};
