@@ -14,7 +14,7 @@ const Login = () => {
     const searchParams = new URLSearchParams(location.search);
     const roleParam = searchParams.get('role');
 
-    const [role, setRole] = useState(roleParam || 'customer');
+    const [role, setRole] = useState(roleParam || 'admin');
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -125,7 +125,7 @@ const Login = () => {
                     {/* Role Navigation */}
                     {!roleParam && (
                         <div className="flex gap-6 mb-12 overflow-x-auto pb-2 scrollbar-hide">
-                            {['customer', 'goldsmith', 'vendor', 'admin'].map((r) => (
+                            {['admin', 'goldsmith'].map((r) => (
                                 <button
                                     key={r}
                                     onClick={() => setRole(r)}

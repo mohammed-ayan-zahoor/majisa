@@ -317,12 +317,26 @@ const verifyReferral = async (req, res) => {
     if (vendor) {
         // Track the visit if name and phone are provided
         if (name && phone) {
-            await CustomerVisit.create({
-                name,
-                phone,
-                referralCode,
-                vendor: vendor._id
+            // Check if customer visited this vendor today/recently
+            const existingVisit = await CustomerVisit.findOne({
+                vendor: vendor._id,
+                phone: phone,
+                name: name
             });
+
+            if (existingVisit) {
+                // Update timestamp for existing visit
+                existingVisit.visitedAt = Date.now();
+                await existingVisit.save();
+            } else {
+                // Create new visit record
+                await CustomerVisit.create({
+                    name,
+                    phone,
+                    referralCode,
+                    vendor: vendor._id
+                });
+            }
         }
 
         res.json({
