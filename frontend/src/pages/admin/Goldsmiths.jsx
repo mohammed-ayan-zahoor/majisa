@@ -77,11 +77,11 @@ const AdminGoldsmiths = () => {
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-8 gap-4">
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-serif font-bold text-gray-900">Goldsmiths</h1>
-                    <p className="text-gray-500 hidden md:block">Manage your manufacturing team</p>
+                    <h1 className="text-xl font-serif font-bold text-gray-900">Goldsmiths</h1>
+                    <p className="text-xs text-gray-500 hidden md:block">Manage your manufacturing team</p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
@@ -94,13 +94,13 @@ const AdminGoldsmiths = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
                 <div className="relative">
-                    <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search goldsmiths..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                     />
                 </div>
             </div>
