@@ -161,8 +161,9 @@ const AdminVendors = () => {
                             <tr>
                                 <th className="px-4 py-2">Vendor Name</th>
                                 <th className="px-4 py-2">Business Name</th>
+                                <th className="px-4 py-2">Location</th>
                                 <th className="px-4 py-2">Contact</th>
-                                <th className="px-4 py-2">Ref Code</th>
+                                <th className="px-4 py-2">Ref Code/GST</th>
                                 <th className="px-4 py-2">Status</th>
                                 <th className="px-4 py-2 text-right">Actions</th>
                             </tr>
@@ -172,11 +173,18 @@ const AdminVendors = () => {
                                 <tr key={vendor._id} className="hover:bg-gray-50">
                                     <td className="px-4 py-3 font-medium text-gray-900 text-sm">{vendor.name}</td>
                                     <td className="px-4 py-3 text-gray-600 text-sm">{vendor.businessName}</td>
+                                    <td className="px-4 py-3 text-xs text-gray-500">
+                                        <div>{vendor.city}</div>
+                                        <div className="truncate max-w-[150px]">{vendor.address}</div>
+                                    </td>
                                     <td className="px-4 py-3 text-gray-600">
                                         <div className="text-sm">{vendor.email}</div>
                                         <div className="text-xs text-gray-400">{vendor.phone}</div>
                                     </td>
-                                    <td className="px-4 py-3 font-mono text-xs text-primary-600">{vendor.referralCode}</td>
+                                    <td className="px-4 py-3 font-mono text-xs text-primary-600">
+                                        <div>{vendor.referralCode}</div>
+                                        {vendor.gst && <div className="text-gray-500 text-[10px]">{vendor.gst}</div>}
+                                    </td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${vendor.status === 'Approved' ? 'bg-green-100 text-green-700' :
                                             vendor.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
@@ -261,6 +269,17 @@ const AdminVendors = () => {
                             <input type="email" placeholder="Email" required className="w-full p-2 border rounded" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                             <input type="password" placeholder="New Password (leave blank to keep current)" className="w-full p-2 border rounded" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
                             <input type="text" placeholder="Business Name" className="w-full p-2 border rounded" value={formData.businessName} onChange={e => setFormData({ ...formData, businessName: e.target.value })} />
+                            <div className="grid grid-cols-2 gap-2">
+                                <input type="text" placeholder="Phone" className="w-full p-2 border rounded" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                                <input type="text" placeholder="GST" className="w-full p-2 border rounded" value={formData.gst} onChange={e => setFormData({ ...formData, gst: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <input type="text" placeholder="City" className="w-full p-2 border rounded" value={formData.city} onChange={e => setFormData({ ...formData, city: e.target.value })} />
+                                <div className="relative"> {/* State is not in formData initial state, adding safely */}
+                                    <input type="text" placeholder="State" className="w-full p-2 border rounded" value={formData.state || ''} onChange={e => setFormData({ ...formData, state: e.target.value })} />
+                                </div>
+                            </div>
+                            <textarea placeholder="Address" rows="2" className="w-full p-2 border rounded" value={formData.address || ''} onChange={e => setFormData({ ...formData, address: e.target.value })}></textarea>
                             <input type="text" placeholder="Referral Code" className="w-full p-2 border rounded font-mono" value={formData.referralCode} onChange={e => setFormData({ ...formData, referralCode: e.target.value })} />
                             <div className="flex justify-end gap-2 mt-6">
                                 <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>

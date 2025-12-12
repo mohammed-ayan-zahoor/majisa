@@ -22,17 +22,48 @@ const AdminOrders = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this order?')) {
-            try {
-                await api.delete(`/orders/${id}`);
-                toast.success('Order deleted');
-                refreshOrders();
-            } catch (error) {
-                console.error(error);
-                toast.error('Failed to delete order');
-            }
-        }
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div className="flex flex-col gap-2">
+                <p className="font-medium text-sm text-gray-800">
+                    Are you sure you want to delete this order?
+                </p>
+                <div className="flex justify-end gap-2 mt-1">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-md border border-gray-200"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await api.delete(`/orders/${id}`);
+                                toast.success('Order deleted');
+                                refreshOrders();
+                            } catch (error) {
+                                console.error(error);
+                                toast.error('Failed to delete order');
+                            }
+                        }}
+                        className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-md shadow-sm"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+            style: {
+                background: '#fff',
+                padding: '16px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                border: '1px solid #f3f4f6',
+            },
+        });
     };
 
     const filteredOrders = orders.filter(order => {

@@ -12,6 +12,7 @@ const VendorOrder = () => {
     const [product, setProduct] = useState(null);
     const [category, setCategory] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [placingOrder, setPlacingOrder] = useState(false);
 
     // Order State
     const [quantity, setQuantity] = useState(1);
@@ -67,6 +68,7 @@ const VendorOrder = () => {
 
     const handlePlaceOrder = async () => {
         if (!product) return;
+        if (placingOrder) return;
 
         // Validate required fields
         if (category) {
@@ -76,6 +78,8 @@ const VendorOrder = () => {
                 }
             }
         }
+
+        setPlacingOrder(true);
 
         try {
             // Format custom fields for backend
@@ -100,15 +104,16 @@ const VendorOrder = () => {
                 }],
                 shippingAddress: { address: 'Vendor Address', city: 'Vendor City', postalCode: '000000', country: 'India' },
                 paymentMethod: 'Credit',
-                notes: notes // Add notes to top level or item level? Schema doesn't have notes at top level, maybe put in custom fields or add to schema. 
-                // Let's append notes to custom fields for now or assume backend handles it.
-                // Actually, let's add it to customFieldValues as 'Notes' if not present
+                notes: notes
             };
 
             await addOrder(orderData);
             navigate('/vendor/dashboard');
         } catch (error) {
             console.error('Error placing order:', error);
+            // Optional: toast.error('Failed to place order') if not handled in context
+        } finally {
+            setPlacingOrder(false);
         }
     };
 
@@ -246,10 +251,11 @@ const VendorOrder = () => {
                                 </button>
                                 <button
                                     onClick={handlePlaceOrder}
-                                    className="w-full md:w-auto bg-primary-600 text-white px-6 py-2 text-sm rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20"
+                                    disabled={placingOrder}
+                                    className={`w-full md:w-auto bg-primary-600 text-white px-6 py-2 text-sm rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary-600/20 ${placingOrder ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    Place Order
-                                    <ArrowRight size={16} />
+                                    {placingOrder ? 'Placing Order...' : 'Place Order'}
+                                    {!placingOrder && <ArrowRight size={16} />}
                                 </button>
                             </div>
                         </div>

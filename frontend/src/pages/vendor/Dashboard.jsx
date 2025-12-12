@@ -135,7 +135,7 @@ const VendorDashboard = () => {
                                 <th className="px-4 py-2 font-medium text-xs">Order ID</th>
                                 <th className="px-4 py-2 font-medium text-xs">Date</th>
                                 <th className="px-4 py-2 font-medium text-xs">Status</th>
-                                <th className="px-4 py-2 font-medium text-xs">Amount</th>
+
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -151,12 +151,12 @@ const VendorDashboard = () => {
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 font-medium text-xs">₹{(order.totalPrice || 0).toLocaleString()}</td>
+
                                 </tr>
                             ))}
                             {recentOrders.length === 0 && (
                                 <tr>
-                                    <td colSpan="4" className="px-4 py-6 text-center text-gray-500 text-xs">
+                                    <td colSpan="3" className="px-4 py-6 text-center text-gray-500 text-xs">
                                         No orders found.
                                     </td>
                                 </tr>

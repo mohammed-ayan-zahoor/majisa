@@ -1,26 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Building, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 const VendorProfile = () => {
     const [profile, setProfile] = useState({
-        name: 'Rajesh Jain',
-        businessName: 'Majisa Jewellers',
-        email: 'vendor@majisa.com',
-        phone: '+91 98765 43210',
-        gst: '27ABCDE1234F1Z5',
-        address: '123, Gold Market Road, Zaveri Bazaar, Mumbai - 400002',
-        city: 'Mumbai',
-        state: 'Maharashtra'
+        name: '',
+        businessName: '',
+        email: '',
+        phone: '',
+        gst: '',
+        address: '',
+        city: '',
+        state: ''
     });
+    const [loading, setLoading] = useState(true);
 
-    const handleSave = (e) => {
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const { data } = await api.get('/users/profile');
+                setProfile({
+                    name: data.name || '',
+                    businessName: data.businessName || '',
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    gst: data.gst || '',
+                    address: data.address || '',
+                    city: data.city || '',
+                    state: data.state || ''
+                });
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                toast.error('Failed to load profile');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    const handleSave = async (e) => {
         e.preventDefault();
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const { data } = await api.put('/users/profile', profile);
+            setProfile({
+                name: data.name || '',
+                businessName: data.businessName || '',
+                email: data.email || '',
+                phone: data.phone || '',
+                gst: data.gst || '',
+                address: data.address || '',
+                city: data.city || '',
+                state: data.state || ''
+            });
             toast.success('Profile updated successfully');
-        }, 500);
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            toast.error('Failed to update profile');
+        }
     };
+
+    if (loading) return <div className="p-8 text-center">Loading profile...</div>;
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -35,7 +77,7 @@ const VendorProfile = () => {
                     <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 text-primary-600">
                         <User size={40} />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">{profile.businessName}</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{profile.businessName || 'Business Name'}</h2>
                     <p className="text-gray-500 mb-4">{profile.name}</p>
                     <div className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                         Verified Vendor
@@ -81,10 +123,11 @@ const VendorProfile = () => {
                                         <input
                                             type="email"
                                             value={profile.email}
-                                            onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                            disabled
+                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
                                         />
                                     </div>
+                                    <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>

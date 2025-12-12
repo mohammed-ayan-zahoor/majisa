@@ -19,6 +19,7 @@ const PlaceOrder = () => {
     });
 
     const [images, setImages] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
@@ -37,6 +38,9 @@ const PlaceOrder = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
 
         // Construct order object matching backend schema
         // Note: This is a "Custom Order" which might differ slightly from standard e-commerce order
@@ -81,6 +85,8 @@ const PlaceOrder = () => {
             setImages([]);
         } catch (error) {
             // Error handled in context
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -244,8 +250,12 @@ const PlaceOrder = () => {
                     <button type="button" className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                        Place Order
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        {isSubmitting ? 'Placing Order...' : 'Place Order'}
                     </button>
                 </div>
             </form>

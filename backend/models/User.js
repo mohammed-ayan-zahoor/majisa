@@ -29,6 +29,7 @@ const userSchema = mongoose.Schema({
     gst: String,
     address: String,
     city: String,
+    state: String,
     status: {
         type: String,
         enum: ['Pending', 'Approved', 'Rejected', 'Active', 'Inactive'],

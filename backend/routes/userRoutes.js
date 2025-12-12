@@ -4,6 +4,7 @@ const {
     authUser,
     registerUser,
     getUserProfile,
+    updateUserProfile,
     getUsers,
     updateUserStatus,
     deleteUser,
@@ -31,7 +32,9 @@ router.post('/wishlist/toggle', protect, toggleUserWishlist);
 router.get('/wishlist', protect, getUserWishlist);
 
 router.get('/visits', protect, admin, getCustomerVisits);
-router.route('/profile').get(protect, getUserProfile);
+router.route('/profile')
+    .get(protect, getUserProfile)
+    .put(protect, updateUserProfile);
 router.post('/create', protect, admin, createUser);
 router.route('/').get(protect, admin, getUsers);
 router.route('/:id')

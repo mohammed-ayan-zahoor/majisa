@@ -30,6 +30,7 @@ import Categories from './pages/admin/Categories';
 import VendorLayout from './components/layout/VendorLayout';
 import VendorDashboard from './pages/vendor/Dashboard';
 import VendorOrder from './pages/vendor/VendorOrder';
+import VendorOrderDetails from './pages/vendor/OrderDetails';
 import MyOrders from './pages/vendor/MyOrders';
 import VendorProfile from './pages/vendor/Profile';
 
@@ -125,6 +126,7 @@ function App() {
                   <Route path="dashboard" element={<VendorDashboard />} />
                   <Route path="place-order" element={<VendorOrder />} />
                   <Route path="orders" element={<MyOrders />} />
+                  <Route path="orders/:id" element={<VendorOrderDetails />} />
                   <Route path="profile" element={<VendorProfile />} />
                 </Route>
               </Routes>

@@ -176,6 +176,58 @@ const getUserProfile = async (req, res) => {
             email: user.email,
             role: user.role,
             referralCode: user.referralCode,
+            businessName: user.businessName,
+            phone: user.phone,
+            gst: user.gst,
+            address: user.address,
+            city: user.city,
+            state: user.state,
+        });
+    } else {
+        res.status(404).send('User not found');
+    }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.businessName = req.body.businessName || user.businessName;
+        user.phone = req.body.phone || user.phone;
+        user.gst = req.body.gst || user.gst;
+        // Allow updating address details via generic address field or split fields if schema supports
+        // The schema might not have city/state separate if not defined, let's check schema or just put content in address.
+        // VendorProfile.jsx has address, city, state. User model usually has simple fields.
+        // Let's assume we save address/city/state in the address field or separate if they exist.
+        // For now, let's update what we have in schema.
+        if (req.body.address) user.address = req.body.address;
+        if (req.body.city) user.city = req.body.city;
+        if (req.body.state) user.state = req.body.state;
+
+        if (req.body.password) {
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            businessName: updatedUser.businessName,
+            phone: updatedUser.phone,
+            gst: updatedUser.gst,
+            address: updatedUser.address,
+            city: updatedUser.city,
+            state: updatedUser.state,
+            referralCode: updatedUser.referralCode,
+            token: generateToken(updatedUser._id),
         });
     } else {
         res.status(404).send('User not found');
@@ -448,6 +500,7 @@ module.exports = {
     authUser,
     registerUser,
     getUserProfile,
+    updateUserProfile,
     getUsers,
     updateUserStatus,
     deleteUser,

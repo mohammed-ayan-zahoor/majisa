@@ -75,7 +75,7 @@ const MyOrders = () => {
                                 <th className="px-4 py-2">Order ID</th>
                                 <th className="px-4 py-2">Date</th>
                                 <th className="px-4 py-2">Items</th>
-                                <th className="px-4 py-2">Total Amount</th>
+
                                 <th className="px-4 py-2">Status</th>
                                 <th className="px-4 py-2 text-right">Action</th>
                             </tr>
@@ -90,16 +90,19 @@ const MyOrders = () => {
                                     <td className="px-4 py-2 text-gray-600 text-xs">
                                         {order.orderItems?.length || 0} items
                                     </td>
-                                    <td className="px-4 py-2 font-medium text-xs">₹{order.totalPrice?.toLocaleString()}</td>
+
                                     <td className="px-4 py-2">
                                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(order.status)}`}>
                                             {order.status}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        <button className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                                        <Link
+                                            to={`/vendor/orders/${order._id}`}
+                                            className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors inline-block"
+                                        >
                                             <Eye size={16} />
-                                        </button>
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
