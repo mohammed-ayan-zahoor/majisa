@@ -15,7 +15,7 @@ const Home = () => {
             try {
                 const { data } = await api.get('/products');
                 // Get first 4 products
-                setFeaturedProducts(data.slice(0, 4));
+                setFeaturedProducts(data.products.slice(0, 4));
             } catch (error) {
                 console.error('Error fetching featured products:', error);
             } finally {
@@ -160,7 +160,7 @@ const Home = () => {
             </section>
 
             {/* Featured Products - Clean & Spacious */}
-            <section className="bg-white py-24">
+            <section className="bg-white py-12 md:py-16">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                         <div>
@@ -173,7 +173,7 @@ const Home = () => {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
                         {loading ? (
                             <div className="col-span-full text-center py-12">Loading collection...</div>
                         ) : featuredProducts.length > 0 ? (

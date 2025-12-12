@@ -48,9 +48,12 @@ import ReferralGate from './components/common/ReferralGate';
 
 import PageTitleUpdater from './components/common/PageTitleUpdater';
 
+import ScrollToTop from './components/common/ScrollToTop';
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <PageTitleUpdater />
       <AuthProvider>
         <CartProvider>

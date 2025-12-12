@@ -105,8 +105,6 @@ const Header = () => {
                 <nav className={`hidden lg:flex justify-center mt-4 space-x-8 text-xs font-medium uppercase tracking-widest ${isHome && !isScrolled ? 'text-white/90' : 'text-charcoal-500'}`}>
                     <Link to="/" className="hover:text-gold-500 transition-colors">Home</Link>
                     <Link to="/products" className="hover:text-gold-500 transition-colors">Jewellery</Link>
-                    <Link to="/products?category=rings" className="hover:text-gold-500 transition-colors">Rings</Link>
-                    <Link to="/products?category=necklaces" className="hover:text-gold-500 transition-colors">Necklaces</Link>
                     <Link to="/about" className="hover:text-gold-500 transition-colors">Our Story</Link>
                     <Link to="/contact" className="hover:text-gold-500 transition-colors">Contact</Link>
                     {(user?.role === 'admin' || user?.role === 'vendor') && (
@@ -127,8 +125,6 @@ const Header = () => {
                     <nav className="flex flex-col space-y-6 text-lg font-serif">
                         <Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
                         <Link to="/products" onClick={() => setIsMenuOpen(false)}>All Jewellery</Link>
-                        <Link to="/products?category=rings" onClick={() => setIsMenuOpen(false)}>Rings</Link>
-                        <Link to="/products?category=necklaces" onClick={() => setIsMenuOpen(false)}>Necklaces</Link>
                         <Link to="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link>
                         <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
 
