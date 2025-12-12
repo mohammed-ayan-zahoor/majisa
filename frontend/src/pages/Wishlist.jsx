@@ -3,16 +3,29 @@ import api from '../services/api';
 import ProductCard from '../components/common/ProductCard';
 import { Loader, Heart } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Wishlist = () => {
     const { customer, wishlist } = useWishlist();
+    const { user } = useAuth();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchWishlist = async () => {
-            if (customer?._id) {
+            // Priority 1: Vendor (User)
+            if (user && user.role === 'vendor') {
+                try {
+                    const { data } = await api.get('/users/wishlist');
+                    setProducts(data);
+                } catch (error) {
+                    console.error('Failed to fetch vendor wishlist', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+            // Priority 2: Customer (Guest)
+            else if (customer?._id) {
                 try {
                     const { data } = await api.get(`/customers/${customer._id}/wishlist`);
                     setProducts(data);

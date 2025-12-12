@@ -83,9 +83,9 @@ const Header = () => {
 
 
 
-                        {/* Wishlist - Visible to Customers */}
-                        {customer && !user && (
-                            <Link to="/wishlist" className="hidden lg:block hover:text-red-500 transition-colors relative" title="My Wishlist">
+                        {/* Wishlist - Visible to Customers AND Vendors */}
+                        {(customer || (user && user.role === 'vendor')) && (
+                            <Link to="/wishlist" className="hover:text-red-500 transition-colors relative" title="My Wishlist">
                                 <Heart size={22} className={wishlist.length > 0 ? "fill-red-500 text-red-500" : ""} />
                                 {wishlist.length > 0 && (
                                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
@@ -151,6 +151,11 @@ const Header = () => {
                                         {(user.role === 'admin' || user.role === 'vendor') && (
                                             <Link to={user.role === 'admin' ? "/admin/dashboard" : "/vendor/dashboard"} onClick={() => setIsMenuOpen(false)} className="font-bold text-primary-600">
                                                 Dashboard
+                                            </Link>
+                                        )}
+                                        {((user.role === 'vendor') || customer) && (
+                                            <Link to="/wishlist" onClick={() => setIsMenuOpen(false)} className="font-medium text-gray-700">
+                                                My Wishlist
                                             </Link>
                                         )}
                                         <button

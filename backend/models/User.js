@@ -49,6 +49,11 @@ const userSchema = mongoose.Schema({
         unique: true,
         sparse: true
     },
+    // Wishlist for Vendors
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
     resetPasswordToken: String,
     resetPasswordExpire: Date
 }, {

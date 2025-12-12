@@ -393,6 +393,57 @@ const updateUserPassword = async (req, res) => {
     }
 };
 
+
+
+// @desc    Toggle Wishlist Item (User/Vendor)
+// @route   POST /api/users/wishlist/toggle
+// @access  Private
+const toggleUserWishlist = async (req, res) => {
+    const { productId } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        // Init wishlist if undefined
+        if (!user.wishlist) user.wishlist = [];
+
+        const index = user.wishlist.findIndex(id => id.toString() === productId);
+
+        if (index === -1) {
+            // Add if not exists
+            if (!user.wishlist.includes(productId)) {
+                user.wishlist.push(productId);
+            }
+        } else {
+            // Remove
+            user.wishlist.splice(index, 1);
+        }
+
+        await user.save();
+        await user.populate('wishlist');
+
+        // Filter nulls
+        const validWishlist = user.wishlist.filter(item => item !== null);
+        res.json(validWishlist);
+    } else {
+        res.status(404).send('User not found');
+    }
+};
+
+// @desc    Get User Wishlist
+// @route   GET /api/users/wishlist
+// @access  Private
+const getUserWishlist = async (req, res) => {
+    const user = await User.findById(req.user._id).populate('wishlist');
+
+    if (user) {
+        // Filter nulls
+        const validWishlist = user.wishlist ? user.wishlist.filter(item => item !== null) : [];
+        res.json(validWishlist);
+    } else {
+        res.status(404).send('User not found');
+    }
+};
+
 module.exports = {
     authUser,
     registerUser,
@@ -407,5 +458,7 @@ module.exports = {
     getUserById,
     forgotPassword,
     resetPassword,
-    updateUserPassword
+    updateUserPassword,
+    toggleUserWishlist,
+    getUserWishlist
 };

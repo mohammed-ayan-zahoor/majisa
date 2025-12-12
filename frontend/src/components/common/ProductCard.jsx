@@ -36,7 +36,7 @@ const ProductCard = ({ product }) => {
                         translate-y-0 lg:translate-y-[120%] lg:group-hover:translate-y-0">
                         <button
                             onClick={() => setShowQuickView(true)}
-                            className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-2 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
+                            className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-1.5 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
                         >
                             <span className="md:hidden">Quick View</span>
                             <span className="hidden md:inline">Quick View</span>
@@ -47,7 +47,7 @@ const ProductCard = ({ product }) => {
                                 className="w-8 md:w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition-all rounded-lg shadow-lg"
                                 title="Add to Cart"
                             >
-                                <ShoppingBag size={16} className="md:w-[18px] md:h-[18px]" />
+                                <ShoppingBag size={14} className="md:w-[18px] md:h-[18px]" />
                             </button>
                         )}
                         <button
@@ -57,7 +57,7 @@ const ProductCard = ({ product }) => {
                             }}
                             className={`w-8 md:w-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
                         >
-                            <Heart size={16} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
+                            <Heart size={14} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
                         </button>
                     </div>
                 </div>
