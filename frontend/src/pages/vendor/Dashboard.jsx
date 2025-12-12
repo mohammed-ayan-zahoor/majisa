@@ -151,7 +151,7 @@ const VendorDashboard = () => {
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 font-medium text-xs">₹{order.totalPrice.toLocaleString()}</td>
+                                    <td className="px-4 py-3 font-medium text-xs">₹{(order.totalPrice || 0).toLocaleString()}</td>
                                 </tr>
                             ))}
                             {recentOrders.length === 0 && (
