@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Eye, Clock, CheckCircle, Truck, XCircle, User, Store } from 'lucide-react';
+import { Search, Filter, Eye, Clock, CheckCircle, Truck, XCircle, User, Store, Trash2 } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 const AdminOrders = () => {
-    const { orders, loading } = useOrder();
+    const { orders, loading, refreshOrders } = useOrder();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
 
@@ -17,6 +19,19 @@ const AdminOrders = () => {
             case 'Dispatched': return 'bg-indigo-100 text-indigo-700';
             case 'Delivered': return 'bg-teal-100 text-teal-700';
             default: return 'bg-gray-100 text-gray-700';
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this order?')) {
+            try {
+                await api.delete(`/orders/${id}`);
+                toast.success('Order deleted');
+                refreshOrders();
+            } catch (error) {
+                console.error(error);
+                toast.error('Failed to delete order');
+            }
         }
     };
 
@@ -76,7 +91,6 @@ const AdminOrders = () => {
                                 <th className="px-4 py-2">Order ID</th>
                                 <th className="px-4 py-2">Vendor</th>
                                 <th className="px-4 py-2">Items</th>
-                                <th className="px-4 py-2">Total</th>
                                 <th className="px-4 py-2">Date</th>
                                 <th className="px-4 py-2">Status</th>
                                 <th className="px-4 py-2 text-right">Action</th>
@@ -102,7 +116,7 @@ const AdminOrders = () => {
                                     <td className="px-4 py-3 text-gray-600 text-xs">
                                         {order.orderItems?.length || 0} items
                                     </td>
-                                    <td className="px-4 py-3 font-medium text-sm">₹{order.totalPrice?.toLocaleString()}</td>
+
                                     <td className="px-4 py-3 text-gray-500 text-xs">
                                         {new Date(order.createdAt).toLocaleDateString()}
                                     </td>
@@ -119,12 +133,21 @@ const AdminOrders = () => {
                                         </select>
                                     </td>
                                     <td className="px-4 py-3 text-right">
-                                        <Link
-                                            to={`/admin/orders/${order._id}`}
-                                            className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
-                                        >
-                                            <Eye size={16} />
-                                        </Link>
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Link
+                                                to={`/admin/orders/${order._id}`}
+                                                className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
+                                            >
+                                                <Eye size={16} />
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(order._id)}
+                                                className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                                                title="Delete Order"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

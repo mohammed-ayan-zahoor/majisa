@@ -144,8 +144,22 @@ const getMyOrders = async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = async (req, res) => {
-    const orders = await Order.find({}).populate('user', 'id name');
+    const orders = await Order.find({}).populate('user', 'id name businessName email');
     res.json(orders);
+};
+
+// @desc    Delete order
+// @route   DELETE /api/orders/:id
+// @access  Private/Admin
+const deleteOrder = async (req, res) => {
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+        await order.deleteOne();
+        res.json({ message: 'Order removed' });
+    } else {
+        res.status(404).send('Order not found');
+    }
 };
 
 module.exports = {
@@ -155,4 +169,5 @@ module.exports = {
     updateOrderStatus,
     getMyOrders,
     getOrders,
+    deleteOrder,
 };
