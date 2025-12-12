@@ -102,7 +102,7 @@ const Header = () => {
                 </div>
 
                 {/* Desktop Navigation */}
-                <nav className={`hidden lg:flex justify-center mt-4 space-x-8 text-xs font-medium uppercase tracking-widest ${isScrolled ? 'text-charcoal-400' : 'text-white/90'}`}>
+                <nav className={`hidden lg:flex justify-center mt-4 space-x-8 text-xs font-medium uppercase tracking-widest ${isHome && !isScrolled ? 'text-white/90' : 'text-charcoal-500'}`}>
                     <Link to="/" className="hover:text-gold-500 transition-colors">Home</Link>
                     <Link to="/products" className="hover:text-gold-500 transition-colors">Jewellery</Link>
                     <Link to="/products?category=rings" className="hover:text-gold-500 transition-colors">Rings</Link>
