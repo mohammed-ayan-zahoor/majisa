@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+import { useAuth } from './AuthContext';
+
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
+    const { user } = useAuth(); // Access user to check role
 
     // Load cart from local storage
     useEffect(() => {
@@ -22,6 +25,19 @@ export const CartProvider = ({ children }) => {
     }, [cartItems]);
 
     const addToCart = (product, quantity = 1) => {
+        // Vendor Limit Logic
+        if (user?.role === 'vendor') {
+            if (cartItems.length > 0) {
+                const isSameProduct = cartItems[0]._id === product._id;
+                if (!isSameProduct) {
+                    // Replace existing
+                    setCartItems([{ ...product, quantity }]);
+                    toast.success('Cart updated with new item (Single item limit)');
+                    return;
+                }
+            }
+        }
+
         const existingItem = cartItems.find(item => item._id === product._id);
 
         if (existingItem) {
@@ -32,6 +48,7 @@ export const CartProvider = ({ children }) => {
                     : item
             ));
         } else {
+            // If vendor and cart empty, or normal user
             toast.success('Added to cart');
             setCartItems(prev => [...prev, { ...product, quantity }]);
         }
