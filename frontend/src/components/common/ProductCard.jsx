@@ -60,11 +60,13 @@ const ProductCard = ({ product }) => {
                         </Link>
                     </h3>
                     <div className="text-sm text-gray-500 space-y-1">
+                        {/* Product Code - Visible to All */}
+                        <p className="text-xs text-gray-500">Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
+
                         {/* Technical Details - Only for Vendors/Admins */}
                         {['vendor', 'admin'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
                             <>
-                                <p>Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
-                                <div className="flex justify-center items-center gap-4 text-xs text-gray-400">
+                                <div className="flex justify-center items-center gap-4 text-xs text-gray-400 mt-1">
                                     <span>{product.weight}g</span>
                                     <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
                                     <span>{product.purity || '22K'}</span>
