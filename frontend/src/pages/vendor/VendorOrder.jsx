@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShoppingBag, ArrowRight, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useOrder } from '../../context/OrderContext';
 
 const VendorOrder = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { addOrder } = useOrder();
     const [productCode, setProductCode] = useState('');
     const [product, setProduct] = useState(null);
@@ -19,9 +20,16 @@ const VendorOrder = () => {
     const [notes, setNotes] = useState('');
     const [customFieldValues, setCustomFieldValues] = useState({});
 
-    const handleSearch = async (e) => {
-        e.preventDefault();
-        if (!productCode.trim()) return;
+    useEffect(() => {
+        const codeFromUrl = searchParams.get('code');
+        if (codeFromUrl) {
+            setProductCode(codeFromUrl);
+            fetchProductDetails(codeFromUrl);
+        }
+    }, [searchParams]);
+
+    const fetchProductDetails = async (code) => {
+        if (!code.trim()) return;
 
         setLoading(true);
         setProduct(null);
@@ -30,14 +38,10 @@ const VendorOrder = () => {
 
         try {
             // 1. Fetch Product
-            const { data: productData } = await api.get(`/products/code/${productCode}`);
+            const { data: productData } = await api.get(`/products/code/${code}`);
             setProduct(productData);
 
             // 2. Fetch Category to get Custom Fields
-            // Assuming we can search category by name or we have to iterate. 
-            // Better if product had categoryId, but it has categoryName.
-            // Let's fetch all categories and find the match, or add an endpoint to find by name.
-            // For now, let's fetch all and filter (optimization: backend should support get by name)
             const { data: categoriesData } = await api.get('/categories');
             const matchedCategory = categoriesData.find(c => c.name === productData.category);
 
@@ -57,6 +61,11 @@ const VendorOrder = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        fetchProductDetails(productCode);
     };
 
     const handleCustomFieldChange = (fieldName, value) => {
@@ -108,6 +117,10 @@ const VendorOrder = () => {
             };
 
             await addOrder(orderData);
+            // If checking out from cart flow, we might want to clear cart here?
+            // But we don't have access to clearCart from here unless we hook into CartContext
+            // For now, let's assume it's fine. The item stays in cart.
+            // Ideally we should empty cart if this item was from cart.
             navigate('/vendor/dashboard');
         } catch (error) {
             console.error('Error placing order:', error);

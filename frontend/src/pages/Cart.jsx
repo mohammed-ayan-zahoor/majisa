@@ -20,6 +20,28 @@ const Cart = () => {
             return;
         }
 
+        // Special flow for Vendors
+        if (user.role === 'vendor') {
+            if (cartItems.length > 1) {
+                toast.error('Vendors can only order one item at a time via this flow. Please remove other items.');
+                return;
+            }
+            if (cartItems.length === 0) return; // Should be handled by early return in render, but safe check
+
+            const item = cartItems[0];
+            // We do NOT clear cart here because if they cancel, they might want to come back.
+            // Or we clear it because they are "moving" to the order page?
+            // User requirement isn't explicit, but "limit cart with only one product" implies tight coupling.
+            // Let's NOT clear it yet. VendorOrder is just a form filler.
+            // Actually, if we clear it, and they don't place order, they lose it.
+            // Better to keep it until order is placed.
+            // Navigate to vendor order page with code
+            navigate(`/vendor/place-order?code=${item.productCode}`);
+            return;
+        }
+
+        // Normal flow for other users (if any exist in future, currently only vendors place orders technically via this app? Or Customers?)
+        // If Customers exist, they use this normal flow.
         try {
             const orderData = {
                 orderItems: cartItems.map(item => ({
@@ -44,11 +66,7 @@ const Cart = () => {
             await addOrder(orderData);
             clearCart();
 
-            if (user.role === 'vendor') {
-                navigate('/vendor/orders'); // Redirect to My Orders
-            } else {
-                navigate('/');
-            }
+            navigate('/');
         } catch (error) {
             console.error('Checkout error:', error);
             // toast handled by addOrder
