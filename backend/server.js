@@ -12,6 +12,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const customerRoutes = require('./routes/customerRoutes');
 
 // Connect to database
 connectDB();
@@ -30,6 +31,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/customers', customerRoutes);
 
 const path = require('path');
 

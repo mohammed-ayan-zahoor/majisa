@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import QuickViewModal from './QuickViewModal';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 const ProductCard = ({ product }) => {
     const [showQuickView, setShowQuickView] = useState(false);
     const { addToCart } = useCart();
+    const { toggleWishlist, checkIsWishlisted } = useWishlist();
+
+    const isWishlisted = checkIsWishlisted(product._id);
 
     return (
         <>
@@ -46,8 +50,14 @@ const ProductCard = ({ product }) => {
                                 <ShoppingBag size={16} className="md:w-[18px] md:h-[18px]" />
                             </button>
                         )}
-                        <button className="w-8 md:w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:text-red-500 transition-all rounded-lg shadow-lg">
-                            <Heart size={16} className="md:w-[18px] md:h-[18px]" />
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleWishlist(product._id);
+                            }}
+                            className={`w-8 md:w-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
+                        >
+                            <Heart size={16} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
                         </button>
                     </div>
                 </div>
