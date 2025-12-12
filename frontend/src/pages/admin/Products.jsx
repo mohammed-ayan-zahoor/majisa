@@ -18,7 +18,7 @@ const AdminProducts = () => {
                     api.get('/products'),
                     api.get('/categories')
                 ]);
-                setProducts(productsRes.data);
+                setProducts(productsRes.data.products);
                 setCategories(categoriesRes.data);
             } catch (error) {
                 toast.error('Failed to fetch data');
@@ -32,7 +32,7 @@ const AdminProducts = () => {
     const fetchProducts = async () => {
         try {
             const { data } = await api.get('/products');
-            setProducts(data);
+            setProducts(data.products);
         } catch (error) {
             toast.error('Failed to fetch products');
         }
@@ -50,12 +50,12 @@ const AdminProducts = () => {
         }
     };
 
-    const filteredProducts = products.filter(product =>
+    const filteredProducts = Array.isArray(products) ? products.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             product.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (selectedCategory === '' || product.category === selectedCategory)
-    );
+    ) : [];
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
