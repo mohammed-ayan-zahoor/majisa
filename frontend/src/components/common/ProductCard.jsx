@@ -28,25 +28,26 @@ const ProductCard = ({ product }) => {
 
                     {/* Hover Actions */}
                     {/* Actions - Always visible on mobile, Hover on Desktop */}
-                    <div className="absolute inset-x-3 bottom-3 flex gap-2 z-10 transition-all duration-300
+                    <div className="absolute inset-x-2 bottom-2 md:inset-x-3 md:bottom-3 flex gap-2 z-10 transition-all duration-300
                         translate-y-0 lg:translate-y-[120%] lg:group-hover:translate-y-0">
                         <button
                             onClick={() => setShowQuickView(true)}
-                            className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-3 text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
+                            className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-2 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
                         >
-                            Quick View
+                            <span className="md:hidden">Quick View</span>
+                            <span className="hidden md:inline">Quick View</span>
                         </button>
                         {['vendor'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
                             <button
                                 onClick={() => addToCart(product, 1)}
-                                className="w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition-all rounded-lg shadow-lg"
+                                className="w-8 md:w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition-all rounded-lg shadow-lg"
                                 title="Add to Cart"
                             >
-                                <ShoppingBag size={18} />
+                                <ShoppingBag size={16} className="md:w-[18px] md:h-[18px]" />
                             </button>
                         )}
-                        <button className="w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:text-red-500 transition-all rounded-lg shadow-lg">
-                            <Heart size={18} />
+                        <button className="w-8 md:w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:text-red-500 transition-all rounded-lg shadow-lg">
+                            <Heart size={16} className="md:w-[18px] md:h-[18px]" />
                         </button>
                     </div>
                 </div>

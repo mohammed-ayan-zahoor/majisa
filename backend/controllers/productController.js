@@ -29,8 +29,40 @@ const extractPublicId = (url) => {
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-    const products = await Product.find({});
-    res.json(products);
+    try {
+        const pageSize = Number(req.query.limit) || 12;
+        const page = Number(req.query.page) || 1;
+
+        const keyword = req.query.keyword
+            ? {
+                name: {
+                    $regex: req.query.keyword,
+                    $options: 'i',
+                },
+            }
+            : {};
+
+        const category = req.query.category && req.query.category !== 'All'
+            ? { category: req.query.category }
+            : {};
+
+        const priceFilter = {};
+        if (req.query.minPrice || req.query.maxPrice) {
+            priceFilter.price = {};
+            if (req.query.minPrice) priceFilter.price.$gte = Number(req.query.minPrice);
+            if (req.query.maxPrice) priceFilter.price.$lte = Number(req.query.maxPrice);
+        }
+
+        const count = await Product.countDocuments({ ...keyword, ...category, ...priceFilter });
+        const products = await Product.find({ ...keyword, ...category, ...priceFilter })
+            .limit(pageSize)
+            .skip(pageSize * (page - 1));
+
+        res.json({ products, page, pages: Math.ceil(count / pageSize), total: count });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
 };
 
 // @desc    Fetch single product by code
