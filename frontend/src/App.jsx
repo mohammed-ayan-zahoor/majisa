@@ -38,6 +38,8 @@ import GoldsmithLayout from './components/layout/GoldsmithLayout';
 import GoldsmithDashboard from './pages/goldsmith/Dashboard';
 import JobDetails from './pages/goldsmith/JobDetails';
 
+import MyJobs from './pages/goldsmith/MyJobs';
+
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
 import About from './pages/About';
@@ -116,7 +118,7 @@ function App() {
                 <Route path="/goldsmith" element={<GoldsmithLayout />}>
                   <Route index element={<GoldsmithDashboard />} />
                   <Route path="dashboard" element={<GoldsmithDashboard />} />
-                  <Route path="jobs" element={<GoldsmithDashboard />} />
+                  <Route path="jobs" element={<MyJobs />} />
                   <Route path="jobs/:id" element={<JobDetails />} />
                 </Route>
 

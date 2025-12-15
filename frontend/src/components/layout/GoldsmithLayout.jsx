@@ -91,7 +91,7 @@ const GoldsmithLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className={`transition-all duration-300 min-h-screen pt-20 lg:pt-8 p-4 lg:p-8 lg:ml-64 w-full`}>
+            <main className={`transition-all duration-300 min-h-screen pt-20 lg:pt-8 p-4 lg:p-8 lg:ml-64`}>
                 <Outlet />
             </main>
         </div>
