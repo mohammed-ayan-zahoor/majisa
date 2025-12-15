@@ -4,12 +4,14 @@ const {
     getNotifications,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
+    deleteAllNotifications
 } = require('../controllers/notificationController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/').get(protect, admin, getNotifications);
 router.route('/read-all').put(protect, admin, markAllAsRead);
+router.route('/clear-all').delete(protect, admin, deleteAllNotifications);
 router.route('/:id/read').put(protect, admin, markAsRead);
 router.route('/:id').delete(protect, admin, deleteNotification);
 

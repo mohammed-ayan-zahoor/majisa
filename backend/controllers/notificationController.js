@@ -56,10 +56,19 @@ const createNotification = async (type, title, message) => {
     }
 };
 
+// @desc    Delete all notifications
+// @route   DELETE /api/notifications/clear-all
+// @access  Private/Admin
+const deleteAllNotifications = async (req, res) => {
+    await Notification.deleteMany({});
+    res.json({ message: 'All notifications cleared' });
+};
+
 module.exports = {
     getNotifications,
     markAsRead,
     markAllAsRead,
     deleteNotification,
+    deleteAllNotifications,
     createNotification
 };

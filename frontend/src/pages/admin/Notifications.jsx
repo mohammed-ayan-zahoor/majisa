@@ -54,6 +54,18 @@ const AdminNotifications = () => {
         }
     };
 
+    const handleClearAll = async () => {
+        if (!window.confirm('Are you sure you want to delete all notifications?')) return;
+        try {
+            await api.delete('/notifications/clear-all');
+            setNotifications([]);
+            toast.success('All notifications cleared');
+        } catch (error) {
+            console.error('Error clearing notifications:', error);
+            toast.error('Failed to clear notifications');
+        }
+    };
+
     const getIcon = (type) => {
         switch (type) {
             case 'warning': return <AlertTriangle size={20} className="text-orange-500" />;
@@ -88,12 +100,21 @@ const AdminNotifications = () => {
                     <p className="text-gray-500">Stay updated with latest activities</p>
                 </div>
                 {notifications.length > 0 && (
-                    <button
-                        onClick={handleMarkAllRead}
-                        className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-                    >
-                        Mark all as read
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={handleMarkAllRead}
+                            className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                        >
+                            Mark all as read
+                        </button>
+                        <button
+                            onClick={handleClearAll}
+                            className="text-red-600 hover:text-red-700 font-medium text-sm flex items-center gap-1"
+                        >
+                            <Trash2 size={16} />
+                            Clear All
+                        </button>
+                    </div>
                 )}
             </div>
 

@@ -35,6 +35,7 @@ const addOrderItems = async (req, res) => {
         // Send Email Notification
         try {
             // Email to Vendor
+            // Email to Vendor
             await sendEmail({
                 email: req.user.email,
                 subject: `Order Confirmation - #${createdOrder._id}`,
@@ -42,7 +43,6 @@ const addOrderItems = async (req, res) => {
                     <h1>Order Received</h1>
                     <p>Hi ${req.user.name},</p>
                     <p>We have received your order. Order ID: ${createdOrder._id}</p>
-                    <p>Total Amount: ₹${totalPrice?.toLocaleString()}</p>
                     <p>We will notify you once it is processed.</p>
                 `
             });
@@ -56,7 +56,6 @@ const addOrderItems = async (req, res) => {
                         <h1>New Order Alert</h1>
                         <p>Vendor: ${req.user.name} (${req.user.businessName})</p>
                         <p>Order ID: ${createdOrder._id}</p>
-                        <p>Total Amount: ₹${totalPrice?.toLocaleString()}</p>
                     `
                 });
             }
