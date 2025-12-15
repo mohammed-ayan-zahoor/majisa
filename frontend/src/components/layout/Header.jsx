@@ -122,7 +122,7 @@ const Header = () => {
                     <Link to="/" className="hover:text-gold-500 transition-colors">Home</Link>
                     <Link to="/products" className="hover:text-gold-500 transition-colors">Jewellery</Link>
                     <Link to="/about" className="hover:text-gold-500 transition-colors">Our Story</Link>
-                    <Link to="/contact" className="hover:text-gold-500 transition-colors">Contact</Link>
+
                     {(user?.role === 'admin' || user?.role === 'vendor') && (
                         <Link to={user.role === 'admin' ? "/admin/dashboard" : "/vendor/dashboard"} className="hover:text-gold-500 transition-colors font-bold">Dashboard</Link>
                     )}
@@ -143,7 +143,6 @@ const Header = () => {
                             <Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
                             <Link to="/products" onClick={() => setIsMenuOpen(false)}>All Jewellery</Link>
                             <Link to="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link>
-                            <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
 
                             <div className="pt-4 border-t border-gray-100 flex flex-col gap-4">
                                 {user ? (

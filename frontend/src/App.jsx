@@ -43,7 +43,6 @@ import MyJobs from './pages/goldsmith/MyJobs';
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
 import About from './pages/About';
-import Contact from './pages/Contact';
 
 // Placeholder pages
 const NotFound = () => <div className="p-10 text-center">404 Not Found</div>;
@@ -84,7 +83,6 @@ function App() {
                     </ReferralGate>
                   } />
                   <Route path="about" element={<About />} />
-                  <Route path="contact" element={<Contact />} />
                   <Route path="wishlist" element={<Wishlist />} />
                   <Route path="cart" element={<Cart />} />
                   <Route path="*" element={<NotFound />} />

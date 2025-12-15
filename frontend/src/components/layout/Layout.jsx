@@ -11,7 +11,7 @@ const Layout = () => {
         <div className="min-h-screen flex flex-col bg-white">
             <CustomCursor variant="vector" />
             <Header />
-            <main className="flex-grow">
+            <main className={`flex-grow ${!isHome ? 'pt-24' : ''}`}>
                 <Outlet />
             </main>
             {isHome && <Footer />}
