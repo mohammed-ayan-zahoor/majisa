@@ -51,13 +51,13 @@ const Home = () => {
                     <div className="absolute inset-0 bg-black/30" /> {/* Subtle overlay */}
                 </div>
 
-                <div className="relative h-full flex flex-col justify-center items-center text-center text-white px-4">
+                <div className="relative h-full flex flex-col justify-center items-center text-center text-white px-4 mt-10">
                     <span className="text-sm md:text-base tracking-[0.2em] uppercase mb-4 opacity-90">Est. 1995</span>
                     <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-medium mb-8 tracking-tight leading-tight">
                         Majisa <br /> Jewellers
                     </h1>
                     <p className="text-lg md:text-xl text-cream-100 mb-10 max-w-xl font-light leading-relaxed">
-                        Where tradition meets timeless elegance. Discover our exclusive collection of handcrafted gold and diamond jewellery.
+                        Where tradition meets timeless elegance. Discover our exclusive collection of handcrafted gold jewellery.
                     </p>
                     <Link
                         to="/products"
