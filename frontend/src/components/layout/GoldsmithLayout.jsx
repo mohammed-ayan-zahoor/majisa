@@ -2,6 +2,7 @@ import { LayoutDashboard, Hammer, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import CustomCursor from '../common/CustomCursor';
 
 const GoldsmithLayout = () => {
     const location = useLocation();
@@ -67,6 +68,7 @@ const GoldsmithLayout = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <CustomCursor variant="vector" />
             {/* Mobile Header */}
             <div className="lg:hidden bg-primary-900 text-white p-4 fixed top-0 w-full z-40 flex justify-between items-center shadow-md">
                 <button onClick={() => setIsSidebarOpen(true)}>

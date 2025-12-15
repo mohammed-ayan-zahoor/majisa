@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, Users, Hammer, ShoppingBag, Bell, Settings, LogOut, Layers } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import CustomCursor from '../common/CustomCursor';
 
 const AdminLayout = () => {
     const location = useLocation();
@@ -31,6 +32,7 @@ const AdminLayout = () => {
 
     return (
         <div className="min-h-screen bg-gray-100 flex">
+            <CustomCursor variant="vector" />
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 w-full bg-gray-900 text-white z-[60] px-4 py-3 flex items-center justify-between">
                 <span className="font-serif font-bold">MAJISA ADMIN</span>

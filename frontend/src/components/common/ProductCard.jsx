@@ -50,15 +50,17 @@ const ProductCard = ({ product }) => {
                                 <ShoppingBag size={14} className="md:w-[18px] md:h-[18px]" />
                             </button>
                         )}
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleWishlist(product._id);
-                            }}
-                            className={`w-8 md:w-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
-                        >
-                            <Heart size={14} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
-                        </button>
+                        {(!JSON.parse(localStorage.getItem('majisa_user')) || JSON.parse(localStorage.getItem('majisa_user')).role !== 'admin') && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleWishlist(product._id);
+                                }}
+                                className={`w-8 md:w-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
+                            >
+                                <Heart size={14} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
