@@ -328,6 +328,12 @@ const updateUser = async (req, res) => {
             user.businessName = req.body.businessName || user.businessName;
             user.phone = req.body.phone || user.phone;
             user.gst = req.body.gst || user.gst;
+
+            // Update address fields if provided
+            if (req.body.address !== undefined) user.address = req.body.address;
+            if (req.body.city !== undefined) user.city = req.body.city;
+            if (req.body.state !== undefined) user.state = req.body.state;
+
             user.referralCode = req.body.referralCode || user.referralCode;
 
             if (req.body.password) {

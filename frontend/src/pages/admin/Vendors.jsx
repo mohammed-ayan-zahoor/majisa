@@ -100,6 +100,9 @@ const AdminVendors = () => {
             businessName: vendor.businessName || '',
             phone: vendor.phone || '',
             gst: vendor.gst || '',
+            city: vendor.city || '',
+            state: vendor.state || '',
+            address: vendor.address || '',
             referralCode: vendor.referralCode || ''
         });
         setIsEditModalOpen(true);

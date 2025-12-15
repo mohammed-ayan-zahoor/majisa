@@ -146,12 +146,12 @@ const AdminProducts = () => {
                                     </td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            <button
-                                                onClick={() => openEditModal(product)}
+                                            <Link
+                                                to={`/admin/products/edit/${product._id}`}
                                                 className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
                                             >
                                                 <Edit size={16} />
-                                            </button>
+                                            </Link>
                                             <button
                                                 onClick={() => handleDelete(product._id)}
                                                 className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
