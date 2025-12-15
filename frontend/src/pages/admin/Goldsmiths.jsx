@@ -6,7 +6,14 @@ import toast from 'react-hot-toast';
 const AdminGoldsmiths = () => {
     const [goldsmiths, setGoldsmiths] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedGoldsmith, setSelectedGoldsmith] = useState(null);
+
+    // Modal States
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+    // Form States
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -66,13 +73,45 @@ const AdminGoldsmiths = () => {
             });
             setGoldsmiths(prev => [...prev, data]);
             toast.success('Goldsmith added successfully');
-            setShowModal(false);
+            setIsAddModalOpen(false);
             setFormData({ name: '', email: '', password: '', phone: '' });
         } catch (error) {
             console.error('Error adding goldsmith:', error);
             toast.error(error.response?.data || 'Failed to add goldsmith');
         }
     };
+
+    const handleEditGoldsmith = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await api.put(`/users/${selectedGoldsmith._id}`, formData);
+            setGoldsmiths(prev => prev.map(g => g._id === selectedGoldsmith._id ? { ...g, ...data } : g));
+            setIsEditModalOpen(false);
+            setSelectedGoldsmith(null);
+            setFormData({ name: '', email: '', password: '', phone: '' });
+            toast.success('Goldsmith updated successfully');
+        } catch (error) {
+            console.error('Error updating goldsmith:', error);
+            toast.error(error.response?.data || 'Failed to update goldsmith');
+        }
+    };
+
+    const openEditModal = (goldsmith) => {
+        setSelectedGoldsmith(goldsmith);
+        setFormData({
+            name: goldsmith.name,
+            email: goldsmith.email,
+            password: '', // Keep empty
+            phone: goldsmith.phone || ''
+        });
+        setIsEditModalOpen(true);
+    };
+
+    const filteredGoldsmiths = goldsmiths.filter(goldsmith =>
+        goldsmith.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        goldsmith.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        goldsmith.phone?.includes(searchTerm)
+    );
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
@@ -84,7 +123,7 @@ const AdminGoldsmiths = () => {
                     <p className="text-xs text-gray-500 hidden md:block">Manage your manufacturing team</p>
                 </div>
                 <button
-                    onClick={() => setShowModal(true)}
+                    onClick={() => setIsAddModalOpen(true)}
                     className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
                 >
                     <Plus size={16} />
@@ -100,6 +139,8 @@ const AdminGoldsmiths = () => {
                     <input
                         type="text"
                         placeholder="Search goldsmiths..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                     />
                 </div>
@@ -118,7 +159,7 @@ const AdminGoldsmiths = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {goldsmiths.map((goldsmith) => (
+                            {filteredGoldsmiths.map((goldsmith) => (
                                 <tr key={goldsmith._id} className="hover:bg-gray-50">
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
@@ -153,7 +194,10 @@ const AdminGoldsmiths = () => {
                                             >
                                                 {goldsmith.status === 'Active' ? <UserX size={16} /> : <UserCheck size={16} />}
                                             </button>
-                                            <button className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                                            <button
+                                                onClick={() => openEditModal(goldsmith)}
+                                                className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                            >
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
@@ -170,7 +214,7 @@ const AdminGoldsmiths = () => {
                     </table>
                 </div>
 
-                {goldsmiths.length === 0 && (
+                {filteredGoldsmiths.length === 0 && (
                     <div className="p-8 text-center text-gray-500">
                         No goldsmiths found.
                     </div>
@@ -178,12 +222,12 @@ const AdminGoldsmiths = () => {
             </div>
 
             {/* Add Goldsmith Modal */}
-            {showModal && (
+            {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 m-4">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-900">Add New Goldsmith</h2>
-                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                                 <X size={24} />
                             </button>
                         </div>
@@ -233,7 +277,7 @@ const AdminGoldsmiths = () => {
                             <div className="flex gap-4 pt-4">
                                 <button
                                     type="button"
-                                    onClick={() => setShowModal(false)}
+                                    onClick={() => setIsAddModalOpen(false)}
                                     className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
                                 >
                                     Cancel
@@ -243,6 +287,79 @@ const AdminGoldsmiths = () => {
                                     className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700"
                                 >
                                     Create Goldsmith
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Goldsmith Modal */}
+            {isEditModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 m-4">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-gray-900">Edit Goldsmith</h2>
+                            <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleEditGoldsmith} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    required
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">New Password (optional)</label>
+                                <input
+                                    type="password"
+                                    placeholder="Leave blank to keep current"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    required
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                />
+                            </div>
+
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditModalOpen(false)}
+                                    className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700"
+                                >
+                                    Update Goldsmith
                                 </button>
                             </div>
                         </form>

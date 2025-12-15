@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 const AdminVendors = () => {
     const [vendors, setVendors] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filterStatus, setFilterStatus] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Modal States
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -108,9 +108,13 @@ const AdminVendors = () => {
         setIsEditModalOpen(true);
     };
 
-    const filteredVendors = filterStatus === 'All'
-        ? vendors
-        : vendors.filter(v => v.status === filterStatus);
+    const filteredVendors = vendors.filter(vendor =>
+        vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.phone?.includes(searchTerm) ||
+        vendor.referralCode?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
@@ -130,29 +134,17 @@ const AdminVendors = () => {
                 </button>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row gap-3">
-                <div className="flex-1 relative">
+            {/* Search Only - Filters Removed */}
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+                <div className="relative">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search vendors..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                     />
-                </div>
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-                    {['All', 'Pending', 'Approved', 'Rejected'].map(status => (
-                        <button
-                            key={status}
-                            onClick={() => setFilterStatus(status)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${filterStatus === status
-                                ? 'bg-primary-600 text-white'
-                                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                                }`}
-                        >
-                            {status}
-                        </button>
-                    ))}
                 </div>
             </div>
 
