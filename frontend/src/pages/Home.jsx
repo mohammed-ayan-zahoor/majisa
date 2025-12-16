@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Truck, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/common/ProductCard';
 import api from '../services/api';
+import SEO from '../components/common/SEO';
 
 const Home = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -40,6 +41,10 @@ const Home = () => {
 
     return (
         <div className="bg-cream-100 min-h-screen">
+            <SEO
+                title="Home"
+                description="Majisa Jewellers - Where tradition meets timeless elegance. Handcrafted gold, diamond, and silver jewelry since 1995."
+            />
             {/* Hero Section - Full Height & Cinematic */}
             <section className="relative h-[85vh] w-full overflow-hidden">
                 <div className="absolute inset-0">

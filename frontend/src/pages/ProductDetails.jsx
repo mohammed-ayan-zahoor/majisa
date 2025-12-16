@@ -4,6 +4,7 @@ import { Star, Truck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../components/common/SEO';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -54,6 +55,12 @@ const ProductDetails = () => {
 
     return (
         <div className="bg-white min-h-screen py-6">
+            <SEO
+                title={product.name}
+                description={product.description || `Buy ${product.name} from Majisa Jewellers.`}
+                image={selectedImage || galleryImages[0]}
+                keywords={`${product.category}, ${product.metal}, ${product.name}, jewelry`}
+            />
             <div className="container mx-auto px-4">
                 <button
                     onClick={() => navigate(-1)}
