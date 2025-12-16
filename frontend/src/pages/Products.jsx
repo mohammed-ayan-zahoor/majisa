@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Loader } from 'lucide-react';
 import ProductCard from '../components/common/ProductCard';
 import api from '../services/api';
+import SEO from '../components/common/SEO';
 
 const Products = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -89,6 +90,10 @@ const Products = () => {
 
     return (
         <div className="bg-white min-h-screen pb-20">
+            <SEO
+                title={activeCategory !== 'All' ? `${activeCategory} Collection` : "Our Collection"}
+                description="Browse our extensive collection of gold and diamond jewelry."
+            />
             {/* Header */}
             <div className="bg-primary-900 text-white py-12 pt-24 mb-0">
                 <div className="container mx-auto px-4 text-center">

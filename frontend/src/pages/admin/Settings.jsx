@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Lock, Globe, Bell } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AdminSettings = () => {
     const [loading, setLoading] = useState(true);
@@ -74,6 +75,7 @@ const AdminSettings = () => {
 
     return (
         <div className="p-8 max-w-4xl mx-auto">
+            <SEO title="Settings" description="Admin Settings" />
             <div className="mb-8">
                 <h1 className="text-2xl font-serif font-bold text-gray-900">Settings</h1>
                 <p className="text-gray-500">Manage your application preferences</p>

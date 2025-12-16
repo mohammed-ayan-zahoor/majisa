@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
@@ -60,8 +61,9 @@ const AdminProducts = () => {
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center gap-4">
+        <div className="p-8 max-w-7xl mx-auto">
+            <SEO title="Manage Products" description="Admin Product Management" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-xl font-serif font-bold text-gray-900">Products</h1>
                     <p className="text-xs text-gray-500 hidden md:block">Manage your product inventory</p>

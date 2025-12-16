@@ -8,7 +8,7 @@ const SEO = ({ title, description, keywords, image, url }) => {
     const defaultImage = `${siteUrl}/logo.png`; // Ensure you have a default logo/image
 
     return (
-        <Helmet>
+        <Helmet defer={false} key={title}>
             {/* Standard Metadata */}
             <title>{title ? `${title} | Majisa` : siteTitle}</title>
             <meta name="description" content={description || siteDescription} />

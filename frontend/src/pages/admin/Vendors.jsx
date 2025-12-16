@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AdminVendors = () => {
     const [vendors, setVendors] = useState([]);
@@ -119,8 +120,9 @@ const AdminVendors = () => {
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center gap-4">
+        <div className="p-8 max-w-7xl mx-auto">
+            <SEO title="Manage Vendors" description="Admin Vendor Management" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-xl font-serif font-bold text-gray-900">Vendors</h1>
                     <p className="text-xs text-gray-500 hidden md:block">Manage vendor registrations and approvals</p>

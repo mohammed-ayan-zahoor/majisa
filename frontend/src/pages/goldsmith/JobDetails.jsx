@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const ReportPrompt = ({ t, onSubmit }) => {
     const [value, setValue] = useState('');
@@ -120,6 +121,10 @@ const JobDetails = () => {
 
     return (
         <div className="max-w-4xl mx-auto">
+            <SEO
+                title={`Job #${job._id.substring(0, 8)}`}
+                description="Goldsmith Job Details"
+            />
             <div className="flex items-center gap-4 mb-8">
                 <button
                     onClick={() => navigate('/goldsmith/dashboard')}

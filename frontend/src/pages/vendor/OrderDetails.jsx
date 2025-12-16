@@ -4,6 +4,7 @@ import { ArrowLeft, User, MapPin, Calendar, Printer, CheckCircle } from 'lucide-
 import { useOrder } from '../../context/OrderContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const VendorOrderDetails = () => {
     const { id } = useParams();
@@ -36,6 +37,7 @@ const VendorOrderDetails = () => {
 
     return (
         <div className="p-8 max-w-5xl mx-auto print:p-0">
+            <SEO title={`Order #${order?._id?.substring(0, 8)}`} description="Order Details" />
             {/* Standard Dashboard UI - Hide on Print */}
             <div className="print:hidden">
                 <div>

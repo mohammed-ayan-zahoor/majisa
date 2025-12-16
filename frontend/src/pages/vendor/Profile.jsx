@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Building, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
+import SEO from '../../components/common/SEO';
 
 const VendorProfile = () => {
     const [profile, setProfile] = useState({
@@ -66,6 +67,7 @@ const VendorProfile = () => {
 
     return (
         <div className="max-w-4xl mx-auto">
+            <SEO title="My Profile" description="Vendor Profile Settings" />
             <div className="mb-8">
                 <h1 className="text-2xl font-serif font-bold text-gray-900">Vendor Profile</h1>
                 <p className="text-gray-500">Manage your business information</p>

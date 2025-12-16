@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, Search } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
+import SEO from '../../components/common/SEO';
 
 const MyOrders = () => {
     const { orders, loading } = useOrder();
@@ -27,7 +28,8 @@ const MyOrders = () => {
 
     return (
         <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
+            <SEO title="My Orders" description="Vendor Order History" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-xl font-serif font-bold text-gray-900">My Orders</h1>
                     <p className="text-xs text-gray-500">Track your order history and status</p>

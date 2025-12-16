@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CustomCursor from '../common/CustomCursor';
+import SEO from '../common/SEO';
 
 const GoldsmithLayout = () => {
     const location = useLocation();
@@ -68,6 +69,7 @@ const GoldsmithLayout = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEO title="Goldsmith Atelier" description="Majisa Goldsmith Workshop" />
             <CustomCursor variant="vector" />
             {/* Mobile Header */}
             <div className="lg:hidden bg-primary-900 text-white p-4 fixed top-0 w-full z-40 flex justify-between items-center shadow-md">

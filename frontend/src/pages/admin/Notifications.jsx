@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Bell, Check, Trash2, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AdminNotifications = () => {
     const [notifications, setNotifications] = useState([]);
@@ -93,8 +94,9 @@ const AdminNotifications = () => {
     if (loading) return <div className="p-8 text-center">Loading notifications...</div>;
 
     return (
-        <div className="p-4 md:p-8 max-w-4xl mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="p-8 max-w-4xl mx-auto">
+            <SEO title="Notifications" description="Admin Notifications" />
+            <div className="mb-8 flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-serif font-bold text-gray-900">Notifications</h1>
                     <p className="text-gray-500 text-sm md:text-base">Stay updated with latest activities</p>

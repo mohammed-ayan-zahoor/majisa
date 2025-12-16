@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, UserCheck, UserX, X, Hammer, Edit2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AdminGoldsmiths = () => {
     const [goldsmiths, setGoldsmiths] = useState([]);
@@ -116,8 +117,9 @@ const AdminGoldsmiths = () => {
     if (loading) return <div className="p-8 text-center">Loading...</div>;
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center gap-4">
+        <div className="p-8 max-w-7xl mx-auto">
+            <SEO title="Manage Goldsmiths" description="Admin Goldsmith Management" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-xl font-serif font-bold text-gray-900">Goldsmiths</h1>
                     <p className="text-xs text-gray-500 hidden md:block">Manage your manufacturing team</p>

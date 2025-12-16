@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Upload, X, Plus } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const PlaceOrder = () => {
     const { addOrder } = useOrder();
@@ -91,7 +92,8 @@ const PlaceOrder = () => {
     };
 
     return (
-        <div className="p-8 max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto">
+            <SEO title="Place New Order" description="Create a new custom order" />
             <div className="mb-8">
                 <h1 className="text-2xl font-serif font-bold text-gray-900">Place Custom Order</h1>
                 <p className="text-gray-500">Create a new custom jewellery order</p>

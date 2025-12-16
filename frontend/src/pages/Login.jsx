@@ -4,6 +4,7 @@ import { User, Lock, ArrowRight, Loader, Hexagon, Gem } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '../components/common/SEO';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -84,6 +85,10 @@ const Login = () => {
 
     return (
         <div className={`min-h-screen flex transition-colors duration-700 ${isDark ? 'bg-charcoal-600' : 'bg-cream-50'}`}>
+            <SEO
+                title={currentConfig.title}
+                description={`Login to Majisa ${roleParam ? roleParam : 'Portal'}.`}
+            />
             {/* Left Panel - Visual & Narrative */}
             <div className="hidden lg:flex w-1/2 relative overflow-hidden items-center justify-center p-12">
                 <motion.div

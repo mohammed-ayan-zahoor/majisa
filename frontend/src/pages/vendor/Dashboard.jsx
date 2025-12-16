@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingBag, Clock, CheckCircle, TrendingUp, Copy } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -69,7 +70,10 @@ const VendorDashboard = () => {
     if (loading) return <div className="p-8 text-center">Loading dashboard...</div>;
 
     return (
-        <div className="space-y-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+            <SEO title="Vendor Dashboard" description="Vendor Overview" />
+
+            {/* Stats Overview */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3">
                 <div>
                     <div className="flex items-center gap-3 mb-1">

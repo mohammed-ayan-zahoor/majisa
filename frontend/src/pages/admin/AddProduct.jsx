@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Upload, X, Plus } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AddProduct = () => {
     const navigate = useNavigate();
@@ -139,6 +140,7 @@ const AddProduct = () => {
 
     return (
         <div className="p-8 max-w-5xl mx-auto">
+            <SEO title={isEditMode ? 'Edit Product' : 'Add New Product'} description={isEditMode ? 'Update existing product' : 'Create new product'} />
             <button
                 onClick={() => navigate('/admin/products')}
                 className="flex items-center gap-2 text-gray-500 hover:text-primary-600 mb-8 transition-colors"

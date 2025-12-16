@@ -1,8 +1,10 @@
 import React from 'react';
+import SEO from '../components/common/SEO';
 
 const About = () => {
     return (
         <div className="bg-white">
+            <SEO title="Our Story" description="Majisa Jewellers - Crafting timeless legacy since 1995." />
             {/* Hero Section */}
             <div className="relative bg-primary-900 text-white py-24">
                 <div className="container mx-auto px-4 text-center">

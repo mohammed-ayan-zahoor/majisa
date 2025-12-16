@@ -4,6 +4,7 @@ import { Search, Filter, Eye, Clock, CheckCircle, Truck, XCircle, User, Store, T
 import { useOrder } from '../../context/OrderContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import SEO from '../../components/common/SEO';
 
 const AdminOrders = () => {
     const { orders, loading, refreshOrders } = useOrder();
@@ -77,8 +78,9 @@ const AdminOrders = () => {
     if (loading) return <div className="p-8 text-center">Loading orders...</div>;
 
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center gap-4">
+        <div className="p-8 max-w-7xl mx-auto">
+            <SEO title="Manage Orders" description="Admin Order Management" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-xl font-serif font-bold text-gray-900">Orders</h1>
                     <p className="text-xs text-gray-500 hidden md:block">Manage and track vendor orders</p>
