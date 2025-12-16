@@ -20,9 +20,8 @@ const VendorRegister = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Simulate API call
-        console.log('Submitting vendor registration:', formData);
-        setTimeout(() => {
-            setIsSubmitted(true);
+        try {
+            const formDataToSend = new FormData();
             toast.success('Application submitted successfully!');
         }, 1000);
     };

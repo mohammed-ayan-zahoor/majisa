@@ -12,8 +12,7 @@ router.post('/', (req, res) => {
             console.error('No file received in req.file');
             return res.status(400).send('No file uploaded');
         }
-        console.log('File uploaded successfully:', req.file.path);
-        res.send(req.file.path);
+        res.json(req.file.path);
     });
 });
 

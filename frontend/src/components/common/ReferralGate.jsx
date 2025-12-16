@@ -145,7 +145,6 @@ const ReferralGate = ({ children }) => {
 
         // Format phone number (Indian format)
         const phoneNumber = `+91${formData.phone}`;
-        console.log('Attempting to send OTP to:', phoneNumber);
 
         try {
             setSubmitLoading(true);
