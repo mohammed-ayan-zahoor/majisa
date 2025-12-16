@@ -93,11 +93,11 @@ const AdminNotifications = () => {
     if (loading) return <div className="p-8 text-center">Loading notifications...</div>;
 
     return (
-        <div className="p-8 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-4 md:p-8 max-w-4xl mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-2xl font-serif font-bold text-gray-900">Notifications</h1>
-                    <p className="text-gray-500">Stay updated with latest activities</p>
+                    <p className="text-gray-500 text-sm md:text-base">Stay updated with latest activities</p>
                 </div>
                 {notifications.length > 0 && (
                     <div className="flex gap-4">
@@ -131,15 +131,15 @@ const AdminNotifications = () => {
                                 {getIcon(notification.type)}
                             </div>
                             <div className="flex-1">
-                                <div className="flex justify-between items-start">
-                                    <h3 className={`font-medium ${notification.read ? 'text-gray-700' : 'text-gray-900'}`}>
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 mb-1">
+                                    <h3 className={`font-medium text-sm md:text-base ${notification.read ? 'text-gray-700' : 'text-gray-900'}`}>
                                         {notification.title}
                                     </h3>
-                                    <span className="text-xs text-gray-400 whitespace-nowrap ml-2">{getTimeAgo(notification.createdAt)}</span>
+                                    <span className="text-xs text-gray-400 whitespace-nowrap">{getTimeAgo(notification.createdAt)}</span>
                                 </div>
-                                <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                                <p className="text-sm text-gray-600">{notification.message}</p>
                             </div>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 shrink-0">
                                 {!notification.read && (
                                     <button
                                         onClick={() => handleMarkAsRead(notification._id)}

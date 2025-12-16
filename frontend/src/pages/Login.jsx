@@ -174,7 +174,7 @@ const Login = () => {
                                             required
                                             value={formData.username}
                                             onChange={handleChange}
-                                            className={`block w-full bg-transparent border-b ${isDark ? 'border-gray-600 text-white focus:border-gold-400' : 'border-gray-300 text-gray-900 focus:border-primary-600'} py-3 focus:outline-none transition-colors placeholder-transparent`}
+                                            className={`block w-full bg-transparent border-b ${isDark ? 'border-gray-600 text-white focus:border-gold-400 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0D0D0D_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff] caret-gold-400' : 'border-gray-300 text-gray-900 focus:border-primary-600 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#FFFCF9_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#000000]'} py-3 focus:outline-none transition-colors placeholder-transparent`}
                                             placeholder="Username"
                                         />
                                     </div>
@@ -191,7 +191,7 @@ const Login = () => {
                                             required
                                             value={formData.password}
                                             onChange={handleChange}
-                                            className={`block w-full bg-transparent border-b ${isDark ? 'border-gray-600 text-white focus:border-gold-400' : 'border-gray-300 text-gray-900 focus:border-primary-600'} py-3 focus:outline-none transition-colors placeholder-transparent`}
+                                            className={`block w-full bg-transparent border-b ${isDark ? 'border-gray-600 text-white focus:border-gold-400 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0D0D0D_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff] caret-gold-400' : 'border-gray-300 text-gray-900 focus:border-primary-600 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#FFFCF9_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#000000]'} py-3 focus:outline-none transition-colors placeholder-transparent`}
                                             placeholder="Password"
                                         />
                                     </div>
@@ -200,7 +200,11 @@ const Login = () => {
 
                             <div className="flex items-center justify-between text-sm">
                                 <label className="flex items-center cursor-pointer">
-                                    <input type="checkbox" className={`rounded border-gray-300 ${isDark ? 'bg-white/10 border-transparent text-gold-500 focus:ring-offset-charcoal-600' : 'text-primary-600'} focus:ring-0`} />
+                                    <input
+                                        type="checkbox"
+                                        className={`rounded w-4 h-4 border-gray-300 ${isDark ? 'accent-gold-500 bg-white/10' : 'accent-primary-600'} focus:ring-0`}
+                                        style={{ colorScheme: isDark ? 'dark' : 'light' }}
+                                    />
                                     <span className={`ml-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Remember me</span>
                                 </label>
                                 <Link to="/forgotpassword" className={`font-medium ${isDark ? 'text-gold-400 hover:text-gold-300' : 'text-primary-600 hover:text-primary-500'}`}>

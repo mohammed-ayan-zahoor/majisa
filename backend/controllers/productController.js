@@ -53,8 +53,11 @@ const getProducts = async (req, res) => {
             if (req.query.maxPrice) priceFilter.price.$lte = Number(req.query.maxPrice);
         }
 
-        const count = await Product.countDocuments({ ...keyword, ...category, ...priceFilter });
-        const products = await Product.find({ ...keyword, ...category, ...priceFilter })
+        const newArrivalFilter = req.query.newArrival === 'true' ? { isNewArrival: true } : {};
+
+        const count = await Product.countDocuments({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter });
+        const products = await Product.find({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter })
+            .sort({ createdAt: -1 }) // Sort by newest first
             .limit(pageSize)
             .skip(pageSize * (page - 1));
 

@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const sendEmail = require('../utils/sendEmail');
+const { createNotification } = require('./notificationController');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -32,25 +33,34 @@ const addOrderItems = async (req, res) => {
 
         const createdOrder = await order.save();
 
+        // Create Admin Notification
+        await createNotification(
+            'info',
+            'New Order Received',
+            `Order #${createdOrder._id} received from ${req.user.name}`
+        );
+
         // Send Email Notification
         try {
             // Email to Vendor
-            // Email to Vendor
-            await sendEmail({
-                email: req.user.email,
-                subject: `Order Confirmation - #${createdOrder._id}`,
-                message: `
-                    <h1>Order Received</h1>
-                    <p>Hi ${req.user.name},</p>
-                    <p>We have received your order. Order ID: ${createdOrder._id}</p>
-                    <p>We will notify you once it is processed.</p>
-                `
-            });
+            if (req.user.email) {
+                await sendEmail({
+                    email: req.user.email,
+                    subject: `Order Confirmation - #${createdOrder._id}`,
+                    message: `
+                        <h1>Order Received</h1>
+                        <p>Hi ${req.user.name},</p>
+                        <p>We have received your order. Order ID: ${createdOrder._id}</p>
+                        <p>We will notify you once it is processed.</p>
+                    `
+                });
+            }
 
             // Email to Admin (Optional: sends to the sender/admin email)
-            if (process.env.EMAIL_FROM) {
+            const adminEmail = process.env.EMAIL_FROM || process.env.EMAIL_USERNAME;
+            if (adminEmail) {
                 await sendEmail({
-                    email: process.env.EMAIL_FROM,
+                    email: adminEmail,
                     subject: `New Order Received - #${createdOrder._id}`,
                     message: `
                         <h1>New Order Alert</h1>
@@ -161,6 +171,27 @@ const deleteOrder = async (req, res) => {
     }
 };
 
+// @desc    Report an issue with an order
+// @route   PUT /api/orders/:id/report
+// @access  Private (Goldsmith/Vendor)
+const reportOrderIssue = async (req, res) => {
+    const { issue } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+        // Create Admin Notification
+        await createNotification(
+            'error',
+            'Order Issue Reported',
+            `Issue reported for Order #${order._id} by ${req.user.name}: ${issue}`
+        );
+
+        res.json({ message: 'Issue reported to admin' });
+    } else {
+        res.status(404).send('Order not found');
+    }
+};
+
 module.exports = {
     addOrderItems,
     getOrderById,
@@ -169,4 +200,5 @@ module.exports = {
     getMyOrders,
     getOrders,
     deleteOrder,
+    reportOrderIssue,
 };

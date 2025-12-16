@@ -13,9 +13,9 @@ const Home = () => {
     useEffect(() => {
         const fetchFeaturedProducts = async () => {
             try {
-                const { data } = await api.get('/products');
-                // Get first 4 products
-                setFeaturedProducts(data.products.slice(0, 4));
+                const { data } = await api.get('/products?newArrival=true&limit=8');
+                // Get products
+                setFeaturedProducts(data.products);
             } catch (error) {
                 console.error('Error fetching featured products:', error);
             } finally {

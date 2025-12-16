@@ -83,13 +83,26 @@ export const OrderProvider = ({ children }) => {
         }
     };
 
+    const reportIssue = async (orderId, issue) => {
+        try {
+            await api.put(`/orders/${orderId}/report`, { issue });
+            toast.success('Issue reported to Admin');
+        } catch (error) {
+            console.error('Error reporting issue:', error);
+            toast.error('Failed to report issue');
+            throw error;
+        }
+    };
+
     const value = {
         orders,
         loading,
         addOrder,
         updateOrderStatus,
         getOrderById,
-        refreshOrders: fetchOrders
+        getOrderById,
+        refreshOrders: fetchOrders,
+        reportIssue
     };
 
     return (

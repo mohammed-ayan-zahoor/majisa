@@ -4,10 +4,54 @@ import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
 import toast from 'react-hot-toast';
 
+const ReportPrompt = ({ t, onSubmit }) => {
+    const [value, setValue] = useState('');
+    return (
+        <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex flex-col ring-1 ring-black ring-opacity-5`}>
+            <div className="p-5">
+                <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <AlertCircle size={16} className="text-red-500" />
+                    Report Issue
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">Please describe the problem with this job.</p>
+                <textarea
+                    className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-red-100 focus:border-red-400 outline-none transition-all resize-none"
+                    rows={3}
+                    placeholder="Type details here..."
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    autoFocus
+                />
+            </div>
+            <div className="flex border-t border-gray-100 bg-gray-50/50 rounded-b-lg">
+                <button
+                    onClick={() => toast.dismiss(t.id)}
+                    className="flex-1 p-3 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors border-r border-gray-100"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={() => {
+                        if (!value.trim()) {
+                            toast.error('Please enter a description');
+                            return;
+                        }
+                        onSubmit(value);
+                        toast.dismiss(t.id);
+                    }}
+                    className="flex-1 p-3 text-sm font-bold text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                >
+                    Submit Report
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const JobDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { getOrderById, updateOrderStatus, loading } = useOrder();
+    const { getOrderById, updateOrderStatus, reportIssue, loading } = useOrder();
     const [job, setJob] = useState(null);
     const [fetching, setFetching] = useState(true);
 
@@ -169,7 +213,17 @@ const JobDetails = () => {
                             </div>
                         )}
 
-                        <button className="w-full mt-4 border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => {
+                                toast.custom((t) => (
+                                    <ReportPrompt
+                                        t={t}
+                                        onSubmit={(issue) => reportIssue(job._id, issue)}
+                                    />
+                                ), { duration: Infinity }); // Keep open until action
+                            }}
+                            className="w-full mt-4 border border-red-200 text-red-600 py-3 rounded-lg font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                        >
                             <AlertCircle size={20} />
                             Report Issue
                         </button>

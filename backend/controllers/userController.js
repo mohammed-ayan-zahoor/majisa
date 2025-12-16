@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const { createNotification } = require('./notificationController');
 
 // ... (existing generateToken)
 
@@ -136,6 +137,12 @@ const registerUser = async (req, res) => {
 
     const referralCode = role === 'vendor' ? Math.random().toString(36).substring(2, 8).toUpperCase() : undefined;
 
+    const { createNotification } = require('./notificationController');
+
+    // ... (existing imports)
+
+    // ...
+
     const user = await User.create({
         name,
         email,
@@ -143,6 +150,15 @@ const registerUser = async (req, res) => {
         role: role || 'customer',
         referralCode
     });
+
+    // Notify Admin of new Vendor Registration
+    if (user && user.role === 'vendor') {
+        await createNotification(
+            'info',
+            'New Vendor Registration',
+            `${user.name} (${user.email}) has registered as a vendor.`
+        );
+    }
 
     if (user) {
         res.status(201).json({

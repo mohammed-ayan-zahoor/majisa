@@ -1,5 +1,6 @@
 const Customer = require('../models/Customer');
 const User = require('../models/User');
+const { createNotification } = require('./notificationController');
 
 // @desc    Login or Register Customer (Mock OTP)
 // @route   POST /api/customers/login
@@ -32,6 +33,13 @@ const loginOrRegister = async (req, res) => {
                 vendor: vendor._id,
                 wishlist: []
             });
+
+            // Notify Admin
+            await createNotification(
+                'info',
+                'New Customer Visit',
+                `${customer.name} (${customer.phone}) has entered the store via ${vendor.businessName || vendor.name}.`
+            );
         }
 
         // update visit time
