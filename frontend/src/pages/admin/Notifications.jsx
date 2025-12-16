@@ -55,16 +55,42 @@ const AdminNotifications = () => {
         }
     };
 
-    const handleClearAll = async () => {
-        if (!window.confirm('Are you sure you want to delete all notifications?')) return;
-        try {
-            await api.delete('/notifications/clear-all');
-            setNotifications([]);
-            toast.success('All notifications cleared');
-        } catch (error) {
-            console.error('Error clearing notifications:', error);
-            toast.error('Failed to clear notifications');
-        }
+    const handleClearAll = () => {
+        toast((t) => (
+            <div className="flex flex-col gap-2">
+                <p className="font-medium text-gray-900">Are you sure you want to delete all notifications?</p>
+                <div className="flex gap-2 justify-end mt-1">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await api.delete('/notifications/clear-all');
+                                setNotifications([]);
+                                toast.success('All notifications cleared');
+                            } catch (error) {
+                                console.error('Error clearing notifications:', error);
+                                toast.error('Failed to clear notifications');
+                            }
+                        }}
+                        className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                        Delete All
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+            style: {
+                minWidth: '300px',
+            },
+        });
     };
 
     const getIcon = (type) => {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Hammer, Clock, CheckCircle } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
 import { useAuth } from '../../context/AuthContext';
+import SEO from '../../components/common/SEO';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -30,7 +31,8 @@ const GoldsmithDashboard = () => {
     const completedJobs = jobs.filter(j => j.status === 'Completed');
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+            <SEO title="Goldsmith Dashboard" description="Manage your assigned jobs" />
             <div>
                 <h1 className="text-2xl font-bold text-gray-900">Goldsmith Dashboard</h1>
                 <p className="text-gray-500">Welcome back, {user?.name || 'Goldsmith'}</p>

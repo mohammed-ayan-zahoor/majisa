@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
+import SEO from '../../components/common/SEO';
 
 const MyJobs = () => {
     const { orders, loading } = useOrder(); // orders are already filtered for goldsmith
@@ -21,6 +22,7 @@ const MyJobs = () => {
 
     return (
         <div className="space-y-6">
+            <SEO title="My Jobs" description="Assigned Goldsmith Jobs" />
             <div>
                 <h1 className="text-2xl font-bold text-gray-900">My Jobs</h1>
                 <p className="text-gray-500">Manage your assigned tasks</p>
@@ -91,8 +93,8 @@ const MyJobs = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${job.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                                job.status === 'Pending' ? 'bg-orange-100 text-orange-700' :
-                                                    'bg-blue-100 text-blue-700'
+                                            job.status === 'Pending' ? 'bg-orange-100 text-orange-700' :
+                                                'bg-blue-100 text-blue-700'
                                             }`}>
                                             {job.status}
                                         </span>

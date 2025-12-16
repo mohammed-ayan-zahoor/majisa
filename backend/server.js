@@ -38,6 +38,81 @@ const path = require('path');
 // Serve frontend (ALWAYS try to serve static files, regarding of NODE_ENV)
 // This ensures it works if NODE_ENV isn't set perfectly
 const frontendPath = path.join(__dirname, '../frontend/dist');
+
+// Dynamic Sitemap
+app.get('/sitemap.xml', async (req, res) => {
+    try {
+        const Product = require('./models/productModel'); // Ensure this path is correct
+        const products = await Product.find({}, 'name _id updatedAt images image'); // Fetch images too
+
+        const baseUrl = 'https://majisa.co.in';
+
+        // Static Pages
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/products</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+
+        // Dynamic Product Pages
+        products.forEach(product => {
+            const lastMod = product.updatedAt ? new Date(product.updatedAt).toISOString() : new Date().toISOString();
+            const productUrl = `${baseUrl}/product/${product._id}`;
+
+            // Handle images (support both array and single string legacy)
+            const productImages = [];
+            if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+                productImages.push(...product.images);
+            } else if (product.image) {
+                productImages.push(product.image);
+            }
+
+            let imageTags = '';
+            productImages.forEach(img => {
+                if (img) {
+                    imageTags += `
+    <image:image>
+      <image:loc>${img.startsWith('http') ? img : baseUrl + img}</image:loc>
+      <image:title>${product.name.replace(/&/g, '&amp;')}</image:title>
+    </image:image>`;
+                }
+            });
+
+            xml += `  <url>
+    <loc>${productUrl}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>${imageTags}
+  </url>
+`;
+        });
+
+        xml += '</urlset>';
+
+        res.header('Content-Type', 'application/xml');
+        res.header('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+        res.send(xml);
+
+    } catch (error) {
+        console.error('Sitemap Error:', error);
+        res.status(500).end();
+    }
+});
+
 app.use(express.static(frontendPath));
 
 app.get('/*splat', (req, res) => {
