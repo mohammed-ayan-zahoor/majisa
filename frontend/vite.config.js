@@ -8,16 +8,14 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('lucide-react')) return 'icons';
-              if (id.includes('jspdf') || id.includes('html2canvas')) return 'pdf';
-              if (id.includes('framer-motion')) return 'animations';
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) return 'react-vendor';
-              return 'vendor';
-            }
-          },
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('lucide-react')) return 'icons';
+            if (id.includes('jspdf') || id.includes('html2canvas')) return 'pdf';
+            if (id.includes('framer-motion')) return 'animations';
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) return 'react-vendor';
+            return 'vendor';
+          }
         },
       },
     },

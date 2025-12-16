@@ -100,7 +100,6 @@ export const OrderProvider = ({ children }) => {
         addOrder,
         updateOrderStatus,
         getOrderById,
-        getOrderById,
         refreshOrders: fetchOrders,
         reportIssue
     };
