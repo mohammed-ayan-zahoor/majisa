@@ -22,8 +22,13 @@ const VendorRegister = () => {
         // Simulate API call
         try {
             const formDataToSend = new FormData();
-            toast.success('Application submitted successfully!');
-        }, 1000);
+            setTimeout(() => {
+                setIsSubmitted(true);
+                toast.success('Application submitted successfully!');
+            }, 1000);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     if (isSubmitted) {
