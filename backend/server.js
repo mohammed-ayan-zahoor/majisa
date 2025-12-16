@@ -58,7 +58,7 @@ const frontendPath = path.join(__dirname, '../frontend/dist');
 // Dynamic Sitemap
 app.get('/sitemap.xml', async (req, res) => {
     try {
-        const Product = require('./models/productModel'); // Ensure this path is correct
+        const Product = require('./models/Product'); // Corrected path from productModel to Product
         const products = await Product.find({}, 'name _id updatedAt images image'); // Fetch images too
 
         const baseUrl = 'https://majisa.co.in';
