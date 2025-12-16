@@ -14,6 +14,8 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 
+const helmet = require('helmet');
+
 // Connect to database
 connectDB();
 
@@ -22,6 +24,20 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'", "https://api.cloudinary.com", "https://*.firebaseio.com", "https://identitytoolkit.googleapis.com"],
+            imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.google.com", "https://www.gstatic.com"],
+            frameSrc: ["'self'", "https://www.google.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"]
+        },
+    },
+    crossOriginEmbedderPolicy: false
+}));
 
 // Routes
 app.use('/api/users', userRoutes);
