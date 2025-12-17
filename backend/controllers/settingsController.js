@@ -24,6 +24,7 @@ const updateSettings = async (req, res) => {
         settings.siteName = req.body.siteName || settings.siteName;
         settings.contactEmail = req.body.contactEmail || settings.contactEmail;
         settings.currency = req.body.currency || settings.currency;
+        settings.watermarkLogo = req.body.watermarkLogo !== undefined ? req.body.watermarkLogo : settings.watermarkLogo;
         settings.maintenanceMode = req.body.maintenanceMode !== undefined ? req.body.maintenanceMode : settings.maintenanceMode;
 
         const updatedSettings = await settings.save();

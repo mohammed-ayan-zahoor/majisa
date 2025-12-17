@@ -4,13 +4,21 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import QuickViewModal from './QuickViewModal';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useSettings } from '../../context/SettingsContext';
+import { getWatermarkedImage } from '../../utils/urlUtils';
 
 const ProductCard = ({ product }) => {
     const [showQuickView, setShowQuickView] = useState(false);
     const { addToCart } = useCart();
     const { toggleWishlist, checkIsWishlisted } = useWishlist();
+    const { settings } = useSettings();
 
     const isWishlisted = checkIsWishlisted(product._id);
+
+    // Auto-apply watermark if available
+    const displayImage = settings?.watermarkLogo
+        ? getWatermarkedImage(product.image, settings.watermarkLogo)
+        : product.image;
 
     return (
         <>
@@ -18,7 +26,7 @@ const ProductCard = ({ product }) => {
                 {/* Image Container */}
                 <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4">
                     <img
-                        src={product.image}
+                        src={displayImage}
                         alt={product.name}
                         className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
                     />

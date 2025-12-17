@@ -4,12 +4,15 @@ import { Star, Truck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { useSettings } from '../context/SettingsContext';
+import { getWatermarkedImage } from '../utils/urlUtils';
 import SEO from '../components/common/SEO';
 
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { settings } = useSettings();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
@@ -49,16 +52,26 @@ const ProductDetails = () => {
     if (!product) return null;
 
     // Prepare images array for gallery
-    const galleryImages = product.images && product.images.length > 0
+    const rawGalleryImages = product.images && product.images.length > 0
         ? product.images
         : (product.image ? [product.image] : []);
+
+    const galleryImages = settings?.watermarkLogo
+        ? rawGalleryImages.map(img => getWatermarkedImage(img, settings.watermarkLogo))
+        : rawGalleryImages;
+
+    // Determine the display image (selected or default)
+    // We must ensure the selectedImage also gets watermarked if it's not already
+    const displayImage = selectedImage
+        ? (settings?.watermarkLogo ? getWatermarkedImage(selectedImage, settings.watermarkLogo) : selectedImage)
+        : galleryImages[0];
 
     return (
         <div className="bg-white min-h-screen py-6">
             <SEO
                 title={product.name}
                 description={product.description || `Buy ${product.name} from Majisa Jewellers.`}
-                image={selectedImage || galleryImages[0]}
+                image={displayImage}
                 keywords={`${product.category}, ${product.metal}, ${product.name}, jewelry`}
             />
             <div className="container mx-auto px-4">
@@ -75,7 +88,7 @@ const ProductDetails = () => {
                     <div className="space-y-4">
                         <div className="h-[65vh] bg-gray-50 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-100">
                             <img
-                                src={selectedImage || galleryImages[0]}
+                                src={displayImage}
                                 alt={product.name}
                                 className="w-full h-full object-contain hover:scale-105 transition-transform duration-500"
                             />
@@ -85,8 +98,8 @@ const ProductDetails = () => {
                                 {galleryImages.map((img, i) => (
                                     <div
                                         key={i}
-                                        onClick={() => setSelectedImage(img)}
-                                        className={`w-20 h-20 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${selectedImage === img ? 'border-primary-500 ring-2 ring-primary-200' : 'border-transparent hover:border-primary-300'
+                                        onClick={() => setSelectedImage(rawGalleryImages[i])} // Keep selected as raw URL for consistent state
+                                        className={`w-20 h-20 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${displayImage === img ? 'border-primary-500 ring-2 ring-primary-200' : 'border-transparent hover:border-primary-300'
                                             }`}
                                     >
                                         <img

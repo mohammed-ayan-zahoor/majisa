@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { OrderProvider } from './context/OrderContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { HelmetProvider } from 'react-helmet-async';
 
 import Layout from './components/layout/Layout';
@@ -62,78 +63,79 @@ function App() {
       <ScrollToTop />
       <HelmetProvider>
         <AuthProvider>
-          <WishlistProvider>
+          <SettingsProvider>
             <CartProvider>
-              <OrderProvider>
-                <Toaster position="top-center" />
-                <Routes>
-                  <Route path="/" element={<Layout />}>
-                    <Route index element={
-                      <ReferralGate>
-                        <Home />
-                      </ReferralGate>
-                    } />
-                    <Route path="products" element={
-                      <ReferralGate>
-                        <Products />
-                      </ReferralGate>
-                    } />
-                    <Route path="product/:id" element={
-                      <ReferralGate>
-                        <ProductDetails />
-                      </ReferralGate>
-                    } />
-                    <Route path="about" element={<About />} />
-                    <Route path="wishlist" element={<Wishlist />} />
-                    <Route path="cart" element={<Cart />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
+              <WishlistProvider>
+                <OrderProvider>
+                  <Toaster position="top-center" />
+                  <Routes>
+                    <Route path="/" element={<Layout />}>
+                      <Route index element={
+                        <ReferralGate>
+                          <Home />
+                        </ReferralGate>
+                      } />
+                      <Route path="products" element={
+                        <ReferralGate>
+                          <Products />
+                        </ReferralGate>
+                      } />
+                      <Route path="product/:id" element={
+                        <ReferralGate>
+                          <ProductDetails />
+                        </ReferralGate>
+                      } />
+                      <Route path="about" element={<About />} />
+                      <Route path="wishlist" element={<Wishlist />} />
+                      <Route path="cart" element={<Cart />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Route>
 
-                  {/* Auth Routes (No Header/Footer) */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/vendor-register" element={<VendorRegister />} />
-                  <Route path="/forgotpassword" element={<ForgotPassword />} />
-                  <Route path="/resetpassword/:resetToken" element={<ResetPassword />} />
+                    {/* Auth Routes (No Header/Footer) */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/vendor-register" element={<VendorRegister />} />
+                    <Route path="/forgotpassword" element={<ForgotPassword />} />
+                    <Route path="/resetpassword/:resetToken" element={<ResetPassword />} />
 
-                  {/* Admin Routes */}
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={<AdminLayout />}>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="products" element={<AdminProducts />} />
-                    <Route path="products/new" element={<AddProduct />} />
-                    <Route path="products/edit/:id" element={<AddProduct />} />
-                    <Route path="orders" element={<AdminOrders />} />
-                    <Route path="orders/:id" element={<OrderDetails />} />
-                    <Route path="vendors" element={<AdminVendors />} />
-                    <Route path="goldsmiths" element={<AdminGoldsmiths />} />
-                    <Route path="visits" element={<CustomerVisits />} />
-                    <Route path="categories" element={<Categories />} />
-                    <Route path="notifications" element={<AdminNotifications />} />
-                    <Route path="settings" element={<AdminSettings />} />
-                  </Route>
+                    {/* Admin Routes */}
+                    <Route path="/admin" element={<AdminLayout />}>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="products" element={<AdminProducts />} />
+                      <Route path="products/new" element={<AddProduct />} />
+                      <Route path="products/edit/:id" element={<AddProduct />} />
+                      <Route path="orders" element={<AdminOrders />} />
+                      <Route path="orders/:id" element={<OrderDetails />} />
+                      <Route path="vendors" element={<AdminVendors />} />
+                      <Route path="goldsmiths" element={<AdminGoldsmiths />} />
+                      <Route path="visits" element={<CustomerVisits />} />
+                      <Route path="categories" element={<Categories />} />
+                      <Route path="notifications" element={<AdminNotifications />} />
+                      <Route path="settings" element={<AdminSettings />} />
+                    </Route>
 
-                  {/* Goldsmith Routes */}
-                  <Route path="/goldsmith" element={<GoldsmithLayout />}>
-                    <Route index element={<GoldsmithDashboard />} />
-                    <Route path="dashboard" element={<GoldsmithDashboard />} />
-                    <Route path="jobs" element={<MyJobs />} />
-                    <Route path="jobs/:id" element={<JobDetails />} />
-                  </Route>
+                    {/* Goldsmith Routes */}
+                    <Route path="/goldsmith" element={<GoldsmithLayout />}>
+                      <Route index element={<GoldsmithDashboard />} />
+                      <Route path="dashboard" element={<GoldsmithDashboard />} />
+                      <Route path="jobs" element={<MyJobs />} />
+                      <Route path="jobs/:id" element={<JobDetails />} />
+                    </Route>
 
-                  {/* Vendor Routes */}
-                  <Route path="/vendor" element={<VendorLayout />}>
-                    <Route index element={<VendorDashboard />} />
-                    <Route path="dashboard" element={<VendorDashboard />} />
-                    <Route path="place-order" element={<VendorOrder />} />
-                    <Route path="orders" element={<MyOrders />} />
-                    <Route path="orders/:id" element={<VendorOrderDetails />} />
-                    <Route path="profile" element={<VendorProfile />} />
-                  </Route>
-                </Routes>
-              </OrderProvider>
+                    {/* Vendor Routes */}
+                    <Route path="/vendor" element={<VendorLayout />}>
+                      <Route index element={<VendorDashboard />} />
+                      <Route path="dashboard" element={<VendorDashboard />} />
+                      <Route path="place-order" element={<VendorOrder />} />
+                      <Route path="orders" element={<MyOrders />} />
+                      <Route path="orders/:id" element={<VendorOrderDetails />} />
+                      <Route path="profile" element={<VendorProfile />} />
+                    </Route>
+                  </Routes>
+                </OrderProvider>
+              </WishlistProvider>
             </CartProvider>
-          </WishlistProvider>
+          </SettingsProvider>
         </AuthProvider>
       </HelmetProvider>
     </BrowserRouter>

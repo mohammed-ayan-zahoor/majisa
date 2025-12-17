@@ -1,19 +1,37 @@
 import React, { useState } from 'react';
-import { X, ShoppingBag, Minus, Plus } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { X, Heart, ShoppingBag, ArrowRight, Minus, Plus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { useSettings } from '../../context/SettingsContext';
+import { getWatermarkedImage } from '../../utils/urlUtils';
 
 const QuickViewModal = ({ product, onClose }) => {
     const [quantity, setQuantity] = useState(1);
+    const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { toggleWishlist, checkIsWishlisted } = useWishlist();
     const { user } = useAuth();
+    const { settings } = useSettings();
 
     if (!product) return null;
+
+    const isWishlisted = checkIsWishlisted(product._id);
+    const [selectedImage, setSelectedImage] = useState(product.images?.[0] || product.image);
+
+    // Auto-apply watermark
+    const displayImage = settings?.watermarkLogo
+        ? getWatermarkedImage(selectedImage, settings.watermarkLogo)
+        : selectedImage;
 
     const handleAddToCart = () => {
         addToCart(product, quantity);
         onClose();
+    };
+
+    const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget) onClose();
     };
 
     return (
@@ -21,7 +39,7 @@ const QuickViewModal = ({ product, onClose }) => {
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-                onClick={onClose}
+                onClick={handleOverlayClick}
             />
 
             {/* Modal Content */}
@@ -37,7 +55,7 @@ const QuickViewModal = ({ product, onClose }) => {
                     {/* Image */}
                     <div className="aspect-[4/5] md:aspect-auto bg-gray-100">
                         <img
-                            src={product.image}
+                            src={displayImage}
                             alt={product.name}
                             className="w-full h-full object-cover"
                         />
@@ -54,7 +72,7 @@ const QuickViewModal = ({ product, onClose }) => {
                             {product.description || 'Experience the elegance of fine craftsmanship with this exquisite piece, designed to add a touch of royalty to your collection.'}
                         </p>
 
-                        {user && (user.role === 'vendor') ? (
+                        {user && (user.role === 'vendor' || user.role === 'admin') ? (
                             <div className="space-y-4">
                                 <div className="flex items-center gap-4">
                                     <div className="flex items-center border border-gray-300 rounded-lg">
@@ -90,7 +108,8 @@ const QuickViewModal = ({ product, onClose }) => {
 
                         <Link
                             to={`/product/${product._id}`}
-                            className="block text-center text-xs text-gray-500 hover:text-primary-600 underline"
+                            className="block text-center text-xs text-gray-500 hover:text-primary-600 underline mt-4"
+                            onClick={onClose}
                         >
                             View Full Details
                         </Link>
@@ -98,7 +117,6 @@ const QuickViewModal = ({ product, onClose }) => {
                 </div>
             </div>
         </div>
-
     );
 };
 

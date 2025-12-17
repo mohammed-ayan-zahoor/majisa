@@ -19,6 +19,10 @@ const settingsSchema = mongoose.Schema({
     maintenanceMode: {
         type: Boolean,
         default: false
+    },
+    watermarkLogo: {
+        type: String, // Cloudinary Public ID
+        default: ''
     }
 }, {
     timestamps: true
