@@ -70,11 +70,17 @@ export const AuthProvider = ({ children }) => {
         toast.success('Logged out successfully');
     };
 
+    const updateUser = (userData) => {
+        setUser(userData);
+        localStorage.setItem('majisa_user', JSON.stringify(userData));
+    };
+
     const value = {
         user,
         login,
         register,
         logout,
+        updateUser,
         isAuthenticated: !!user,
         loading
     };

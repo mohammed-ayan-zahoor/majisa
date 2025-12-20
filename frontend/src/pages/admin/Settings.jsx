@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Lock, Globe, Bell } from 'lucide-react';
+import { Save, Lock, Globe, Bell, User } from 'lucide-react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
 const AdminSettings = () => {
     const [loading, setLoading] = useState(true);
+    const { user, updateUser } = useAuth();
     const [generalSettings, setGeneralSettings] = useState({
         siteName: '',
         contactEmail: '',
         currency: 'INR',
         maintenanceMode: false,
         watermarkLogo: ''
+    });
+    const [profileData, setProfileData] = useState({
+        name: user?.name || '',
+        email: user?.email || '',
     });
     const [uploading, setUploading] = useState(false);
 
@@ -54,6 +60,18 @@ const AdminSettings = () => {
         }
     };
 
+    const handleProfileSave = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await api.put('/users/profile', profileData);
+            updateUser(data);
+            toast.success('Profile updated successfully');
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            toast.error(error.response?.data || 'Failed to update profile');
+        }
+    };
+
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         if (passwordData.new !== passwordData.confirm) {
@@ -61,11 +79,10 @@ const AdminSettings = () => {
             return;
         }
         try {
-            await api.put('/users/profile/password', {
+            const { data } = await api.put('/users/profile/password', {
                 password: passwordData.new,
-                // We might need to send current password for verification depending on backend implementation
-                // For now assuming standard profile update
             });
+            updateUser(data);
             toast.success('Password updated successfully');
             setPasswordData({ current: '', new: '', confirm: '' });
         } catch (error) {
@@ -122,17 +139,59 @@ const AdminSettings = () => {
             </div>
 
             <div className="space-y-8">
+                {/* Account Profile */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+                        <User className="text-primary-600" size={24} />
+                        <h2 className="font-bold text-gray-900">Account Profile</h2>
+                    </div>
+                    <div className="p-6">
+                        <form onSubmit={handleProfileSave} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">My Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={profileData.name}
+                                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-medium"
+                                        placeholder="Your Name"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Login Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={profileData.email}
+                                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-medium bg-primary-50/30"
+                                        placeholder="Your Login Email"
+                                    />
+                                    <p className="text-[10px] text-primary-600 mt-1">This is the email you use to sign in.</p>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button type="submit" className="flex items-center gap-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors shadow-sm">
+                                    <Save size={18} />
+                                    Update Profile
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 {/* General Settings */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="p-6 border-b border-gray-100 flex items-center gap-3">
                         <Globe className="text-primary-600" size={24} />
-                        <h2 className="font-bold text-gray-900">General Settings</h2>
+                        <h2 className="font-bold text-gray-900">Site Settings</h2>
                     </div>
                     <div className="p-6">
                         <form onSubmit={handleGeneralSave} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Site Name</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Store Name</label>
                                     <input
                                         type="text"
                                         value={generalSettings.siteName}
@@ -141,7 +200,7 @@ const AdminSettings = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Display Contact Email</label>
                                     <input
                                         type="email"
                                         value={generalSettings.contactEmail}
