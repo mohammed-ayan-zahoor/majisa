@@ -2,17 +2,17 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SEO = ({ title, description, keywords, image, url }) => {
-    const siteTitle = 'Majisa | Digital Jewelry Catalog';
-    const siteDescription = 'Discover the finest craftsmanship at Majisa. Premium gold jewelry, custom orders, and exclusive designs.';
+    const siteTitle = 'Majisa | KGF Kolar Gold Fields | Digital Jewelry Catalog';
+    const siteDescription = 'Experience fine craftsmanship at Majisa Jewellers, KGF (Kolar Gold Fields). Explore our digital catalog of premium gold, diamond, and antique jewelry in Karnataka.';
     const siteUrl = window.location.origin;
     const defaultImage = `${siteUrl}/logo.png`; // Ensure you have a default logo/image
 
     return (
         <Helmet defer={false} key={title}>
             {/* Standard Metadata */}
-            <title>{title ? `${title} | Majisa` : siteTitle}</title>
+            <title>{title ? `${title} | Majisa KGF` : siteTitle}</title>
             <meta name="description" content={description || siteDescription} />
-            <meta name="keywords" content={keywords || 'gold, jewelry, majisa, catalog, ring, necklace, custom'} />
+            <meta name="keywords" content={keywords || 'Majisa KGF, Kolar Gold Fields, Karnataka Jewelry, Gold Catalog, Antique Jewelry, Wedding Jewelry Karnataka, Harams, Vanki, Antique Gold KGF'} />
 
             {/* Open Graph / Facebook */}
             <meta property="og:type" content="website" />

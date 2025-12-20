@@ -42,8 +42,8 @@ const Home = () => {
     return (
         <div className="bg-cream-100 min-h-screen">
             <SEO
-                title="Home"
-                description="Majisa Jewellers - Where tradition meets timeless elegance. Handcrafted gold, diamond, and silver jewelry since 1995."
+                title="Majisa Jewellers KGF | Home"
+                description="Welcome to Majisa Jewellers, KGF (Kolar Gold Fields). Discover our timeless collection of handcrafted gold, diamond, and antique jewelry. Tradition meets elegance since 1995."
             />
             {/* Hero Section - Full Height & Cinematic */}
             <section className="relative h-[85vh] w-full overflow-hidden">
