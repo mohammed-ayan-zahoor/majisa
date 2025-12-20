@@ -59,12 +59,27 @@ const frontendPath = path.join(__dirname, '../frontend/dist');
 // Dynamic Sitemap
 app.get('/sitemap.xml', async (req, res) => {
     try {
-        const Product = require('./models/Product'); // Corrected path from productModel to Product
-        const products = await Product.find({}, 'name _id updatedAt images image'); // Fetch images too
+        const Product = require('./models/Product');
+        const Category = require('./models/Category');
+
+        const [products, categories] = await Promise.all([
+            Product.find({}, 'name _id updatedAt images image'),
+            Category.find({}, 'name image updatedAt')
+        ]);
 
         const baseUrl = 'https://majisa.co.in';
 
-        // Static Pages
+        // Helper to escape XML special characters
+        const escapeXml = (unsafe) => {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        };
+
         let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
@@ -85,12 +100,35 @@ app.get('/sitemap.xml', async (req, res) => {
   </url>
 `;
 
+        // Dynamic Category Pages
+        categories.forEach(category => {
+            const lastMod = category.updatedAt ? new Date(category.updatedAt).toISOString() : new Date().toISOString();
+            const categoryUrl = `${baseUrl}/products?category=${encodeURIComponent(category.name)}`;
+
+            let imageTags = '';
+            if (category.image) {
+                imageTags = `
+    <image:image>
+      <image:loc>${category.image.startsWith('http') ? category.image : baseUrl + category.image}</image:loc>
+      <image:title>${escapeXml(category.name)} Collection</image:title>
+    </image:image>`;
+            }
+
+            xml += `  <url>
+    <loc>${categoryUrl}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>${imageTags}
+  </url>
+`;
+        });
+
         // Dynamic Product Pages
         products.forEach(product => {
             const lastMod = product.updatedAt ? new Date(product.updatedAt).toISOString() : new Date().toISOString();
             const productUrl = `${baseUrl}/product/${product._id}`;
 
-            // Handle images (support both array and single string legacy)
+            // Handle images
             const productImages = [];
             if (product.images && Array.isArray(product.images) && product.images.length > 0) {
                 productImages.push(...product.images);
@@ -104,7 +142,7 @@ app.get('/sitemap.xml', async (req, res) => {
                     imageTags += `
     <image:image>
       <image:loc>${img.startsWith('http') ? img : baseUrl + img}</image:loc>
-      <image:title>${product.name.replace(/&/g, '&amp;')}</image:title>
+      <image:title>${escapeXml(product.name)}</image:title>
     </image:image>`;
                 }
             });
@@ -120,8 +158,8 @@ app.get('/sitemap.xml', async (req, res) => {
 
         xml += '</urlset>';
 
-        res.header('Content-Type', 'application/xml');
-        res.header('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+        res.set('Content-Type', 'application/xml');
+        res.header('Cache-Control', 'public, max-age=86400');
         res.send(xml);
 
     } catch (error) {
