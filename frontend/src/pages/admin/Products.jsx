@@ -39,16 +39,46 @@ const AdminProducts = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await api.delete(`/products/${id}`);
-                toast.success('Product deleted successfully');
-                fetchProducts(); // Refresh list
-            } catch (error) {
-                toast.error('Failed to delete product');
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div className="flex flex-col gap-3 p-1">
+                <div className="text-sm font-medium text-gray-900">
+                    Are you sure you want to delete this product?
+                </div>
+                <div className="flex gap-2 justify-end">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            const loadingToast = toast.loading('Deleting product...');
+                            try {
+                                await api.delete(`/products/${id}`);
+                                toast.success('Product deleted successfully', { id: loadingToast });
+                                fetchProducts(); // Refresh list
+                            } catch (error) {
+                                toast.error('Failed to delete product', { id: loadingToast });
+                            }
+                        }}
+                        className="px-3 py-1 text-xs font-medium bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+            style: {
+                minWidth: '300px',
+                border: '1px solid #fee2e2',
+                padding: '12px'
             }
-        }
+        });
     };
 
     const filteredProducts = Array.isArray(products) ? products.filter(product =>

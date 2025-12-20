@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const Product = require('../models/Product');
 const cloudinary = require('cloudinary').v2;
 
 // Configure Cloudinary
@@ -100,6 +101,13 @@ const deleteCategory = async (req, res) => {
     const category = await Category.findById(req.params.id);
 
     if (category) {
+        // Check if there are any products associated with this category
+        const productsCount = await Product.countDocuments({ category: category.name });
+
+        if (productsCount > 0) {
+            return res.status(400).send(`Cannot delete category "${category.name}" because it contains ${productsCount} product(s). Please move or delete the products first.`);
+        }
+
         try {
             if (category.image) {
                 const publicId = extractPublicId(category.image);

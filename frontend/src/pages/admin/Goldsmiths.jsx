@@ -52,17 +52,47 @@ const AdminGoldsmiths = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to remove this goldsmith?')) {
-            try {
-                await api.delete(`/users/${id}`);
-                setGoldsmiths(prev => prev.filter(g => g._id !== id));
-                toast.success('Goldsmith removed successfully');
-            } catch (error) {
-                console.error('Error deleting goldsmith:', error);
-                toast.error('Failed to delete goldsmith');
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div className="flex flex-col gap-3 p-1">
+                <div className="text-sm font-medium text-gray-900">
+                    Are you sure you want to remove this goldsmith?
+                </div>
+                <div className="flex gap-2 justify-end">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            const loadingToast = toast.loading('Removing goldsmith...');
+                            try {
+                                await api.delete(`/users/${id}`);
+                                setGoldsmiths(prev => prev.filter(g => g._id !== id));
+                                toast.success('Goldsmith removed successfully', { id: loadingToast });
+                            } catch (error) {
+                                console.error('Error deleting goldsmith:', error);
+                                toast.error('Failed to delete goldsmith', { id: loadingToast });
+                            }
+                        }}
+                        className="px-3 py-1 text-xs font-medium bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors"
+                    >
+                        Remove
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+            style: {
+                minWidth: '300px',
+                border: '1px solid #fee2e2',
+                padding: '12px'
             }
-        }
+        });
     };
 
     const handleAddGoldsmith = async (e) => {

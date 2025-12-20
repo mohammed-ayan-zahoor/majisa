@@ -54,15 +54,46 @@ const AdminVendors = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this vendor?')) return;
-        try {
-            await api.delete(`/users/${id}`);
-            setVendors(prev => prev.filter(v => v._id !== id));
-            toast.success('Vendor deleted successfully');
-        } catch (error) {
-            toast.error('Failed to delete vendor');
-        }
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div className="flex flex-col gap-3 p-1">
+                <div className="text-sm font-medium text-gray-900">
+                    Are you sure you want to delete this vendor?
+                </div>
+                <div className="flex gap-2 justify-end">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            const loadingToast = toast.loading('Deleting vendor...');
+                            try {
+                                await api.delete(`/users/${id}`);
+                                setVendors(prev => prev.filter(v => v._id !== id));
+                                toast.success('Vendor deleted successfully', { id: loadingToast });
+                            } catch (error) {
+                                toast.error('Failed to delete vendor', { id: loadingToast });
+                            }
+                        }}
+                        className="px-3 py-1 text-xs font-medium bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+            style: {
+                minWidth: '300px',
+                border: '1px solid #fee2e2',
+                padding: '12px'
+            }
+        });
     };
 
     const handleAddVendor = async (e) => {
