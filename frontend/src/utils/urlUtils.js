@@ -29,9 +29,9 @@ export const getWatermarkedImage = (imageUrl, watermarkId, options = {}) => {
         const baseUrl = imageUrl.substring(0, uploadIndex + 8); // includes /upload/
         const restUrl = imageUrl.substring(uploadIndex + 8);
 
-        // Transformation string: l_<watermark_id>,o_<opacity>,w_<width>,fl_relative,g_<position>
-        // Note: Public IDs with slashes might need replacing in some contexts, but usually OK in URL
-        const transformation = `l_${watermarkId.replace(/\//g, ':')},o_${opacity},w_${width},fl_relative,g_${position}/`;
+        // Transformation string: l_<watermark_id>,o_<opacity>,w_<width>,fl_relative,g_<position>,q_auto:best,f_auto
+        // q_auto:best ensures the highest visual quality for jewelry while f_auto picks the best format (WebP/AVIF)
+        const transformation = `l_${watermarkId.replace(/\//g, ':')},o_${opacity},w_${width},fl_relative,g_${position},q_auto:best,f_auto/`;
 
         return `${baseUrl}${transformation}${restUrl}`;
     } catch (error) {
