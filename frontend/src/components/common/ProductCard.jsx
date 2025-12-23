@@ -32,11 +32,18 @@ const ProductCard = ({ product }) => {
                     />
 
                     {/* Badges */}
-                    {product.isNew && (
-                        <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-charcoal-500 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm">
-                            New
-                        </span>
-                    )}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        {product.isNewArrival && (
+                            <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-charcoal-500 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm">
+                                New
+                            </span>
+                        )}
+                        {product.isFeatured && (
+                            <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm flex items-center gap-1">
+                                <span>⭐</span> Featured
+                            </span>
+                        )}
+                    </div>
 
                     {/* Hover Actions */}
                     {/* Actions - Always visible on mobile, Hover on Desktop */}

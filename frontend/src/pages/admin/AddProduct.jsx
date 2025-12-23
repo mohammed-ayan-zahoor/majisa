@@ -24,7 +24,8 @@ const AddProduct = () => {
         weight: '',
         wastage: '',
         images: [], // Array of image URLs
-        isNewArrival: false
+        isNewArrival: false,
+        isFeatured: false
     });
 
     useEffect(() => {
@@ -61,7 +62,8 @@ const AddProduct = () => {
                 weight: data.weight,
                 wastage: data.wastage || '',
                 images: data.images && data.images.length > 0 ? data.images : (data.image ? [data.image] : []),
-                isNewArrival: data.isNewArrival
+                isNewArrival: data.isNewArrival,
+                isFeatured: data.isFeatured || false
             });
         } catch (error) {
             console.error('Error fetching product:', error);
@@ -297,15 +299,28 @@ const AddProduct = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                id="isNewArrival"
-                                checked={formData.isNewArrival}
-                                onChange={(e) => setFormData({ ...formData, isNewArrival: e.target.checked })}
-                                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                            />
-                            <label htmlFor="isNewArrival" className="text-sm font-medium text-gray-700">Mark as New Arrival</label>
+                        <div className="flex flex-col space-y-3">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="isNewArrival"
+                                    checked={formData.isNewArrival}
+                                    onChange={(e) => setFormData({ ...formData, isNewArrival: e.target.checked })}
+                                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                />
+                                <label htmlFor="isNewArrival" className="text-sm font-medium text-gray-700">Mark as New Arrival</label>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="isFeatured"
+                                    checked={formData.isFeatured}
+                                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                                    className="w-4 h-4 text-amber-500 border-gray-300 rounded focus:ring-amber-500"
+                                />
+                                <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 font-bold text-amber-600">⭐ Feature this Product (Catalog Discovery)</label>
+                            </div>
                         </div>
 
                         <div>

@@ -55,11 +55,34 @@ const getProducts = async (req, res) => {
 
         const newArrivalFilter = req.query.newArrival === 'true' ? { isNewArrival: true } : {};
 
+        const isDiscoveryMode = page === 1 && !req.query.keyword && (!req.query.category || req.query.category === 'All') && !req.query.minPrice && !req.query.maxPrice && !req.query.newArrival;
+
         const count = await Product.countDocuments({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter });
-        const products = await Product.find({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter })
-            .sort({ createdAt: -1 }) // Sort by newest first
-            .limit(pageSize)
-            .skip(pageSize * (page - 1));
+
+        let products;
+
+        if (isDiscoveryMode && count > pageSize) {
+            // Smart Mix Logic for Page 1:
+            // 4 Newest + (pageSize - 4) Random from the rest
+            const newestProducts = await Product.find({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter })
+                .sort({ isFeatured: -1, createdAt: -1 })
+                .limit(4);
+
+            const newestIds = newestProducts.map(p => p._id);
+
+            // Get random products excluding the newest ones
+            const randomProducts = await Product.aggregate([
+                { $match: { _id: { $nin: newestIds }, ...keyword, ...category, ...priceFilter, ...newArrivalFilter } },
+                { $sample: { size: pageSize - 4 } }
+            ]);
+
+            products = [...newestProducts, ...randomProducts];
+        } else {
+            products = await Product.find({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter })
+                .sort({ isFeatured: -1, createdAt: -1 }) // Prioritize featured, then newest
+                .limit(pageSize)
+                .skip(pageSize * (page - 1));
+        }
 
         res.json({ products, page, pages: Math.ceil(count / pageSize), total: count });
     } catch (error) {

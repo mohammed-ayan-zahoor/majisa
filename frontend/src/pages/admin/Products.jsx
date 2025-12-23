@@ -161,7 +161,15 @@ const AdminProducts = () => {
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>
-                                            <span className="font-medium text-gray-900 text-sm">{product.name}</span>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium text-gray-900 text-sm">{product.name}</span>
+                                                    {product.isFeatured && <span className="text-amber-500" title="Featured in Discovery">⭐</span>}
+                                                </div>
+                                                {product.isNewArrival && (
+                                                    <span className="text-[9px] text-primary-600 font-bold uppercase tracking-tighter">New Arrival</span>
+                                                )}
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 font-mono text-xs text-primary-600">{product.productCode}</td>

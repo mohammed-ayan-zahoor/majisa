@@ -44,6 +44,10 @@ const productSchema = mongoose.Schema({
     wastage: {
         type: String, // e.g., "12%" or "0.500 g"
         required: true,
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false,
     }
 }, {
     timestamps: true,
