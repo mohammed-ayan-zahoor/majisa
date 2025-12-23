@@ -38,32 +38,34 @@ export const CartProvider = ({ children }) => {
             }
         }
 
-        const existingItem = cartItems.find(item => item._id === product._id);
+        const existingItem = cartItems.find(item =>
+            item._id === product._id && item.selectedWeight === product.selectedWeight
+        );
 
         if (existingItem) {
-            toast.success('Updated quantity in cart');
+            toast.success(`Updated quantity in cart (${product.selectedWeight || 'Default'})`);
             setCartItems(prev => prev.map(item =>
-                item._id === product._id
+                (item._id === product._id && item.selectedWeight === product.selectedWeight)
                     ? { ...item, quantity: item.quantity + quantity }
                     : item
             ));
         } else {
             // If vendor and cart empty, or normal user
-            toast.success('Added to cart');
+            toast.success(`Added to cart (${product.selectedWeight || 'Default'})`);
             setCartItems(prev => [...prev, { ...product, quantity }]);
         }
     };
 
-    const removeFromCart = (productId) => {
-        setCartItems(prev => prev.filter(item => item._id !== productId));
+    const removeFromCart = (productId, selectedWeight) => {
+        setCartItems(prev => prev.filter(item => !(item._id === productId && item.selectedWeight === selectedWeight)));
         toast.success('Removed from cart');
     };
 
-    const updateQuantity = (productId, newQuantity) => {
+    const updateQuantity = (productId, newQuantity, selectedWeight) => {
         if (newQuantity < 1) return;
         setCartItems(prev =>
             prev.map(item =>
-                item._id === productId ? { ...item, quantity: newQuantity } : item
+                (item._id === productId && item.selectedWeight === selectedWeight) ? { ...item, quantity: newQuantity } : item
             )
         );
     };

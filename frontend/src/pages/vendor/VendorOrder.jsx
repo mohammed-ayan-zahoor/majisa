@@ -18,6 +18,7 @@ const VendorOrder = () => {
     // Order State
     const [quantity, setQuantity] = useState(1);
     const [notes, setNotes] = useState('');
+    const [selectedWeight, setSelectedWeight] = useState('');
     const [customFieldValues, setCustomFieldValues] = useState({});
 
     useEffect(() => {
@@ -40,6 +41,13 @@ const VendorOrder = () => {
             // 1. Fetch Product
             const { data: productData } = await api.get(`/products/code/${code}`);
             setProduct(productData);
+
+            // Initial selected weight
+            if (productData.weight && Array.isArray(productData.weight)) {
+                setSelectedWeight(productData.weight[0]);
+            } else {
+                setSelectedWeight(productData.weight);
+            }
 
             // 2. Fetch Category to get Custom Fields
             const { data: categoriesData } = await api.get('/categories');
@@ -105,6 +113,7 @@ const VendorOrder = () => {
                     product: product._id,
                     productCode: product.productCode,
                     wastage: product.wastage,
+                    selectedWeight: selectedWeight,
                     // We can still send size/purity if they are standard, or rely on custom fields
                     // For backward compatibility, if 'Size' or 'Purity' exist in custom fields, use them
                     size: customFieldValues['Size'] || '',
@@ -181,7 +190,19 @@ const VendorOrder = () => {
                                 </div>
                                 <h2 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h2>
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
-                                    <p>Weight: <span className="font-medium text-gray-900">{product.weight}</span></p>
+                                    <div>
+                                        Weight: {product.weight && Array.isArray(product.weight) ? (
+                                            <select
+                                                value={selectedWeight}
+                                                onChange={(e) => setSelectedWeight(e.target.value)}
+                                                className="ml-1 px-1 py-0.5 border border-gray-300 rounded text-[10px] font-bold text-primary-700 bg-white"
+                                            >
+                                                {product.weight.map((w, i) => <option key={i} value={w}>{w}</option>)}
+                                            </select>
+                                        ) : (
+                                            <span className="font-medium text-gray-900 ml-1">{product.weight}</span>
+                                        )}
+                                    </div>
                                     <p>Purity: <span className="font-medium text-gray-900">{product.purity}</span></p>
                                     <p>Wastage: <span className="font-medium text-primary-600">{product.wastage}</span></p>
                                 </div>

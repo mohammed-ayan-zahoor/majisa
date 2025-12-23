@@ -21,7 +21,7 @@ const AddProduct = () => {
         category: '',
         metal: 'Gold',
         purity: '22k',
-        weight: '',
+        weight: [], // Array of weight options
         wastage: '',
         images: [], // Array of image URLs
         isNewArrival: false,
@@ -59,7 +59,7 @@ const AddProduct = () => {
                 category: data.category,
                 metal: data.metal,
                 purity: data.purity,
-                weight: data.weight,
+                weight: Array.isArray(data.weight) ? data.weight : (data.weight ? [data.weight] : []),
                 wastage: data.wastage || '',
                 images: data.images && data.images.length > 0 ? data.images : (data.image ? [data.image] : []),
                 isNewArrival: data.isNewArrival,
@@ -241,15 +241,54 @@ const AddProduct = () => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="e.g. 15.5g"
-                                    value={formData.weight}
-                                    onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                />
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Weight Options</label>
+                                <div className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        id="newWeight"
+                                        placeholder="e.g. 15.5g"
+                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const val = e.target.value.trim();
+                                                if (val && !formData.weight.includes(val)) {
+                                                    setFormData({ ...formData, weight: [...formData.weight, val] });
+                                                    e.target.value = '';
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const input = document.getElementById('newWeight');
+                                            const val = input.value.trim();
+                                            if (val && !formData.weight.includes(val)) {
+                                                setFormData({ ...formData, weight: [...formData.weight, val] });
+                                                input.value = '';
+                                            }
+                                        }}
+                                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-bold"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                                <div className="flex flex-wrap gap-2 min-h-[42px] p-2 bg-gray-50 rounded-lg border border-gray-200">
+                                    {formData.weight.length === 0 && <span className="text-xs text-gray-400 italic">No weights added yet</span>}
+                                    {formData.weight.map((w, idx) => (
+                                        <span key={idx} className="inline-flex items-center gap-1 bg-white px-2 py-1 rounded border border-gray-200 text-xs font-medium text-gray-700">
+                                            {w}
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, weight: formData.weight.filter((_, i) => i !== idx) })}
+                                                className="text-gray-400 hover:text-red-500"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>

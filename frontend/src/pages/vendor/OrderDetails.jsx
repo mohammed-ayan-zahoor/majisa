@@ -92,6 +92,7 @@ const VendorOrderDetails = () => {
                                             <h4 className="font-medium text-gray-900">{item.name}</h4>
                                             <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                             {item.productCode && <p className="text-xs text-gray-400">Code: {item.productCode}</p>}
+                                            {item.selectedWeight && <p className="text-xs font-bold text-primary-600 mt-1">Weight: {item.selectedWeight}</p>}
                                             {item.customFieldValues && item.customFieldValues.length > 0 && (
                                                 <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded border border-gray-100">
                                                     {item.customFieldValues.map((field, idx) => (
@@ -201,7 +202,8 @@ const VendorOrderDetails = () => {
                             <tr key={index}>
                                 <td className="py-4 text-gray-900">
                                     <p className="font-medium">{item.name}</p>
-                                    {item.productCode && <p className="text-xs text-gray-500">Code: {item.productCode}</p>}
+                                    {item.productCode && <p className="text-xs text-gray-500 inline mr-3">Code: {item.productCode}</p>}
+                                    {item.selectedWeight && <p className="text-xs font-bold text-gray-900 inline">Weight: {item.selectedWeight}</p>}
                                     {item.customFieldValues && item.customFieldValues.length > 0 && (
                                         <div className="mt-1 text-xs text-gray-600">
                                             {item.customFieldValues.map((field, idx) => (

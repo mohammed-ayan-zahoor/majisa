@@ -51,6 +51,7 @@ const Cart = () => {
                     price: item.price || 0,
                     product: item._id,
                     productCode: item.productCode,
+                    selectedWeight: item.selectedWeight,
                     // size: item.size, // Add if available in cart item
                     purity: item.purity,
                     wastage: item.wastage
@@ -111,9 +112,10 @@ const Cart = () => {
                                             <div>
                                                 <h3 className="font-serif text-lg text-charcoal-500">{item.name}</h3>
                                                 <p className="text-sm text-gray-500">{item.category} • {item.purity}</p>
+                                                {item.selectedWeight && <p className="text-xs font-bold text-primary-600 mt-1">Weight: {item.selectedWeight}</p>}
                                             </div>
                                             <button
-                                                onClick={() => removeFromCart(item._id)}
+                                                onClick={() => removeFromCart(item._id, item.selectedWeight)}
                                                 className="text-gray-400 hover:text-red-500 transition-colors"
                                             >
                                                 <Trash2 size={18} />
@@ -123,14 +125,14 @@ const Cart = () => {
                                         <div className="flex justify-between items-end mt-4">
                                             <div className="flex items-center border border-gray-200 rounded-lg">
                                                 <button
-                                                    onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                                                    onClick={() => updateQuantity(item._id, item.quantity - 1, item.selectedWeight)}
                                                     className="px-3 py-1 hover:text-primary-600"
                                                 >
                                                     -
                                                 </button>
                                                 <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                                                 <button
-                                                    onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                                                    onClick={() => updateQuantity(item._id, item.quantity + 1, item.selectedWeight)}
                                                     className="px-3 py-1 hover:text-primary-600"
                                                 >
                                                     +

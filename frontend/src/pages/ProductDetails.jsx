@@ -16,9 +16,8 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
-    const [selectedSize, setSelectedSize] = useState('12');
-
     const [selectedImage, setSelectedImage] = useState('');
+    const [selectedWeight, setSelectedWeight] = useState('');
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -30,6 +29,12 @@ const ProductDetails = () => {
                     setSelectedImage(data.images[0]);
                 } else {
                     setSelectedImage(data.image);
+                }
+                // Set initial selected weight
+                if (data.weight && Array.isArray(data.weight) && data.weight.length > 0) {
+                    setSelectedWeight(data.weight[0]);
+                } else if (data.weight) {
+                    setSelectedWeight(data.weight);
                 }
             } catch (error) {
                 console.error('Error fetching product:', error);
@@ -44,8 +49,8 @@ const ProductDetails = () => {
     }, [id, navigate]);
 
     const handleAddToCart = () => {
-        addToCart(product, quantity);
-        toast.success('Added to cart');
+        addToCart({ ...product, selectedWeight }, quantity);
+        toast.success(`Added to cart (${selectedWeight})`);
     };
 
     if (loading) return <div className="p-12 text-center">Loading...</div>;
@@ -146,7 +151,9 @@ const ProductDetails = () => {
                             <div className="grid grid-cols-2 gap-4 py-6 border-y border-gray-100">
                                 <div>
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Weight</span>
-                                    <span className="font-medium text-gray-900">{product.weight}</span>
+                                    <span className="font-medium text-gray-900">
+                                        {Array.isArray(product.weight) ? product.weight.join(', ') : product.weight}
+                                    </span>
                                 </div>
                                 <div>
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Purity</span>
@@ -160,6 +167,22 @@ const ProductDetails = () => {
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Availability</span>
                                     <span className="font-medium text-green-600">ON DEMAND</span>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Weight Selection Dropdown */}
+                        {product.weight && Array.isArray(product.weight) && product.weight.length > 0 && (
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">Select Weight</label>
+                                <select
+                                    value={selectedWeight}
+                                    onChange={(e) => setSelectedWeight(e.target.value)}
+                                    className="w-full md:w-64 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white shadow-sm font-medium text-gray-700"
+                                >
+                                    {product.weight.map((w, idx) => (
+                                        <option key={idx} value={w}>{w}</option>
+                                    ))}
+                                </select>
                             </div>
                         )}
 

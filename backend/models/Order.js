@@ -18,6 +18,7 @@ const orderSchema = mongoose.Schema({
             },
             productCode: { type: String },
             size: { type: String },
+            selectedWeight: { type: String },
             purity: { type: String },
             wastage: { type: String },
             customFieldValues: [{
