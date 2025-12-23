@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Lock, Globe, Bell, User } from 'lucide-react';
+import { Save, Lock, Globe, Bell, User, Database, Download, Upload, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -20,6 +20,8 @@ const AdminSettings = () => {
         email: user?.email || '',
     });
     const [uploading, setUploading] = useState(false);
+    const [restoring, setRestoring] = useState(false);
+    const [backupFile, setBackupFile] = useState(null);
 
     const [passwordData, setPasswordData] = useState({
         current: '',
@@ -125,6 +127,62 @@ const AdminSettings = () => {
             toast.error('Failed to upload logo');
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleExportBackup = async () => {
+        try {
+            const response = await api.get('/settings/backup', { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `majisa_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.success('Backup downloaded successfully');
+        } catch (error) {
+            console.error('Export Error:', error);
+            toast.error('Failed to export backup');
+        }
+    };
+
+    const handleImportRestore = async (e) => {
+        e.preventDefault();
+        if (!backupFile) return;
+
+        const confirmRestore = window.confirm('WARNING: This will PERMANENTLY REPLACE all current data (products, orders, users, etc.) with the data in the backup file. This cannot be undone. Are you absolutely sure?');
+
+        if (!confirmRestore) return;
+
+        setRestoring(true);
+        try {
+            const formData = new FormData();
+            // We need to read the file first since we are sending it as JSON in the body based on our controller
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const backupData = JSON.parse(event.target.result);
+                    await api.post('/settings/restore', { backupData });
+                    toast.success('Database restored successfully! Logging out...');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Inner Restore Error:', err);
+                    toast.error(err.response?.data?.message || 'Invalid backup data or server error');
+                    setRestoring(false);
+                }
+            };
+            reader.onerror = () => {
+                toast.error('Failed to read backup file');
+                setRestoring(false);
+            };
+            reader.readAsText(backupFile);
+        } catch (error) {
+            console.error('Import Error:', error);
+            toast.error(error.response?.data?.message || 'Restore failed');
+            setRestoring(false);
         }
     };
 
@@ -342,6 +400,83 @@ const AdminSettings = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                {/* Maintenance & Data Management */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+                        <Database className="text-primary-600" size={24} />
+                        <h2 className="font-bold text-gray-900">Maintenance & Data</h2>
+                    </div>
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Export Section */}
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                    <Download size={18} className="text-green-600" />
+                                    Export Data
+                                </h3>
+                                <p className="text-xs text-gray-500">
+                                    Download a complete backup of your store, including products, categories, orders, and users.
+                                    Keep this file safe to restore your data later.
+                                </p>
+                                <button
+                                    onClick={handleExportBackup}
+                                    className="flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium"
+                                >
+                                    <Download size={16} />
+                                    Download Full Backup (.json)
+                                </button>
+                            </div>
+
+                            {/* Import Section */}
+                            <div className="space-y-4 border-t md:border-t-0 md:border-l border-gray-100 pt-6 md:pt-0 md:pl-8">
+                                <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                    <Upload size={18} className="text-primary-600" />
+                                    Restore Data
+                                </h3>
+                                <p className="text-xs text-gray-500">
+                                    Restore your store from a previous backup file.
+                                    <span className="text-red-600 font-bold"> Warning: This will overwrite all current data.</span>
+                                </p>
+
+                                <form onSubmit={handleImportRestore} className="space-y-3">
+                                    <input
+                                        type="file"
+                                        accept=".json"
+                                        onChange={(e) => setBackupFile(e.target.files[0])}
+                                        className="block w-full text-xs text-gray-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-xs file:font-semibold
+                                            file:bg-primary-50 file:text-primary-700
+                                            hover:file:bg-primary-100"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!backupFile || restoring}
+                                        className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {restoring ? 'Restoring...' : 'Import & Restore Now'}
+                                        {restoring && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        {/* Critical Alert */}
+                        <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-200 flex gap-3">
+                            <AlertTriangle className="text-amber-600 flex-shrink-0" size={20} />
+                            <div>
+                                <h4 className="text-sm font-bold text-amber-800">Precautions during Testing</h4>
+                                <ul className="text-xs text-amber-700 mt-1 list-disc list-inside space-y-1">
+                                    <li>Always take a backup before performing bulk deletes or experimental changes.</li>
+                                    <li>Cloudinary images are preserved even when products are deleted, ensuring restoration works.</li>
+                                    <li>If you restore a backup, you must re-login to see the changes.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

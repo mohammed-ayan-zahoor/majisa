@@ -108,6 +108,7 @@ const deleteCategory = async (req, res) => {
             return res.status(400).send(`Cannot delete category "${category.name}" because it contains ${productsCount} product(s). Please move or delete the products first.`);
         }
 
+        /*
         try {
             if (category.image) {
                 const publicId = extractPublicId(category.image);
@@ -116,6 +117,7 @@ const deleteCategory = async (req, res) => {
         } catch (error) {
             console.error('Error deleting image from Cloudinary:', error);
         }
+        */
 
         await category.deleteOne();
         res.json({ message: 'Category removed' });

@@ -1,0 +1,428 @@
+{
+  "users": [
+    {
+      "_id": "69270ac230127c955801a08f",
+      "name": "Majisa",
+      "email": "majisa@gmail.com",
+      "password": "$2b$10$6XV2rIzS.cmgmZe2ze.bJ.DOk87Dyr7s/fYRXKeIwcURRU0WZGDPG",
+      "role": "admin",
+      "status": "Active",
+      "activeOrders": 0,
+      "completedOrders": 0,
+      "createdAt": "2025-11-26T14:12:18.194Z",
+      "updatedAt": "2025-12-20T11:11:43.693Z",
+      "__v": 1,
+      "wishlist": []
+    },
+    {
+      "wishlist": [],
+      "_id": "69270ac230127c955801a091",
+      "name": "Priya Sharma",
+      "email": "priya@gmail.com",
+      "password": "$2b$10$uvIYhSBfXj3LnNlU.M10mOoSHgngEG/4CQsB9Yoyu5t3zIgZdKXf.",
+      "role": "customer",
+      "status": "Active",
+      "activeOrders": 0,
+      "completedOrders": 0,
+      "createdAt": "2025-11-26T14:12:18.666Z",
+      "updatedAt": "2025-11-26T14:12:18.666Z",
+      "__v": 0
+    },
+    {
+      "_id": "6928580d021770d43669f4c9",
+      "name": "Mohammed Ayan",
+      "email": "mohammedayan76766@gmail.com",
+      "password": "$2b$10$8vO1yGhhNZ5LyMZp4RNOI.aorZuWwUhFl/5J09tGdNi8BFMKnJSbm",
+      "role": "vendor",
+      "status": "Active",
+      "activeOrders": 0,
+      "completedOrders": 0,
+      "referralCode": "VRNR04",
+      "createdAt": "2025-11-27T13:54:21.896Z",
+      "updatedAt": "2025-12-12T14:21:56.464Z",
+      "__v": 3,
+      "businessName": "3F Tech",
+      "wishlist": [
+        "6937bfc74afe65d5e2c32c0b"
+      ],
+      "phone": "07676692254",
+      "address": "40 gaon Road.",
+      "city": "Dhule",
+      "gst": "oihofhoi6g1asg"
+    },
+    {
+      "_id": "69342ef1875ae786f3c68ca7",
+      "name": "Gold Smith1",
+      "email": "gs1@gmail.com",
+      "password": "$2b$10$0Ayl.tHblzmcNs8Wuwy4jOUkdAzdJmcNCx5UEuxItH9bCmi9xWBcW",
+      "role": "goldsmith",
+      "phone": "9740094139",
+      "status": "Active",
+      "activeOrders": 0,
+      "completedOrders": 0,
+      "createdAt": "2025-12-06T13:26:09.480Z",
+      "updatedAt": "2025-12-15T06:56:50.276Z",
+      "__v": 1,
+      "wishlist": []
+    },
+    {
+      "_id": "693663d7aed28e8b09406646",
+      "name": "Ramesh",
+      "email": "ramesh@gmail.com",
+      "password": "$2b$10$gfMRsNwa8ZjuRXXvsXkMOO.WBvO/x4FyZZTTAZnnXTO02CXKFIyUa",
+      "role": "goldsmith",
+      "phone": "8978455612",
+      "status": "Active",
+      "activeOrders": 0,
+      "completedOrders": 0,
+      "createdAt": "2025-12-08T05:36:23.460Z",
+      "updatedAt": "2025-12-15T06:56:50.767Z",
+      "__v": 1,
+      "wishlist": []
+    },
+    {
+      "_id": "693a69ed2f031c04ad4ea313",
+      "name": "TEST",
+      "email": "mr.spideyzzzz@gmail.com",
+      "password": "$2b$10$jxBxslae8dodRoL4kwuVNu9Q1p3EsVi0m5QIrnRJUA4eJfaZaMygm",
+      "role": "vendor",
+      "status": "Active",
+      "activeOrders": 0,
+      "completedOrders": 0,
+      "referralCode": "HJSXFA",
+      "createdAt": "2025-12-11T06:51:25.477Z",
+      "updatedAt": "2025-12-15T06:01:32.403Z",
+      "__v": 1,
+      "resetPasswordExpire": "2025-12-11T08:03:07.401Z",
+      "resetPasswordToken": "84ae90098224682986d5c904774191b591a6d8ad752cd1556e0429a7d924d6be",
+      "businessName": "QUANT",
+      "address": "Kolar Gold Fields, Karnataka. 563121",
+      "city": "Kolar Gold Fields",
+      "gst": "kjbv545sdgv",
+      "phone": "7483293577",
+      "state": "Karnataka",
+      "wishlist": []
+    }
+  ],
+  "products": [],
+  "categories": [],
+  "orders": [
+    {
+      "shippingAddress": {
+        "address": "Vendor Address",
+        "city": "Vendor City",
+        "postalCode": "000000",
+        "country": "India"
+      },
+      "_id": "693c07e18e1b8fd59568b2f4",
+      "user": "6928580d021770d43669f4c9",
+      "orderItems": [
+        {
+          "name": "Bangles",
+          "quantity": 1,
+          "image": "https://res.cloudinary.com/dhmuxg54d/image/upload/v1765261137/majisa_products/gaxnzzq3qs0ksbtv1zzk.jpg",
+          "product": "6937bfc74afe65d5e2c32c0b",
+          "productCode": "H5454",
+          "size": "14",
+          "purity": "22k",
+          "wastage": "14",
+          "customFieldValues": [
+            {
+              "fieldName": "Size",
+              "value": "14",
+              "_id": "693c07e18e1b8fd59568b2f6"
+            },
+            {
+              "fieldName": "Weight",
+              "value": "12",
+              "_id": "693c07e18e1b8fd59568b2f7"
+            },
+            {
+              "fieldName": "Test Field",
+              "value": "test",
+              "_id": "693c07e18e1b8fd59568b2f8"
+            }
+          ],
+          "_id": "693c07e18e1b8fd59568b2f5"
+        }
+      ],
+      "paymentMethod": "Credit",
+      "status": "Completed",
+      "isPaid": false,
+      "isDelivered": false,
+      "createdAt": "2025-12-12T12:17:37.809Z",
+      "updatedAt": "2025-12-16T05:30:38.388Z",
+      "__v": 0,
+      "goldsmith": "693663d7aed28e8b09406646"
+    },
+    {
+      "shippingAddress": {
+        "address": "Vendor Address",
+        "city": "Vendor City",
+        "postalCode": "000000",
+        "country": "India"
+      },
+      "_id": "69400a503db332e445afd7ad",
+      "user": "6928580d021770d43669f4c9",
+      "orderItems": [
+        {
+          "name": "Bangles",
+          "quantity": 1,
+          "image": "https://res.cloudinary.com/dhmuxg54d/image/upload/v1765261137/majisa_products/gaxnzzq3qs0ksbtv1zzk.jpg",
+          "product": "6937bfc74afe65d5e2c32c0b",
+          "productCode": "H5454",
+          "size": "14",
+          "purity": "18k",
+          "wastage": "14",
+          "customFieldValues": [
+            {
+              "fieldName": "Size",
+              "value": "14",
+              "_id": "69400a503db332e445afd7af"
+            },
+            {
+              "fieldName": "Weight",
+              "value": "12",
+              "_id": "69400a503db332e445afd7b0"
+            },
+            {
+              "fieldName": "Test Field",
+              "value": "15",
+              "_id": "69400a503db332e445afd7b1"
+            }
+          ],
+          "_id": "69400a503db332e445afd7ae"
+        }
+      ],
+      "paymentMethod": "Credit",
+      "status": "Pending",
+      "isPaid": false,
+      "isDelivered": false,
+      "createdAt": "2025-12-15T13:17:04.160Z",
+      "updatedAt": "2025-12-15T13:17:04.160Z",
+      "__v": 0
+    },
+    {
+      "shippingAddress": {
+        "address": "Vendor Address",
+        "city": "Vendor City",
+        "postalCode": "000000",
+        "country": "India"
+      },
+      "_id": "69400c6ffb6f44c1d2689672",
+      "user": "6928580d021770d43669f4c9",
+      "orderItems": [
+        {
+          "name": "Bangles",
+          "quantity": 14,
+          "image": "https://res.cloudinary.com/dhmuxg54d/image/upload/v1765261137/majisa_products/gaxnzzq3qs0ksbtv1zzk.jpg",
+          "product": "6937bfc74afe65d5e2c32c0b",
+          "productCode": "H5454",
+          "size": "44",
+          "purity": "18k",
+          "wastage": "14",
+          "customFieldValues": [
+            {
+              "fieldName": "Size",
+              "value": "44",
+              "_id": "69400c6ffb6f44c1d2689674"
+            },
+            {
+              "fieldName": "Weight",
+              "value": "44",
+              "_id": "69400c6ffb6f44c1d2689675"
+            },
+            {
+              "fieldName": "Test Field",
+              "value": "44",
+              "_id": "69400c6ffb6f44c1d2689676"
+            }
+          ],
+          "_id": "69400c6ffb6f44c1d2689673"
+        }
+      ],
+      "paymentMethod": "Credit",
+      "status": "Pending",
+      "isPaid": false,
+      "isDelivered": false,
+      "createdAt": "2025-12-15T13:26:07.936Z",
+      "updatedAt": "2025-12-15T13:26:07.936Z",
+      "__v": 0
+    },
+    {
+      "shippingAddress": {
+        "address": "Vendor Address",
+        "city": "Vendor City",
+        "postalCode": "000000",
+        "country": "India"
+      },
+      "_id": "6940ed83680cf465f5867d5b",
+      "user": "6928580d021770d43669f4c9",
+      "orderItems": [
+        {
+          "name": "Bangles",
+          "quantity": 1,
+          "image": "https://res.cloudinary.com/dhmuxg54d/image/upload/v1765261137/majisa_products/gaxnzzq3qs0ksbtv1zzk.jpg",
+          "product": "6937bfc74afe65d5e2c32c0b",
+          "productCode": "H5454",
+          "size": "1",
+          "purity": "18k",
+          "wastage": "14",
+          "customFieldValues": [
+            {
+              "fieldName": "Size",
+              "value": "1",
+              "_id": "6940ed83680cf465f5867d5d"
+            },
+            {
+              "fieldName": "Weight",
+              "value": "1",
+              "_id": "6940ed83680cf465f5867d5e"
+            },
+            {
+              "fieldName": "Test Field",
+              "value": "1",
+              "_id": "6940ed83680cf465f5867d5f"
+            }
+          ],
+          "_id": "6940ed83680cf465f5867d5c"
+        }
+      ],
+      "paymentMethod": "Credit",
+      "status": "Pending",
+      "isPaid": false,
+      "isDelivered": false,
+      "createdAt": "2025-12-16T05:26:27.122Z",
+      "updatedAt": "2025-12-16T05:26:27.122Z",
+      "__v": 0
+    }
+  ],
+  "customers": [
+    {
+      "_id": "693bbaca37f9f529ddcf0350",
+      "name": "Mohammed Ayan",
+      "phone": "7676692254",
+      "referralCode": "VRNR04",
+      "vendor": "6928580d021770d43669f4c9",
+      "wishlist": [],
+      "lastVisitedAt": "2025-12-15T13:29:41.302Z",
+      "createdAt": "2025-12-12T06:48:42.428Z",
+      "updatedAt": "2025-12-17T13:54:09.590Z",
+      "__v": 8
+    }
+  ],
+  "visits": [
+    {
+      "_id": "693416a75ce83083a67a09b1",
+      "name": "Mohammed Ayan",
+      "phone": "7676692254",
+      "referralCode": "VRNR04",
+      "vendor": "6928580d021770d43669f4c9",
+      "visitedAt": "2025-12-06T11:42:31.617Z",
+      "createdAt": "2025-12-06T11:42:31.627Z",
+      "updatedAt": "2025-12-06T11:42:31.627Z",
+      "__v": 0
+    },
+    {
+      "_id": "693417e15ce83083a67a09d8",
+      "name": "Mohammed Zia",
+      "phone": "7483293577",
+      "referralCode": "VRNR04",
+      "vendor": "6928580d021770d43669f4c9",
+      "visitedAt": "2025-12-06T11:47:45.644Z",
+      "createdAt": "2025-12-06T11:47:45.644Z",
+      "updatedAt": "2025-12-06T11:47:45.644Z",
+      "__v": 0
+    },
+    {
+      "_id": "6935116d762a7ef76e338b91",
+      "name": "Shaikh Zahoor",
+      "phone": "9488842786",
+      "referralCode": "VRNR04",
+      "vendor": "6928580d021770d43669f4c9",
+      "visitedAt": "2025-12-07T05:32:29.883Z",
+      "createdAt": "2025-12-07T05:32:29.888Z",
+      "updatedAt": "2025-12-07T05:32:29.888Z",
+      "__v": 0
+    },
+    {
+      "_id": "69366256aed28e8b0940656b",
+      "name": "Shaikh Zahoor",
+      "phone": "9488842786",
+      "referralCode": "VRNR04",
+      "vendor": "6928580d021770d43669f4c9",
+      "visitedAt": "2025-12-08T05:29:58.891Z",
+      "createdAt": "2025-12-08T05:29:58.903Z",
+      "updatedAt": "2025-12-08T05:29:58.903Z",
+      "__v": 0
+    },
+    {
+      "_id": "69398f87ebdaacf8b3171e19",
+      "name": "IDK",
+      "phone": "7845127845",
+      "referralCode": "VRNR04",
+      "vendor": "6928580d021770d43669f4c9",
+      "visitedAt": "2025-12-10T15:19:35.058Z",
+      "createdAt": "2025-12-10T15:19:35.063Z",
+      "updatedAt": "2025-12-10T15:19:35.063Z",
+      "__v": 0
+    }
+  ],
+  "notifications": [
+    {
+      "_id": "69400c6ffb6f44c1d2689678",
+      "type": "info",
+      "title": "New Order Received",
+      "message": "Order #69400c6ffb6f44c1d2689672 received from Mohammed Ayan",
+      "read": true,
+      "createdAt": "2025-12-15T13:26:07.942Z",
+      "updatedAt": "2025-12-16T06:42:55.827Z",
+      "__v": 0
+    },
+    {
+      "_id": "6940ed83680cf465f5867d61",
+      "type": "info",
+      "title": "New Order Received",
+      "message": "Order #6940ed83680cf465f5867d5b received from Mohammed Ayan",
+      "read": true,
+      "createdAt": "2025-12-16T05:26:27.149Z",
+      "updatedAt": "2025-12-16T06:42:55.827Z",
+      "__v": 0
+    },
+    {
+      "_id": "6940edfa680cf465f5867e97",
+      "type": "error",
+      "title": "Order Issue Reported",
+      "message": "Issue reported for Order #693c07e18e1b8fd59568b2f4 by Ramesh: i do not have the gold ",
+      "read": true,
+      "createdAt": "2025-12-16T05:28:26.502Z",
+      "updatedAt": "2025-12-16T06:42:55.827Z",
+      "__v": 0
+    },
+    {
+      "_id": "6940ee6f680cf465f5867f03",
+      "type": "error",
+      "title": "Order Issue Reported",
+      "message": "Issue reported for Order #693c07e18e1b8fd59568b2f4 by Ramesh: ok im not interested",
+      "read": true,
+      "createdAt": "2025-12-16T05:30:23.838Z",
+      "updatedAt": "2025-12-16T06:42:55.827Z",
+      "__v": 0
+    }
+  ],
+  "settings": [
+    {
+      "_id": "69282d4ef3d1d71186eb5b9f",
+      "siteName": "Majisa",
+      "contactEmail": "majisa@gmail.com",
+      "currency": "INR",
+      "maintenanceMode": false,
+      "createdAt": "2025-11-27T10:51:58.469Z",
+      "updatedAt": "2025-12-20T11:05:59.234Z",
+      "__v": 0,
+      "watermarkLogo": "majisa_products/xbhmewyq6nvuidqg2snm"
+    }
+  ],
+  "backupDate": "2025-12-22T06:10:46.298Z",
+  "version": "1.0"
+}

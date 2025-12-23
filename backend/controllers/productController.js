@@ -101,6 +101,7 @@ const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
+        /* 
         try {
             // Delete main image
             if (product.image) {
@@ -119,6 +120,7 @@ const deleteProduct = async (req, res) => {
             console.error('Error deleting images from Cloudinary:', error);
             // Continue to delete product even if image deletion fails
         }
+        */
 
         await product.deleteOne();
         res.json({ message: 'Product removed' });
