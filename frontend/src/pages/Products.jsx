@@ -4,6 +4,7 @@ import { Search, Loader } from 'lucide-react';
 import ProductCard from '../components/common/ProductCard';
 import api from '../services/api';
 import SEO from '../components/common/SEO';
+import { getOptimizedImage } from '../utils/urlUtils';
 
 const Products = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -127,8 +128,9 @@ const Products = () => {
                                 >
                                     <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full p-1 border-2 transition-all ${activeCategory === cat.name ? 'border-primary-600' : 'border-transparent group-hover:border-primary-300'}`}>
                                         <img
-                                            src={cat.image}
+                                            src={getOptimizedImage(cat.image, 160)}
                                             alt={cat.name}
+                                            loading="lazy"
                                             className="w-full h-full rounded-full object-cover bg-gray-100"
                                         />
                                     </div>

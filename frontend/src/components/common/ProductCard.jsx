@@ -5,7 +5,7 @@ import QuickViewModal from './QuickViewModal';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useSettings } from '../../context/SettingsContext';
-import { getWatermarkedImage } from '../../utils/urlUtils';
+import { getWatermarkedImage, getOptimizedImage } from '../../utils/urlUtils';
 
 const ProductCard = ({ product }) => {
     const [showQuickView, setShowQuickView] = useState(false);
@@ -17,17 +17,18 @@ const ProductCard = ({ product }) => {
 
     // Auto-apply watermark if available
     const displayImage = settings?.watermarkLogo
-        ? getWatermarkedImage(product.image, settings.watermarkLogo)
-        : product.image;
+        ? getWatermarkedImage(product.image, settings.watermarkLogo, { pixelWidth: 600 })
+        : getOptimizedImage(product.image, 600);
 
     return (
         <>
-            <div className="group relative bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
+            <div className="group relative bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
                 {/* Image Container */}
                 <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4">
                     <img
                         src={displayImage}
                         alt={product.name}
+                        loading="lazy"
                         className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
                     />
 

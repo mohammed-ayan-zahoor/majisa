@@ -4,6 +4,7 @@ import { ArrowRight, ShieldCheck, Truck, RefreshCw, ChevronLeft, ChevronRight } 
 import ProductCard from '../components/common/ProductCard';
 import api from '../services/api';
 import SEO from '../components/common/SEO';
+import { getOptimizedImage } from '../utils/urlUtils';
 
 const Home = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -108,8 +109,9 @@ const Home = () => {
                                             <div className="w-full h-full rounded-full border-[2px] border-white overflow-hidden bg-gray-100 flex items-center justify-center">
                                                 {cat.image ? (
                                                     <img
-                                                        src={cat.image}
+                                                        src={getOptimizedImage(cat.image, 200)}
                                                         alt={cat.name}
+                                                        loading="lazy"
                                                         className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110"
                                                     />
                                                 ) : (
@@ -137,13 +139,14 @@ const Home = () => {
                             ))
                         ) : (
                             categories.map((cat) => (
-                                <Link key={cat._id} to={`/products?category=${cat.name}`} className="group block">
+                                <Link key={cat._id} to={`/products?category=${cat.name}`} className="group block" style={{ willChange: 'transform' }}>
                                     <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 shadow-md group-hover:shadow-xl transition-all duration-500 transform group-hover:-translate-y-2 bg-gray-100">
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-10" />
                                         {cat.image ? (
                                             <img
-                                                src={cat.image}
+                                                src={getOptimizedImage(cat.image, 600)}
                                                 alt={cat.name}
+                                                loading="lazy"
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
                                         ) : (

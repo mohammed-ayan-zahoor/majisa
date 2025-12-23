@@ -29,13 +29,41 @@ export const getWatermarkedImage = (imageUrl, watermarkId, options = {}) => {
         const baseUrl = imageUrl.substring(0, uploadIndex + 8); // includes /upload/
         const restUrl = imageUrl.substring(uploadIndex + 8);
 
-        // Transformation string: l_<watermark_id>,o_<opacity>,w_<width>,fl_relative,g_<position>,q_auto:best,f_auto
-        // q_auto:best ensures the highest visual quality for jewelry while f_auto picks the best format (WebP/AVIF)
-        const transformation = `l_${watermarkId.replace(/\//g, ':')},o_${opacity},w_${width},fl_relative,g_${position},q_auto:best,f_auto/`;
+        // Transformation string: l_<watermark_id>,o_<opacity>,w_<width>,fl_relative,g_<position>,q_auto,f_auto
+        // w_<pixel_width> can also be added for resizing
+        const pixelWidth = options.pixelWidth ? `w_${options.pixelWidth},c_scale,` : '';
+        const transformation = `l_${watermarkId.replace(/\//g, ':')},o_${opacity},w_${width},fl_relative,g_${position},${pixelWidth}q_auto,f_auto/`;
 
         return `${baseUrl}${transformation}${restUrl}`;
     } catch (error) {
         console.error('Error applying watermark:', error);
         return imageUrl;
+    }
+};
+
+/**
+ * Optimizes a Cloudinary image URL for performance.
+ * 
+ * @param {string} url - The original Cloudinary URL
+ * @param {number} width - Target width in pixels
+ * @returns {string} - Optimized URL
+ */
+export const getOptimizedImage = (url, width = 800) => {
+    if (!url || !url.includes('res.cloudinary.com')) return url;
+
+    try {
+        const uploadIndex = url.indexOf('/upload/');
+        if (uploadIndex === -1) return url;
+
+        const baseUrl = url.substring(0, uploadIndex + 8);
+        const restUrl = url.substring(uploadIndex + 8);
+
+        // f_auto: best format, q_auto: best compression, w_xxx: specific width, c_scale: resize
+        const transformation = `f_auto,q_auto,w_${width},c_scale/`;
+
+        return `${baseUrl}${transformation}${restUrl}`;
+    } catch (error) {
+        console.error('Error optimizing image:', error);
+        return url;
     }
 };
