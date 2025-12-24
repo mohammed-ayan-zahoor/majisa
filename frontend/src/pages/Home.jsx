@@ -1,55 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Truck, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
 import ProductCard from '../components/common/ProductCard';
-import api from '../services/api';
 import SEO from '../components/common/SEO';
 import { getOptimizedImage } from '../utils/urlUtils';
+import { useCategories } from '../hooks/useCategories';
+import { useProducts } from '../hooks/useProducts';
 
 const Home = () => {
-    const [featuredProducts, setFeaturedProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [categoriesLoading, setCategoriesLoading] = useState(true);
+    // 1. Fetch Categories using shared hook (cached)
+    const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
-    useEffect(() => {
-        const controller = new AbortController();
+    // 2. Fetch Featured Products using shared hook (cached)
+    const { data: featuredData, isLoading: featuredLoading } = useProducts({
+        newArrival: true,
+        limit: 8
+    });
 
-        const fetchFeaturedProducts = async () => {
-            try {
-                const { data } = await api.get('/products?newArrival=true&limit=8', {
-                    signal: controller.signal
-                });
-                setFeaturedProducts(data.products);
-            } catch (error) {
-                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
-                    console.error('Error fetching featured products:', error);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const fetchCategories = async () => {
-            try {
-                const { data } = await api.get('/categories', {
-                    signal: controller.signal
-                });
-                setCategories(data);
-            } catch (error) {
-                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
-                    console.error('Error fetching categories:', error);
-                }
-            } finally {
-                setCategoriesLoading(false);
-            }
-        };
-
-        fetchFeaturedProducts();
-        fetchCategories();
-
-        return () => controller.abort();
-    }, []);
+    const featuredProducts = featuredData?.products || [];
 
     return (
         <div className="bg-cream-100 min-h-screen">
@@ -193,7 +161,7 @@ const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
-                        {loading ? (
+                        {featuredLoading ? (
                             <div className="col-span-full text-center py-12">Loading collection...</div>
                         ) : featuredProducts.length > 0 ? (
                             featuredProducts.map((product) => (

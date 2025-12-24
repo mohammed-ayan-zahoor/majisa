@@ -4,40 +4,22 @@ import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { useProducts } from '../../hooks/useProducts';
+import { useCategories } from '../../hooks/useCategories';
 
 const AdminProducts = () => {
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [productsRes, categoriesRes] = await Promise.all([
-                    api.get('/products'),
-                    api.get('/categories')
-                ]);
-                setProducts(productsRes.data.products);
-                setCategories(categoriesRes.data);
-            } catch (error) {
-                toast.error('Failed to fetch data');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+    // Use React Query for both products and categories
+    const { data: productData, isLoading: productsLoading } = useProducts();
+    const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
-    const fetchProducts = async () => {
-        try {
-            const { data } = await api.get('/products');
-            setProducts(data.products);
-        } catch (error) {
-            toast.error('Failed to fetch products');
-        }
-    };
+    const products = productData?.products || [];
+    const loading = productsLoading || categoriesLoading;
 
     const handleDelete = (id) => {
         toast((t) => (
@@ -58,8 +40,8 @@ const AdminProducts = () => {
                             const loadingToast = toast.loading('Deleting product...');
                             try {
                                 await api.delete(`/products/${id}`);
+                                queryClient.invalidateQueries(['products']);
                                 toast.success('Product deleted successfully', { id: loadingToast });
-                                fetchProducts(); // Refresh list
                             } catch (error) {
                                 toast.error('Failed to delete product', { id: loadingToast });
                             }

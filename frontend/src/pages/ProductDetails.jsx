@@ -10,6 +10,8 @@ import { useSettings } from '../context/SettingsContext';
 import { getWatermarkedImage } from '../utils/urlUtils';
 import SEO from '../components/common/SEO';
 
+import { useProduct } from '../hooks/useProducts';
+
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -17,48 +19,37 @@ const ProductDetails = () => {
     const { toggleWishlist, checkIsWishlisted } = useWishlist();
     const { user } = useAuth();
     const { settings } = useSettings();
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
+
+    // Use React Query for single product
+    const { data: product, isLoading: loading, error } = useProduct(id);
+
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState('');
     const [selectedWeight, setSelectedWeight] = useState('');
 
+    // Handle initial selection when data arrives
     useEffect(() => {
-        const controller = new AbortController();
-
-        const fetchProduct = async () => {
-            try {
-                const { data } = await api.get(`/products/${id}`, {
-                    signal: controller.signal
-                });
-                setProduct(data);
-                // Set initial selected image
-                if (data.images && data.images.length > 0) {
-                    setSelectedImage(data.images[0]);
-                } else {
-                    setSelectedImage(data.image);
-                }
-
-                // Defensive Weight Handling
-                const options = Array.isArray(data.weight) ? data.weight : (data.weight ? [data.weight] : []);
-                if (options.length > 0) {
-                    setSelectedWeight(options[0]);
-                }
-            } catch (error) {
-                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
-                    console.error('Error fetching product:', error);
-                    toast.error('Product not found');
-                    navigate('/products');
-                }
-            } finally {
-                setLoading(false);
+        if (product) {
+            if (product.images && product.images.length > 0) {
+                setSelectedImage(product.images[0]);
+            } else {
+                setSelectedImage(product.image);
             }
-        };
 
-        fetchProduct();
+            const options = Array.isArray(product.weight) ? product.weight : (product.weight ? [product.weight] : []);
+            if (options.length > 0) {
+                setSelectedWeight(options[0]);
+            }
+        }
+    }, [product]);
 
-        return () => controller.abort();
-    }, [id, navigate]);
+    useEffect(() => {
+        if (error) {
+            console.error('Error fetching product:', error);
+            toast.error('Product not found');
+            navigate('/products');
+        }
+    }, [error, navigate]);
 
     const handleAddToCart = () => {
         addToCart({ ...product, selectedWeight }, quantity);

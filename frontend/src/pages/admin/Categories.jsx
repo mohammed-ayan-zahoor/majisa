@@ -1,39 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Search, Edit, Trash2, X, Save, Layers, Upload } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { useCategories } from '../../hooks/useCategories';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Categories = () => {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
+    const { data: categories = [], isLoading: loading, refetch } = useCategories();
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
-
-    const [uploading, setUploading] = useState(false);
-
-    // Form State
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         image: '',
         customFields: []
     });
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
-            const { data } = await api.get('/categories');
-            setCategories(data);
-        } catch (error) {
-            toast.error('Failed to fetch categories');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [uploading, setUploading] = useState(false);
 
     const handleOpenModal = (category = null) => {
         if (category) {
@@ -122,7 +106,7 @@ const Categories = () => {
                 await api.post('/categories', formData);
                 toast.success('Category created successfully');
             }
-            fetchCategories();
+            queryClient.invalidateQueries(['categories']);
             handleCloseModal();
         } catch (error) {
             toast.error(error.response?.data || 'Operation failed');
@@ -149,7 +133,7 @@ const Categories = () => {
                             try {
                                 await api.delete(`/categories/${id}`);
                                 toast.success('Category deleted', { id: loadingToast });
-                                fetchCategories();
+                                queryClient.invalidateQueries(['categories']);
                             } catch (error) {
                                 const message = error.response?.data || 'Failed to delete category';
                                 toast.error(message, { id: loadingToast });

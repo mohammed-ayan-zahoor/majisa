@@ -9,11 +9,16 @@ const {
 } = require('../controllers/categoryController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
-router.route('/').get(getCategories).post(protect, admin, createCategory);
+const { cacheSuccess, clearCache } = require('../middleware/cache');
+
+router.route('/')
+    .get(cacheSuccess, getCategories)
+    .post(protect, admin, clearCache, createCategory);
+
 router
     .route('/:id')
-    .get(getCategoryById)
-    .put(protect, admin, updateCategory)
-    .delete(protect, admin, deleteCategory);
+    .get(cacheSuccess, getCategoryById)
+    .put(protect, admin, clearCache, updateCategory)
+    .delete(protect, admin, clearCache, deleteCategory);
 
 module.exports = router;

@@ -1,23 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Loader } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import ProductCard from '../components/common/ProductCard';
-import api from '../services/api';
 import SEO from '../components/common/SEO';
 import { getOptimizedImage } from '../utils/urlUtils';
+import { useInfiniteProducts } from '../hooks/useProducts';
+import { useCategories } from '../hooks/useCategories';
 
 const Products = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialCategory = searchParams.get('category') || 'All';
 
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
     const [activeCategory, setActiveCategory] = useState(initialCategory);
     const [searchTerm, setSearchTerm] = useState('');
-    const [categoriesLoading, setCategoriesLoading] = useState(true);
 
     const observer = useRef();
     const scrollRef = useRef(null);
@@ -25,85 +20,43 @@ const Products = () => {
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
     const [hasDragged, setHasDragged] = useState(false);
+
+    // 1. Fetch Categories using shared hook (cached)
+    const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+
+    // 2. Fetch Products using infinite query hook (cached + infinite scroll)
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading: productsLoading,
+        isFetching
+    } = useInfiniteProducts(activeCategory, searchTerm);
+
+    const products = useMemo(() => {
+        return data?.pages.flatMap(page => page.products) || [];
+    }, [data]);
+
     const lastProductElementRef = useCallback(node => {
-        if (loading) return;
+        if (productsLoading || isFetchingNextPage) return;
         if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-                setPage(prevPage => prevPage + 1);
+            if (entries[0].isIntersecting && hasNextPage) {
+                fetchNextPage();
             }
         });
         if (node) observer.current.observe(node);
-    }, [loading, hasMore]);
-
-    // Fetch Categories
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const { data } = await api.get('/categories');
-                setCategories(data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            } finally {
-                setCategoriesLoading(false);
-            }
-        };
-        fetchCategories();
-    }, []);
-
-    // Fetch Products
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const fetchProducts = async () => {
-            setLoading(true);
-            try {
-                const { data } = await api.get('/products', {
-                    params: {
-                        page,
-                        limit: 12,
-                        category: activeCategory !== 'All' ? activeCategory : undefined,
-                        keyword: searchTerm
-                    },
-                    signal: controller.signal
-                });
-
-                setProducts(prev => page === 1 ? data.products : [...prev, ...data.products]);
-                setHasMore(data.page < data.pages);
-            } catch (error) {
-                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
-                    console.error('Error fetching products:', error);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const timeoutId = setTimeout(() => {
-            fetchProducts();
-        }, 300); // 300ms debounce for search
-
-        return () => {
-            clearTimeout(timeoutId);
-            controller.abort();
-        };
-    }, [page, activeCategory, searchTerm]);
-
-    // Reset when Filters Change
-    useEffect(() => {
-        setProducts([]);
-        setPage(1);
-        setHasMore(true);
-    }, [activeCategory, searchTerm]);
+    }, [productsLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
 
     const handleCategoryClick = (catName) => {
-        if (hasDragged) return; // Don't trigger click if we were dragging
+        if (hasDragged) return;
         setActiveCategory(catName);
         setSearchParams({ category: catName });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Drag to Scroll Handlers
+    // Drag to Scroll Handlers (kept exactly as is for UX)
     const handleMouseDown = (e) => {
         setIsDragging(true);
         setHasDragged(false);
@@ -123,7 +76,7 @@ const Products = () => {
         if (!isDragging) return;
         e.preventDefault();
         const x = e.pageX - scrollRef.current.offsetLeft;
-        const walk = (x - startX) * 2; // Scroll speed
+        const walk = (x - startX) * 2;
         if (Math.abs(walk) > 5) {
             setHasDragged(true);
         }
@@ -219,7 +172,7 @@ const Products = () => {
                 </div>
 
                 {/* Loading State & Skeleton Grid */}
-                {loading && products.length === 0 ? (
+                {productsLoading && products.length === 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {[...Array(8)].map((_, i) => (
                             <div key={i} className="animate-pulse space-y-4">
@@ -233,14 +186,22 @@ const Products = () => {
                             </div>
                         ))}
                     </div>
-                ) : loading && (
+                ) : isFetchingNextPage && (
                     <div className="flex justify-center py-12">
                         <div className="h-10 w-10 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin" />
                     </div>
                 )}
 
+                {/* Background Refresh Indicator */}
+                {isFetching && !productsLoading && !isFetchingNextPage && (
+                    <div className="fixed bottom-4 right-4 bg-white/80 backdrop-blur shadow-sm border border-gray-100 px-3 py-1.5 rounded-full z-50 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-pulse" />
+                        <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Updating Collection...</span>
+                    </div>
+                )}
+
                 {/* No Results */}
-                {!loading && products.length === 0 && (
+                {!productsLoading && products.length === 0 && (
                     <div className="text-center py-20 bg-gray-50 rounded-lg mx-4">
                         <p className="text-gray-500 font-medium">No products found matching your criteria.</p>
                         <button
@@ -253,7 +214,7 @@ const Products = () => {
                 )}
 
                 {/* End of results */}
-                {!hasMore && products.length > 0 && (
+                {!hasNextPage && products.length > 0 && (
                     <div className="text-center py-8 text-gray-400 text-xs uppercase tracking-widest">
                         End of Collection
                     </div>

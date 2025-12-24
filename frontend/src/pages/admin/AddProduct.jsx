@@ -5,7 +5,10 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 const AddProduct = () => {
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { id } = useParams();
     const isEditMode = !!id;
@@ -131,6 +134,7 @@ const AddProduct = () => {
                 await api.post('/products', payload);
                 toast.success('Product created successfully');
             }
+            queryClient.invalidateQueries(['products']);
             navigate('/admin/products');
         } catch (error) {
             console.error('Save product error:', error);

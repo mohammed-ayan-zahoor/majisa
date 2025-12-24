@@ -5,7 +5,10 @@ import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 const AdminSettings = () => {
+    const queryClient = useQueryClient();
     const [loading, setLoading] = useState(true);
     const { user, updateUser } = useAuth();
     const [generalSettings, setGeneralSettings] = useState({
@@ -55,6 +58,7 @@ const AdminSettings = () => {
         e.preventDefault();
         try {
             await api.put('/settings', generalSettings);
+            queryClient.invalidateQueries(['products']);
             toast.success('General settings saved successfully');
         } catch (error) {
             console.error('Error saving settings:', error);
