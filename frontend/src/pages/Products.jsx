@@ -53,6 +53,8 @@ const Products = () => {
 
     // Fetch Products
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchProducts = async () => {
             setLoading(true);
             try {
@@ -62,13 +64,16 @@ const Products = () => {
                         limit: 12,
                         category: activeCategory !== 'All' ? activeCategory : undefined,
                         keyword: searchTerm
-                    }
+                    },
+                    signal: controller.signal
                 });
 
                 setProducts(prev => page === 1 ? data.products : [...prev, ...data.products]);
                 setHasMore(data.page < data.pages);
             } catch (error) {
-                console.error('Error fetching products:', error);
+                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+                    console.error('Error fetching products:', error);
+                }
             } finally {
                 setLoading(false);
             }
@@ -78,7 +83,10 @@ const Products = () => {
             fetchProducts();
         }, 300); // 300ms debounce for search
 
-        return () => clearTimeout(timeoutId);
+        return () => {
+            clearTimeout(timeoutId);
+            controller.abort();
+        };
     }, [page, activeCategory, searchTerm]);
 
     // Reset when Filters Change

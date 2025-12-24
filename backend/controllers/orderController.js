@@ -75,7 +75,8 @@ const addOrderItems = async (req, res) => {
             // We don't want to fail the order creation just because email failed
         }
 
-        res.status(201).json(createdOrder);
+        const populatedOrder = await createdOrder.populate('user', 'id name businessName email');
+        res.status(201).json(populatedOrder);
     }
 };
 
@@ -85,7 +86,7 @@ const addOrderItems = async (req, res) => {
 const getOrderById = async (req, res) => {
     const order = await Order.findById(req.params.id).populate(
         'user',
-        'name email'
+        'id name businessName email'
     );
 
     if (order) {
@@ -131,7 +132,8 @@ const updateOrderStatus = async (req, res) => {
         if (goldsmithId) order.goldsmith = goldsmithId;
 
         const updatedOrder = await order.save();
-        res.json(updatedOrder);
+        const populatedOrder = await updatedOrder.populate('user', 'id name businessName email');
+        res.json(populatedOrder);
     } else {
         res.status(404).send('Order not found');
     }
@@ -145,7 +147,7 @@ const getMyOrders = async (req, res) => {
     if (req.user.role === 'goldsmith') {
         query = { goldsmith: req.user._id };
     }
-    const orders = await Order.find(query);
+    const orders = await Order.find(query).sort({ createdAt: -1 });
     res.json(orders);
 };
 
@@ -153,7 +155,7 @@ const getMyOrders = async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = async (req, res) => {
-    const orders = await Order.find({}).populate('user', 'id name businessName email');
+    const orders = await Order.find({}).populate('user', 'id name businessName email').sort({ createdAt: -1 });
     res.json(orders);
 };
 

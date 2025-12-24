@@ -4,6 +4,8 @@ import { Star, Truck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { getWatermarkedImage } from '../utils/urlUtils';
 import SEO from '../components/common/SEO';
@@ -12,6 +14,8 @@ const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { toggleWishlist, checkIsWishlisted } = useWishlist();
+    const { user } = useAuth();
     const { settings } = useSettings();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,9 +24,13 @@ const ProductDetails = () => {
     const [selectedWeight, setSelectedWeight] = useState('');
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchProduct = async () => {
             try {
-                const { data } = await api.get(`/products/${id}`);
+                const { data } = await api.get(`/products/${id}`, {
+                    signal: controller.signal
+                });
                 setProduct(data);
                 // Set initial selected image
                 if (data.images && data.images.length > 0) {
@@ -30,22 +38,26 @@ const ProductDetails = () => {
                 } else {
                     setSelectedImage(data.image);
                 }
-                // Set initial selected weight
-                if (data.weight && Array.isArray(data.weight) && data.weight.length > 0) {
-                    setSelectedWeight(data.weight[0]);
-                } else if (data.weight) {
-                    setSelectedWeight(data.weight);
+
+                // Defensive Weight Handling
+                const options = Array.isArray(data.weight) ? data.weight : (data.weight ? [data.weight] : []);
+                if (options.length > 0) {
+                    setSelectedWeight(options[0]);
                 }
             } catch (error) {
-                console.error('Error fetching product:', error);
-                toast.error('Product not found');
-                navigate('/products');
+                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+                    console.error('Error fetching product:', error);
+                    toast.error('Product not found');
+                    navigate('/products');
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProduct();
+
+        return () => controller.abort();
     }, [id, navigate]);
 
     const handleAddToCart = () => {
@@ -127,7 +139,7 @@ const ProductDetails = () => {
                             <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">{product.name}</h1>
 
                             {/* Technical Details - Only for Vendors/Admins */}
-                            {['vendor', 'admin'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
+                            {['vendor', 'admin'].includes(user?.role) && (
                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-6">
                                     <p className="text-lg font-medium text-gray-900">Product Code: <span className="font-bold text-primary-700">{product.productCode || 'N/A'}</span></p>
                                     <p className="text-md text-gray-600 mt-1">Wastage: <span className="font-medium">{product.wastage || 'N/A'}</span></p>
@@ -147,7 +159,7 @@ const ProductDetails = () => {
                         </p>
 
                         {/* Specifications - Only for Vendors/Admins */}
-                        {['vendor', 'admin'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
+                        {['vendor', 'admin'].includes(user?.role) && (
                             <div className="grid grid-cols-2 gap-4 py-6 border-y border-gray-100">
                                 <div>
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Weight</span>
@@ -171,17 +183,21 @@ const ProductDetails = () => {
                         )}
 
                         {/* Weight Selection Dropdown */}
-                        {product.weight && Array.isArray(product.weight) && product.weight.length > 0 && (
+                        {product.weight && (Array.isArray(product.weight) ? product.weight.length > 0 : !!product.weight) && (
                             <div className="mb-6">
                                 <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">Select Weight</label>
                                 <select
                                     value={selectedWeight}
                                     onChange={(e) => setSelectedWeight(e.target.value)}
-                                    className="w-full md:w-64 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white shadow-sm font-medium text-gray-700"
+                                    className="w-full md:w-64 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white shadow-sm font-medium text-gray-700 cursor-pointer"
                                 >
-                                    {product.weight.map((w, idx) => (
-                                        <option key={idx} value={w}>{w}</option>
-                                    ))}
+                                    {Array.isArray(product.weight) ? (
+                                        product.weight.map((w, idx) => (
+                                            <option key={idx} value={w}>{w}</option>
+                                        ))
+                                    ) : (
+                                        <option value={product.weight}>{product.weight}</option>
+                                    )}
                                 </select>
                             </div>
                         )}
@@ -203,7 +219,7 @@ const ProductDetails = () => {
                             </div>
                         )}
 
-                        {['vendor'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) ? (
+                        {user?.role === 'vendor' ? (
                             <div className="flex gap-4">
                                 <div className="flex items-center border border-gray-300 rounded-lg">
                                     <button

@@ -22,6 +22,17 @@ const PlaceOrder = () => {
     const [images, setImages] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Cleanup object URLs to prevent memory leaks
+    React.useEffect(() => {
+        return () => {
+            images.forEach(img => {
+                if (img.url && img.url.startsWith('blob:')) {
+                    URL.revokeObjectURL(img.url);
+                }
+            });
+        };
+    }, [images]);
+
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
         // In a real app, we would upload these to a server/cloud storage
@@ -34,6 +45,10 @@ const PlaceOrder = () => {
     };
 
     const removeImage = (index) => {
+        const imageToRemove = images[index];
+        if (imageToRemove?.url && imageToRemove.url.startsWith('blob:')) {
+            URL.revokeObjectURL(imageToRemove.url);
+        }
         setImages(images.filter((_, i) => i !== index));
     };
 

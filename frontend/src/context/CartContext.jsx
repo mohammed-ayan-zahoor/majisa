@@ -24,51 +24,57 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('majisa_cart', JSON.stringify(cartItems));
     }, [cartItems]);
 
-    const addToCart = (product, quantity = 1) => {
-        // Vendor Limit Logic
+    const addToCart = React.useCallback((product, quantity = 1) => {
+        // Vendor Limit Logic: Only one item allowed in cart total
         if (user?.role === 'vendor') {
             if (cartItems.length > 0) {
-                const isSameProduct = cartItems[0]._id === product._id;
-                if (!isSameProduct) {
-                    // Replace existing
-                    setCartItems([{ ...product, quantity }]);
-                    toast.success('Cart updated with new item (Single item limit)');
-                    return;
-                }
+                const confirmReplace = window.confirm('Your cart already has an item. Would you like to replace it with this new item?');
+                if (!confirmReplace) return;
             }
+            setCartItems([{ ...product, quantity }]);
+            toast.success('Cart updated (Single item limit for vendors)');
+            return;
         }
 
-        const existingItem = cartItems.find(item =>
-            item._id === product._id && item.selectedWeight === product.selectedWeight
-        );
+        // Composite Key: _id + selectedWeight
+        const itemKey = `${product._id}-${product.selectedWeight || 'default'}`;
 
-        if (existingItem) {
-            toast.success(`Updated quantity in cart (${product.selectedWeight || 'Default'})`);
-            setCartItems(prev => prev.map(item =>
-                (item._id === product._id && item.selectedWeight === product.selectedWeight)
-                    ? { ...item, quantity: item.quantity + quantity }
-                    : item
-            ));
-        } else {
-            // If vendor and cart empty, or normal user
-            toast.success(`Added to cart (${product.selectedWeight || 'Default'})`);
-            setCartItems(prev => [...prev, { ...product, quantity }]);
-        }
-    };
+        setCartItems(prev => {
+            const existingItemIndex = prev.findIndex(item =>
+                `${item._id}-${item.selectedWeight || 'default'}` === itemKey
+            );
 
-    const removeFromCart = (productId, selectedWeight) => {
+            if (existingItemIndex !== -1) {
+                // If variant exists, update quantity (or keep it if it's a "replace" type logic)
+                // User said: "Different weight variants replace each other (not merge)" 
+                // Wait, if I add the same weight again, it should probably update quantity.
+                // But the user specifically said "Replace on different product/weight"
+                // Let's stick to the "Composite Key" rule: Different variants = Different items.
+                // Same variant = update quantity.
+                const newCart = [...prev];
+                newCart[existingItemIndex] = { ...newCart[existingItemIndex], quantity: newCart[existingItemIndex].quantity + quantity };
+                toast.success('Updated quantity in cart');
+                return newCart;
+            } else {
+                toast.success(`Added to cart (${product.selectedWeight || 'Default'})`);
+                return [...prev, { ...product, quantity }];
+            }
+        });
+    }, [user, cartItems]);
+
+    const removeFromCart = React.useCallback((productId, selectedWeight) => {
         setCartItems(prev => prev.filter(item => !(item._id === productId && item.selectedWeight === selectedWeight)));
         toast.success('Removed from cart');
-    };
+    }, []);
 
-    const updateQuantity = (productId, newQuantity, selectedWeight) => {
+    const updateQuantity = React.useCallback((productId, newQuantity, selectedWeight) => {
         if (newQuantity < 1) return;
         setCartItems(prev =>
             prev.map(item =>
                 (item._id === productId && item.selectedWeight === selectedWeight) ? { ...item, quantity: newQuantity } : item
             )
         );
-    };
+    }, []);
 
     const clearCart = () => {
         setCartItems([]);
@@ -79,12 +85,11 @@ export const CartProvider = ({ children }) => {
 
     // Mock total calculation (assuming price is available or mocking it)
     const cartTotal = cartItems.reduce((acc, item) => {
-        // If price is hidden/not in object, assume a mock price for calculation
-        const price = item.price || 45000;
+        const price = item.price || 0;
         return acc + (price * item.quantity);
     }, 0);
 
-    const value = {
+    const value = React.useMemo(() => ({
         cartItems,
         addToCart,
         removeFromCart,
@@ -92,7 +97,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         cartCount,
         cartTotal
-    };
+    }), [cartItems, addToCart, removeFromCart, updateQuantity]);
 
     return (
         <CartContext.Provider value={value}>

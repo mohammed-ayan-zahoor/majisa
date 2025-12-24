@@ -13,7 +13,7 @@ export const OrderProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
 
     // Fetch orders based on role
-    const fetchOrders = async () => {
+    const fetchOrders = React.useCallback(async () => {
         if (!user) return;
         setLoading(true);
         try {
@@ -34,13 +34,13 @@ export const OrderProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         fetchOrders();
     }, [user]);
 
-    const addOrder = async (orderData) => {
+    const addOrder = React.useCallback(async (orderData) => {
         try {
             const { data } = await api.post('/orders', orderData);
             setOrders((prev) => [data, ...prev]);
@@ -51,9 +51,9 @@ export const OrderProvider = ({ children }) => {
             toast.error('Failed to place order');
             throw error;
         }
-    };
+    }, []);
 
-    const updateOrderStatus = async (orderId, status, goldsmithId = null) => {
+    const updateOrderStatus = React.useCallback(async (orderId, status, goldsmithId = null) => {
         try {
             const { data } = await api.put(`/orders/${orderId}/status`, { status, goldsmithId });
             setOrders((prev) =>
@@ -66,9 +66,9 @@ export const OrderProvider = ({ children }) => {
             toast.error('Failed to update order status');
             throw error;
         }
-    };
+    }, []);
 
-    const getOrderById = async (id) => {
+    const getOrderById = React.useCallback(async (id) => {
         // Check if we already have it in state
         const existingOrder = orders.find(o => o._id === id);
         if (existingOrder) return existingOrder;
@@ -81,9 +81,9 @@ export const OrderProvider = ({ children }) => {
             console.error('Error fetching order details:', error);
             return null;
         }
-    };
+    }, [orders]);
 
-    const reportIssue = async (orderId, issue) => {
+    const reportIssue = React.useCallback(async (orderId, issue) => {
         try {
             await api.put(`/orders/${orderId}/report`, { issue });
             toast.success('Issue reported to Admin');
@@ -92,9 +92,9 @@ export const OrderProvider = ({ children }) => {
             toast.error('Failed to report issue');
             throw error;
         }
-    };
+    }, []);
 
-    const value = {
+    const value = React.useMemo(() => ({
         orders,
         loading,
         addOrder,
@@ -102,7 +102,7 @@ export const OrderProvider = ({ children }) => {
         getOrderById,
         refreshOrders: fetchOrders,
         reportIssue
-    };
+    }), [orders, loading, fetchOrders, addOrder, updateOrderStatus, getOrderById, reportIssue]);
 
     return (
         <OrderContext.Provider value={value}>

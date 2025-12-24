@@ -15,6 +15,14 @@ const QuickViewModal = ({ product, onClose }) => {
     const { user } = useAuth();
     const { settings } = useSettings();
 
+    // Prevent body scroll when modal is active
+    React.useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     if (!product) return null;
 
     const isWishlisted = checkIsWishlisted(product._id);

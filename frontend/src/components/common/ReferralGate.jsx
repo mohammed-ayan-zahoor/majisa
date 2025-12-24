@@ -37,7 +37,19 @@ const ReferralGate = ({ children }) => {
             }
         }
         setLoading(false);
-    }, [user]);
+    }, [user, loginCustomer]);
+
+    // Prevent body scroll when gate is active
+    useEffect(() => {
+        if (!isVerified && !loading) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isVerified, loading]);
 
     // Initialize reCAPTCHA once when component mounts and gate is shown
     useEffect(() => {

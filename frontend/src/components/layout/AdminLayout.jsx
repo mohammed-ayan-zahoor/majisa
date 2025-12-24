@@ -5,6 +5,18 @@ import { useAuth } from '../../context/AuthContext';
 import CustomCursor from '../common/CustomCursor';
 import SEO from '../common/SEO';
 
+const navItems = [
+    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Products', path: '/admin/products', icon: Package },
+    { name: 'Categories', path: '/admin/categories', icon: Layers },
+    { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Vendors', path: '/admin/vendors', icon: Users },
+    { name: 'Customer Visits', path: '/admin/visits', icon: Users },
+    { name: 'Goldsmiths', path: '/admin/goldsmiths', icon: Hammer },
+    { name: 'Notifications', path: '/admin/notifications', icon: Bell },
+    { name: 'Settings', path: '/admin/settings', icon: Settings },
+];
+
 const AdminLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -19,17 +31,17 @@ const AdminLayout = () => {
         navigate('/');
     };
 
-    const navItems = [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-        { name: 'Products', path: '/admin/products', icon: Package },
-        { name: 'Categories', path: '/admin/categories', icon: Layers },
-        { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
-        { name: 'Vendors', path: '/admin/vendors', icon: Users },
-        { name: 'Customer Visits', path: '/admin/visits', icon: Users },
-        { name: 'Goldsmiths', path: '/admin/goldsmiths', icon: Hammer },
-        { name: 'Notifications', path: '/admin/notifications', icon: Bell },
-        { name: 'Settings', path: '/admin/settings', icon: Settings },
-    ];
+    // Prevent body scroll when mobile sidebar is open
+    React.useEffect(() => {
+        if (isSidebarOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isSidebarOpen]);
 
     return (
         <div className="min-h-screen bg-gray-100 flex">
@@ -38,8 +50,12 @@ const AdminLayout = () => {
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 w-full bg-gray-900 text-white z-[60] px-4 py-3 flex items-center justify-between">
                 <span className="font-serif font-bold">MAJISA ADMIN</span>
-                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                    {isSidebarOpen ? <LogOut className="rotate-180" size={24} /> : <div className="space-y-1.5">
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    aria-label={isSidebarOpen ? 'Close Menu' : 'Open Menu'}
+                    aria-expanded={isSidebarOpen}
+                >
+                    {isSidebarOpen ? <LogOut className="rotate-180" size={24} /> : <div className="space-y-1.5" aria-hidden="true">
                         <span className="block w-6 h-0.5 bg-white"></span>
                         <span className="block w-6 h-0.5 bg-white"></span>
                         <span className="block w-6 h-0.5 bg-white"></span>

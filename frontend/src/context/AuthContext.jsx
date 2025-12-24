@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('majisa_user', JSON.stringify(userData));
     };
 
-    const value = {
+    const value = React.useMemo(() => ({
         user,
         login,
         register,
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
         updateUser,
         isAuthenticated: !!user,
         loading
-    };
+    }), [user, loading]);
 
     return (
         <AuthContext.Provider value={value}>

@@ -4,6 +4,8 @@ import { ShoppingBag, Clock, CheckCircle, TrendingUp, Copy } from 'lucide-react'
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
+import { useOrder } from '../../context/OrderContext';
+import { useAuth } from '../../context/AuthContext';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -20,45 +22,42 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 );
 
 const VendorDashboard = () => {
+    const { orders, loading: ordersLoading, refreshOrders } = useOrder();
+    const { user } = useAuth();
     const [profile, setProfile] = useState(null);
-    const [stats, setStats] = useState({
-        totalOrders: 0,
-        pending: 0,
-        completed: 0,
-        thisMonth: 0
-    });
-    const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchDashboardData();
-    }, []);
+        const fetchProfile = async () => {
+            try {
+                const { data } = await api.get('/users/profile');
+                setProfile(data);
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const fetchDashboardData = async () => {
-        try {
-            const [profileRes, ordersRes] = await Promise.all([
-                api.get('/users/profile'),
-                api.get('/orders/myorders')
-            ]);
+        fetchProfile();
+        refreshOrders(); // Ensure orders are fresh when landing on dashboard
+    }, [refreshOrders]);
 
-            setProfile(profileRes.data);
-            const orders = ordersRes.data;
-            setRecentOrders(orders.slice(0, 5));
+    // Derived State: Calculate stats from context orders
+    const stats = React.useMemo(() => {
+        const total = orders.length;
+        const pending = orders.filter(o => o.status === 'Pending').length;
+        const completed = orders.filter(o => o.status === 'Delivered').length;
+        const thisMonth = orders.filter(o => {
+            const date = new Date(o.createdAt);
+            const now = new Date();
+            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        }).length;
 
-            const total = orders.length;
-            const pending = orders.filter(o => o.status === 'Pending').length;
-            const completed = orders.filter(o => o.status === 'Delivered').length;
-            // Mocking "This Month" for now or calculate real logic
-            const thisMonth = orders.filter(o => new Date(o.createdAt).getMonth() === new Date().getMonth()).length;
+        return { totalOrders: total, pending, completed, thisMonth };
+    }, [orders]);
 
-            setStats({ totalOrders: total, pending, completed, thisMonth });
-
-        } catch (error) {
-            console.error('Error fetching dashboard:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const recentOrders = orders.slice(0, 5);
 
     const copyReferralCode = () => {
         if (profile?.referralCode) {
@@ -67,7 +66,7 @@ const VendorDashboard = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Loading dashboard...</div>;
+    if (loading || ordersLoading) return <div className="p-8 text-center">Loading dashboard...</div>;
 
     return (
         <div className="max-w-7xl mx-auto space-y-8">

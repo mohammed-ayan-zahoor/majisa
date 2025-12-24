@@ -13,13 +13,18 @@ const Home = () => {
     const [categoriesLoading, setCategoriesLoading] = useState(true);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchFeaturedProducts = async () => {
             try {
-                const { data } = await api.get('/products?newArrival=true&limit=8');
-                // Get products
+                const { data } = await api.get('/products?newArrival=true&limit=8', {
+                    signal: controller.signal
+                });
                 setFeaturedProducts(data.products);
             } catch (error) {
-                console.error('Error fetching featured products:', error);
+                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+                    console.error('Error fetching featured products:', error);
+                }
             } finally {
                 setLoading(false);
             }
@@ -27,10 +32,14 @@ const Home = () => {
 
         const fetchCategories = async () => {
             try {
-                const { data } = await api.get('/categories');
+                const { data } = await api.get('/categories', {
+                    signal: controller.signal
+                });
                 setCategories(data);
             } catch (error) {
-                console.error('Error fetching categories:', error);
+                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+                    console.error('Error fetching categories:', error);
+                }
             } finally {
                 setCategoriesLoading(false);
             }
@@ -38,6 +47,8 @@ const Home = () => {
 
         fetchFeaturedProducts();
         fetchCategories();
+
+        return () => controller.abort();
     }, []);
 
     return (

@@ -126,15 +126,17 @@ export const WishlistProvider = ({ children }) => {
         return wishlist.includes(productId);
     };
 
+    const value = React.useMemo(() => ({
+        wishlist,
+        customer,
+        loading,
+        loginCustomer,
+        toggleWishlist,
+        checkIsWishlisted
+    }), [wishlist, customer, loading]);
+
     return (
-        <WishlistContext.Provider value={{
-            wishlist,
-            customer,
-            loading,
-            loginCustomer,
-            toggleWishlist,
-            checkIsWishlisted
-        }}>
+        <WishlistContext.Provider value={value}>
             {children}
         </WishlistContext.Provider>
     );

@@ -33,8 +33,14 @@ export const SettingsProvider = ({ children }) => {
         setSettings(prev => ({ ...prev, ...newSettings }));
     };
 
+    const value = React.useMemo(() => ({
+        settings,
+        updateSettings,
+        loading
+    }), [settings, loading]);
+
     return (
-        <SettingsContext.Provider value={{ settings, updateSettings, loading }}>
+        <SettingsContext.Provider value={value}>
             {children}
         </SettingsContext.Provider>
     );

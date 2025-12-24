@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import QuickViewModal from './QuickViewModal';
+import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -12,6 +13,7 @@ const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const { toggleWishlist, checkIsWishlisted } = useWishlist();
     const { settings } = useSettings();
+    const { user } = useAuth();
 
     const isWishlisted = checkIsWishlisted(product._id);
 
@@ -29,6 +31,8 @@ const ProductCard = ({ product }) => {
                         src={displayImage}
                         alt={product.name}
                         loading="lazy"
+                        width="300"
+                        height="400"
                         className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
                     />
 
@@ -53,26 +57,29 @@ const ProductCard = ({ product }) => {
                         <button
                             onClick={() => setShowQuickView(true)}
                             className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-1.5 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
+                            aria-label={`Quick view ${product.name}`}
                         >
-                            <span className="md:hidden">Quick View</span>
-                            <span className="hidden md:inline">Quick View</span>
+                            <span>Quick View</span>
                         </button>
-                        {['vendor'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
+                        {user?.role === 'vendor' && (
                             <button
                                 onClick={() => addToCart(product, 1)}
                                 className="w-8 md:w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition-all rounded-lg shadow-lg"
                                 title="Add to Cart"
+                                aria-label={`Add ${product.name} to cart`}
                             >
                                 <ShoppingBag size={14} className="md:w-[18px] md:h-[18px]" />
                             </button>
                         )}
-                        {(!JSON.parse(localStorage.getItem('majisa_user')) || JSON.parse(localStorage.getItem('majisa_user')).role !== 'admin') && (
+                        {user?.role !== 'admin' && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     toggleWishlist(product._id);
                                 }}
                                 className={`w-8 md:w-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
+                                aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                                aria-pressed={isWishlisted}
                             >
                                 <Heart size={14} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
                             </button>
@@ -93,7 +100,7 @@ const ProductCard = ({ product }) => {
                         <p className="text-xs text-gray-500">Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
 
                         {/* Technical Details - Only for Vendors/Admins */}
-                        {['vendor', 'admin'].includes(JSON.parse(localStorage.getItem('majisa_user'))?.role) && (
+                        {['vendor', 'admin'].includes(user?.role) && (
                             <>
                                 <div className="flex justify-center items-center gap-4 text-xs text-gray-400 mt-1">
                                     <span>{product.weight}g</span>

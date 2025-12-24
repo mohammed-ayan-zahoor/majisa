@@ -5,6 +5,11 @@ import { useAuth } from '../../context/AuthContext';
 import CustomCursor from '../common/CustomCursor';
 import SEO from '../common/SEO';
 
+const navItems = [
+    { name: 'Dashboard', path: '/goldsmith/dashboard', icon: LayoutDashboard },
+    { name: 'My Jobs', path: '/goldsmith/jobs', icon: Hammer },
+];
+
 const GoldsmithLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -17,6 +22,18 @@ const GoldsmithLayout = () => {
         logout();
         navigate('/');
     };
+
+    // Prevent body scroll when mobile sidebar is open
+    React.useEffect(() => {
+        if (isSidebarOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isSidebarOpen]);
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full bg-white border-r border-gray-200">
@@ -31,28 +48,20 @@ const GoldsmithLayout = () => {
             </div>
 
             <nav className="flex-1 p-4 space-y-2">
-                <Link
-                    to="/goldsmith/dashboard"
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/goldsmith/dashboard')
-                        ? 'bg-primary-50 text-primary-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
-                >
-                    <LayoutDashboard size={20} />
-                    <span>Dashboard</span>
-                </Link>
-                <Link
-                    to="/goldsmith/jobs"
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/goldsmith/jobs')
-                        ? 'bg-primary-50 text-primary-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
-                >
-                    <Hammer size={20} />
-                    <span>My Jobs</span>
-                </Link>
+                {navItems.map((item) => (
+                    <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path)
+                            ? 'bg-primary-50 text-primary-700 font-medium'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            }`}
+                    >
+                        <item.icon size={20} />
+                        <span>{item.name}</span>
+                    </Link>
+                ))}
             </nav>
 
             <div className="p-4 border-t border-gray-100">
@@ -73,7 +82,11 @@ const GoldsmithLayout = () => {
             <CustomCursor variant="vector" />
             {/* Mobile Header */}
             <div className="lg:hidden bg-primary-900 text-white p-4 fixed top-0 w-full z-40 flex justify-between items-center shadow-md">
-                <button onClick={() => setIsSidebarOpen(true)}>
+                <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    aria-label="Open Menu"
+                    aria-expanded={isSidebarOpen}
+                >
                     <Menu size={24} />
                 </button>
                 <span className="font-serif font-bold text-lg">MAJISA GOLDSMITH</span>

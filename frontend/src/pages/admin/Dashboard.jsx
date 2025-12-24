@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { TrendingUp, Users, ShoppingBag, AlertCircle } from 'lucide-react';
+import { useOrder } from '../../context/OrderContext';
 
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (
     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -25,46 +26,49 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => (
 );
 
 const AdminDashboard = () => {
+    const { orders, loading: ordersLoading, refreshOrders } = useOrder();
     const [stats, setStats] = useState({
         totalOrders: 0,
         totalRevenue: 0,
         pendingVendors: 0
     });
-    const [recentOrders, setRecentOrders] = useState([]);
     const [pendingVendorsList, setPendingVendorsList] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // Fetch orders
-                const { data: orders } = await api.get('/orders');
-                const totalOrders = orders.length;
-                const totalRevenue = orders.reduce((acc, order) => acc + (order.isPaid ? order.totalPrice : 0), 0);
-
-                // Fetch users for pending vendors
+                // Fetch users for pending vendors (not currently in context)
                 const { data: vendors } = await api.get('/users?role=vendor');
                 const pending = vendors.filter(v => v.status === 'Pending');
 
-                setStats({
-                    totalOrders,
-                    totalRevenue,
-                    pendingVendors: pending.length
-                });
-
-                setRecentOrders(orders.slice(0, 5)); // Get last 5 orders
-                setPendingVendorsList(pending.slice(0, 3)); // Get first 3 pending vendors
+                setPendingVendorsList(pending.slice(0, 3));
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
-            } finally {
                 setLoading(false);
             }
         };
 
         fetchDashboardData();
-    }, []);
+        refreshOrders();
+    }, [refreshOrders]);
 
-    if (loading) return <div className="p-8 text-center">Loading dashboard...</div>;
+    // Derived State
+    const dashboardStats = React.useMemo(() => {
+        const totalOrders = orders.length;
+        const totalRevenue = orders.reduce((acc, order) => acc + (order.isPaid ? order.totalPrice : 0), 0);
+
+        return {
+            totalOrders,
+            totalRevenue,
+            pendingVendors: stats.pendingVendors // Keep from local state
+        };
+    }, [orders, stats.pendingVendors]);
+
+    const recentOrders = orders.slice(0, 5);
+
+    if (loading || ordersLoading) return <div className="p-8 text-center">Loading dashboard...</div>;
 
     return (
         <div className="space-y-6">
@@ -83,13 +87,13 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatCard
                     title="Total Orders"
-                    value={stats.totalOrders}
+                    value={dashboardStats.totalOrders}
                     icon={ShoppingBag}
                     color="bg-blue-500"
                 />
                 <StatCard
                     title="Pending Vendors"
-                    value={stats.pendingVendors}
+                    value={pendingVendorsList.length} // Simplified
                     icon={Users}
                     color="bg-orange-500"
                 />

@@ -20,6 +20,7 @@ const productSchema = mongoose.Schema({
     weight: {
         type: [String],
         required: true,
+        default: []
     },
     description: {
         type: String,

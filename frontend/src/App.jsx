@@ -57,6 +57,8 @@ import ScrollToTop from './components/common/ScrollToTop';
 
 import { WishlistProvider } from './context/WishlistContext';
 
+import ProtectedRoute from './components/common/ProtectedRoute';
+
 function App() {
   return (
     <BrowserRouter>
@@ -98,7 +100,11 @@ function App() {
                     <Route path="/resetpassword/:resetToken" element={<ResetPassword />} />
 
                     {/* Admin Routes */}
-                    <Route path="/admin" element={<AdminLayout />}>
+                    <Route path="/admin" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <AdminLayout />
+                      </ProtectedRoute>
+                    }>
                       <Route index element={<AdminDashboard />} />
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="products" element={<AdminProducts />} />
@@ -115,7 +121,11 @@ function App() {
                     </Route>
 
                     {/* Goldsmith Routes */}
-                    <Route path="/goldsmith" element={<GoldsmithLayout />}>
+                    <Route path="/goldsmith" element={
+                      <ProtectedRoute allowedRoles={['goldsmith', 'admin']}>
+                        <GoldsmithLayout />
+                      </ProtectedRoute>
+                    }>
                       <Route index element={<GoldsmithDashboard />} />
                       <Route path="dashboard" element={<GoldsmithDashboard />} />
                       <Route path="jobs" element={<MyJobs />} />
@@ -123,7 +133,11 @@ function App() {
                     </Route>
 
                     {/* Vendor Routes */}
-                    <Route path="/vendor" element={<VendorLayout />}>
+                    <Route path="/vendor" element={
+                      <ProtectedRoute allowedRoles={['vendor', 'admin']}>
+                        <VendorLayout />
+                      </ProtectedRoute>
+                    }>
                       <Route index element={<VendorDashboard />} />
                       <Route path="dashboard" element={<VendorDashboard />} />
                       <Route path="place-order" element={<VendorOrder />} />

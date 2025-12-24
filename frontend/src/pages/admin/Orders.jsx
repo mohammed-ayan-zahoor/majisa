@@ -7,9 +7,17 @@ import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
 const AdminOrders = () => {
-    const { orders, loading, refreshOrders } = useOrder();
+    const { orders, loading, refreshOrders, updateOrderStatus } = useOrder();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
+
+    const handleStatusUpdate = async (orderId, status) => {
+        try {
+            await updateOrderStatus(orderId, status);
+        } catch (error) {
+            console.error('Error updating status:', error);
+        }
+    };
 
     const getStatusColor = (status) => {
         switch (status) {

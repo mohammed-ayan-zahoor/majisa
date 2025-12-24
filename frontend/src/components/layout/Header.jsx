@@ -55,10 +55,15 @@ const Header = () => {
                         <button
                             className="lg:hidden"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                            aria-expanded={isMenuOpen}
                         >
                             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
-                        <button className="hidden lg:flex items-center gap-2 hover:text-gold-500 transition-colors">
+                        <button
+                            className="hidden lg:flex items-center gap-2 hover:text-gold-500 transition-colors"
+                            aria-label="Search products"
+                        >
                             <Search size={20} />
                             <span className="text-xs uppercase tracking-widest font-medium">Search</span>
                         </button>
@@ -96,11 +101,19 @@ const Header = () => {
                         )}
 
                         {user ? (
-                            <button onClick={logout} className="hidden lg:block hover:text-gold-500 transition-colors text-xs uppercase font-bold">
+                            <button
+                                onClick={logout}
+                                className="hidden lg:block hover:text-gold-500 transition-colors text-xs uppercase font-bold"
+                                aria-label="Logout"
+                            >
                                 Logout
                             </button>
                         ) : (
-                            <Link to="/login" className="hidden lg:block hover:text-gold-500 transition-colors">
+                            <Link
+                                to="/login"
+                                className="hidden lg:block hover:text-gold-500 transition-colors"
+                                aria-label="User login"
+                            >
                                 <User size={22} />
                             </Link>
                         )}

@@ -1,9 +1,17 @@
+import React from 'react';
 import { LayoutDashboard, ShoppingBag, User, LogOut, PlusCircle, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CustomCursor from '../common/CustomCursor';
 import SEO from '../common/SEO';
+
+const navItems = [
+    { name: 'Dashboard', path: '/vendor/dashboard', icon: LayoutDashboard },
+    { name: 'Place Order', path: '/vendor/place-order', icon: PlusCircle },
+    { name: 'My Orders', path: '/vendor/orders', icon: ShoppingBag },
+    { name: 'Profile', path: '/vendor/profile', icon: User },
+];
 
 const VendorLayout = () => {
     const location = useLocation();
@@ -18,12 +26,17 @@ const VendorLayout = () => {
         navigate('/');
     };
 
-    const navItems = [
-        { name: 'Dashboard', path: '/vendor/dashboard', icon: LayoutDashboard },
-        { name: 'Place Order', path: '/vendor/place-order', icon: PlusCircle },
-        { name: 'My Orders', path: '/vendor/orders', icon: ShoppingBag },
-        { name: 'Profile', path: '/vendor/profile', icon: User },
-    ];
+    // Prevent body scroll when mobile sidebar is open
+    React.useEffect(() => {
+        if (isSidebarOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isSidebarOpen]);
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full bg-white border-r border-gray-200">
@@ -72,7 +85,11 @@ const VendorLayout = () => {
             <CustomCursor variant="vector" />
             {/* Mobile Header */}
             <div className="lg:hidden bg-primary-900 text-white p-4 fixed top-0 w-full z-40 flex justify-between items-center shadow-md">
-                <button onClick={() => setIsSidebarOpen(true)}>
+                <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    aria-label="Open Menu"
+                    aria-expanded={isSidebarOpen}
+                >
                     <Menu size={24} />
                 </button>
                 <span className="font-serif font-bold text-lg">MAJISA VENDOR</span>
