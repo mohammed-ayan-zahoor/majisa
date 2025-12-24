@@ -6,17 +6,50 @@ import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useProducts } from '../../hooks/useProducts';
+import { useProducts, fetchProducts } from '../../hooks/useProducts';
 import { useCategories } from '../../hooks/useCategories';
 
 const AdminProducts = () => {
     const queryClient = useQueryClient();
+    const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
 
-    // Use React Query for both products and categories
-    const { data: productData, isLoading: productsLoading } = useProducts();
+    // Custom debounce for search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+            setPage(1); // Reset to page 1 on new search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    // Reset page to 1 on category change
+    useEffect(() => {
+        setPage(1);
+    }, [selectedCategory]);
+
+    // Use React Query with pagination params
+    const { data: productData, isLoading: productsLoading, isPlaceholderData } = useProducts({
+        page,
+        limit: 50,
+        keyword: debouncedSearch,
+        category: selectedCategory || undefined
+    });
+
     const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+
+    // ✨ Ghost Fetch: Prefetch Next Page
+    useEffect(() => {
+        if (productData?.page < productData?.pages) {
+            const nextPage = page + 1;
+            queryClient.prefetchQuery({
+                queryKey: ['products', { page: nextPage, limit: 50, keyword: debouncedSearch, category: selectedCategory || undefined }],
+                queryFn: () => fetchProducts({ page: nextPage, limit: 50, keyword: debouncedSearch, category: selectedCategory || undefined }),
+            });
+        }
+    }, [productData, page, queryClient, debouncedSearch, selectedCategory]);
 
     const products = productData?.products || [];
     const loading = productsLoading || categoriesLoading;
@@ -63,12 +96,8 @@ const AdminProducts = () => {
         });
     };
 
-    const filteredProducts = Array.isArray(products) ? products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (selectedCategory === '' || product.category === selectedCategory)
-    ) : [];
+    // Filter is now handled server-side, but we keep this for safety if data is lagging
+    const filteredProducts = products;
 
     const ProductSkeleton = () => (
         <tr className="animate-pulse">
@@ -232,6 +261,62 @@ const AdminProducts = () => {
                     </div>
                 )}
             </div>
+
+            {/* Pagination Controls */}
+            {productData?.pages > 1 && (
+                <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="text-sm text-gray-500 font-medium">
+                        Showing <span className="text-gray-900">{products.length}</span> of <span className="text-gray-900">{productData.total}</span> products
+                        <span className="mx-2 text-gray-300">|</span>
+                        Page <span className="text-gray-900">{page}</span> of <span className="text-gray-900">{productData.pages}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1 || isPlaceholderData}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all border ${page === 1 || isPlaceholderData
+                                ? 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed'
+                                : 'bg-white text-gray-700 border-gray-200 hover:border-primary-500 hover:text-primary-600 active:bg-gray-50 shadow-sm'
+                                }`}
+                        >
+                            Previous
+                        </button>
+                        <div className="flex gap-1">
+                            {[...Array(productData.pages)].map((_, i) => {
+                                const p = i + 1;
+                                // Only show neighbor pages if total pages > 5
+                                if (productData.pages > 5 && Math.abs(p - page) > 1 && p !== 1 && p !== productData.pages) {
+                                    if (Math.abs(p - page) === 2) return <span key={p} className="px-2 text-gray-300">...</span>;
+                                    return null;
+                                }
+                                return (
+                                    <button
+                                        key={p}
+                                        onClick={() => setPage(p)}
+                                        className={`w-9 h-9 text-sm font-bold rounded-lg transition-all ${page === p
+                                            ? 'bg-primary-600 text-white shadow-md ring-2 ring-primary-100'
+                                            : 'bg-white text-gray-500 hover:bg-gray-50 border border-transparent'
+                                            }`}
+                                    >
+                                        {p}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <button
+                            onClick={() => setPage(p => Math.min(productData.pages, p + 1))}
+                            disabled={page === productData.pages || isPlaceholderData}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all border ${page === productData.pages || isPlaceholderData
+                                ? 'bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed'
+                                : 'bg-white text-gray-700 border-gray-200 hover:border-primary-500 hover:text-primary-600 active:bg-gray-50 shadow-sm'
+                                }`}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

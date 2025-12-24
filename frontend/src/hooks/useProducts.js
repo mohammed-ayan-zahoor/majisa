@@ -1,18 +1,24 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '../services/api';
 
 /**
- * Hook for fetching products with standard caching
- * Best for: Featured products, single categories, search results
+ * Standard fetcher for products
+ */
+export const fetchProducts = async (params = {}) => {
+    const { data } = await api.get('/products', { params });
+    return data;
+};
+
+/**
+ * Hook for fetching products with standard caching and pagination support
+ * Best for: Admin lists, Featured products, single categories
  */
 export const useProducts = (params = {}) => {
     return useQuery({
         queryKey: ['products', params],
-        queryFn: async () => {
-            const { data } = await api.get('/products', { params });
-            return data;
-        },
-        keepPreviousData: true
+        queryFn: () => fetchProducts(params),
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 60 * 1, // 1 minute
     });
 };
 
