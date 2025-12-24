@@ -20,6 +20,11 @@ const Products = () => {
     const [categoriesLoading, setCategoriesLoading] = useState(true);
 
     const observer = useRef();
+    const scrollRef = useRef(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [hasDragged, setHasDragged] = useState(false);
     const lastProductElementRef = useCallback(node => {
         if (loading) return;
         if (observer.current) observer.current.disconnect();
@@ -84,9 +89,37 @@ const Products = () => {
     }, [activeCategory, searchTerm]);
 
     const handleCategoryClick = (catName) => {
+        if (hasDragged) return; // Don't trigger click if we were dragging
         setActiveCategory(catName);
         setSearchParams({ category: catName });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Drag to Scroll Handlers
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setHasDragged(false);
+        setStartX(e.pageX - scrollRef.current.offsetLeft);
+        setScrollLeft(scrollRef.current.scrollLeft);
+    };
+
+    const handleMouseLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - scrollRef.current.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed
+        if (Math.abs(walk) > 5) {
+            setHasDragged(true);
+        }
+        scrollRef.current.scrollLeft = scrollLeft - walk;
     };
 
     return (
@@ -109,7 +142,14 @@ const Products = () => {
                     <div className="flex flex-col md:flex-row items-center gap-4 justify-between">
 
                         {/* Categories List */}
-                        <div className="flex items-center gap-6 overflow-x-auto w-full md:w-auto pb-4 md:pb-0 scrollbar-hide snap-x px-2">
+                        <div
+                            ref={scrollRef}
+                            onMouseDown={handleMouseDown}
+                            onMouseLeave={handleMouseLeave}
+                            onMouseUp={handleMouseUp}
+                            onMouseMove={handleMouseMove}
+                            className={`flex items-center gap-6 overflow-x-auto w-full md:w-auto pb-4 md:pb-0 scrollbar-hide snap-x px-2 cursor-grab active:cursor-grabbing select-none`}
+                        >
                             <button
                                 onClick={() => handleCategoryClick('All')}
                                 className={`flex flex-col items-center gap-3 flex-shrink-0 snap-center group min-w-[80px] ${activeCategory === 'All' ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}
