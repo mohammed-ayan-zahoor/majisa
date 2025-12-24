@@ -218,10 +218,24 @@ const Products = () => {
                     })}
                 </div>
 
-                {/* Loading State */}
-                {loading && (
+                {/* Loading State & Skeleton Grid */}
+                {loading && products.length === 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {[...Array(8)].map((_, i) => (
+                            <div key={i} className="animate-pulse space-y-4">
+                                <div className="aspect-[4/5] bg-gray-100 rounded-2xl relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer -translate-x-full" />
+                                </div>
+                                <div className="space-y-2 px-1">
+                                    <div className="h-4 w-3/4 bg-gray-100 rounded" />
+                                    <div className="h-3 w-1/2 bg-gray-50 rounded" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : loading && (
                     <div className="flex justify-center py-12">
-                        <Loader className="animate-spin text-primary-600" size={32} />
+                        <div className="h-10 w-10 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin" />
                     </div>
                 )}
 

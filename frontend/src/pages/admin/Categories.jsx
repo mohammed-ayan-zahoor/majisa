@@ -176,7 +176,36 @@ const Categories = () => {
         c.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) return <div className="p-8 text-center">Loading...</div>;
+    const CategorySkeleton = () => (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <div className="h-32 bg-gray-100 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer -translate-x-full" />
+            </div>
+            <div className="p-3 space-y-2">
+                <div className="h-3 w-2/3 bg-gray-100 rounded animate-pulse" />
+                <div className="flex gap-1">
+                    <div className="h-4 w-12 bg-gray-50 rounded animate-pulse" />
+                    <div className="h-4 w-12 bg-gray-50 rounded animate-pulse" />
+                </div>
+            </div>
+        </div>
+    );
+
+    if (loading) return (
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
+                <div className="space-y-2">
+                    <div className="h-7 w-32 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-3 w-48 bg-gray-100 rounded animate-pulse" />
+                </div>
+                <div className="h-9 w-28 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+            <div className="h-12 w-full bg-white rounded-lg border border-gray-100 animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => <CategorySkeleton key={i} />)}
+            </div>
+        </div>
+    );
 
     return (
         <div className="space-y-4">
