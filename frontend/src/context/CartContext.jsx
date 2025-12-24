@@ -8,18 +8,13 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState(() => {
+        const storedCart = localStorage.getItem('majisa_cart');
+        return storedCart ? JSON.parse(storedCart) : [];
+    });
     const { user } = useAuth(); // Access user to check role
 
-    // Load cart from local storage
-    useEffect(() => {
-        const storedCart = localStorage.getItem('majisa_cart');
-        if (storedCart) {
-            setCartItems(JSON.parse(storedCart));
-        }
-    }, []);
-
-    // Save cart to local storage
+    // Save cart to local storage whenever it changes
     useEffect(() => {
         localStorage.setItem('majisa_cart', JSON.stringify(cartItems));
     }, [cartItems]);
@@ -28,20 +23,54 @@ export const CartProvider = ({ children }) => {
         // Vendor Limit Logic: Only one item allowed in cart total
         if (user?.role === 'vendor') {
             if (cartItems.length > 0) {
-                const confirmReplace = window.confirm('Your cart already has an item. Would you like to replace it with this new item?');
-                if (!confirmReplace) return;
+                toast((t) => (
+                    <div className="flex flex-col gap-3">
+                        <p className="text-sm font-medium text-gray-900">
+                            Your cart already has an item. Replace it with this new selection?
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    setCartItems([{ ...product, quantity }]);
+                                    toast.dismiss(t.id);
+                                    toast.success('Cart updated (Single item limit)');
+                                }}
+                                className="px-3 py-1.5 bg-primary-600 text-white text-xs font-bold rounded-lg hover:bg-primary-700 transition-colors"
+                            >
+                                Replace Item
+                            </button>
+                            <button
+                                onClick={() => toast.dismiss(t.id)}
+                                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                ), {
+                    duration: 6000,
+                    position: 'top-center',
+                    style: {
+                        minWidth: '300px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        background: '#fff',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                });
+                return;
             }
             setCartItems([{ ...product, quantity }]);
-            toast.success('Cart updated (Single item limit for vendors)');
+            toast.success('Added to cart');
             return;
         }
 
-        // Composite Key: _id + selectedWeight
-        const itemKey = `${product._id}-${product.selectedWeight || 'default'}`;
+        // Composite Key: _id + selectedWeight + selectedPurity
+        const itemKey = `${product._id}-${product.selectedWeight || 'default'}-${product.selectedPurity || 'default'}`;
 
         setCartItems(prev => {
             const existingItemIndex = prev.findIndex(item =>
-                `${item._id}-${item.selectedWeight || 'default'}` === itemKey
+                `${item._id}-${item.selectedWeight || 'default'}-${item.selectedPurity || 'default'}` === itemKey
             );
 
             if (existingItemIndex !== -1) {
@@ -62,16 +91,24 @@ export const CartProvider = ({ children }) => {
         });
     }, [user, cartItems]);
 
-    const removeFromCart = React.useCallback((productId, selectedWeight) => {
-        setCartItems(prev => prev.filter(item => !(item._id === productId && item.selectedWeight === selectedWeight)));
+    const removeFromCart = React.useCallback((productId, selectedWeight, selectedPurity) => {
+        setCartItems(prev => prev.filter(item => !(
+            item._id === productId &&
+            item.selectedWeight === selectedWeight &&
+            item.selectedPurity === selectedPurity
+        )));
         toast.success('Removed from cart');
     }, []);
 
-    const updateQuantity = React.useCallback((productId, newQuantity, selectedWeight) => {
+    const updateQuantity = React.useCallback((productId, newQuantity, selectedWeight, selectedPurity) => {
         if (newQuantity < 1) return;
         setCartItems(prev =>
             prev.map(item =>
-                (item._id === productId && item.selectedWeight === selectedWeight) ? { ...item, quantity: newQuantity } : item
+                (item._id === productId &&
+                    item.selectedWeight === selectedWeight &&
+                    item.selectedPurity === selectedPurity)
+                    ? { ...item, quantity: newQuantity }
+                    : item
             )
         );
     }, []);

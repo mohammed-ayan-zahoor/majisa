@@ -26,6 +26,7 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState('');
     const [selectedWeight, setSelectedWeight] = useState('');
+    const [selectedPurity, setSelectedPurity] = useState('');
 
     // Handle initial selection when data arrives
     useEffect(() => {
@@ -36,9 +37,14 @@ const ProductDetails = () => {
                 setSelectedImage(product.image);
             }
 
-            const options = Array.isArray(product.weight) ? product.weight : (product.weight ? [product.weight] : []);
-            if (options.length > 0) {
-                setSelectedWeight(options[0]);
+            const wOptions = Array.isArray(product.weight) ? product.weight : (product.weight ? [product.weight] : []);
+            if (wOptions.length > 0) {
+                setSelectedWeight(wOptions[0]);
+            }
+
+            const pOptions = Array.isArray(product.purity) ? product.purity : (product.purity ? [product.purity] : []);
+            if (pOptions.length > 0) {
+                setSelectedPurity(pOptions[0]);
             }
         }
     }, [product]);
@@ -52,8 +58,8 @@ const ProductDetails = () => {
     }, [error, navigate]);
 
     const handleAddToCart = () => {
-        addToCart({ ...product, selectedWeight }, quantity);
-        toast.success(`Added to cart (${selectedWeight})`);
+        addToCart({ ...product, selectedWeight, selectedPurity }, quantity);
+        toast.success(`Added to cart (${selectedWeight}${selectedPurity ? ', ' + selectedPurity : ''})`);
     };
 
     if (loading) return <div className="p-12 text-center">Loading...</div>;
@@ -160,7 +166,9 @@ const ProductDetails = () => {
                                 </div>
                                 <div>
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Purity</span>
-                                    <span className="font-medium text-gray-900">{product.purity}</span>
+                                    <span className="font-medium text-gray-900">
+                                        {Array.isArray(product.purity) ? product.purity.join(', ') : (product.purity || '22K')}
+                                    </span>
                                 </div>
                                 <div>
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Metal</span>
@@ -173,25 +181,48 @@ const ProductDetails = () => {
                             </div>
                         )}
 
-                        {/* Weight Selection Dropdown */}
-                        {product.weight && (Array.isArray(product.weight) ? product.weight.length > 0 : !!product.weight) && (
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">Select Weight</label>
-                                <select
-                                    value={selectedWeight}
-                                    onChange={(e) => setSelectedWeight(e.target.value)}
-                                    className="w-full md:w-64 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white shadow-sm font-medium text-gray-700 cursor-pointer"
-                                >
-                                    {Array.isArray(product.weight) ? (
-                                        product.weight.map((w, idx) => (
-                                            <option key={idx} value={w}>{w}</option>
-                                        ))
-                                    ) : (
-                                        <option value={product.weight}>{product.weight}</option>
-                                    )}
-                                </select>
-                            </div>
-                        )}
+                        {/* Variant Selection (Weight & Purity) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            {/* Weight Selection Dropdown */}
+                            {product.weight && (Array.isArray(product.weight) ? product.weight.length > 0 : !!product.weight) && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">Select Weight</label>
+                                    <select
+                                        value={selectedWeight}
+                                        onChange={(e) => setSelectedWeight(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white shadow-sm font-medium text-gray-700 cursor-pointer"
+                                    >
+                                        {Array.isArray(product.weight) ? (
+                                            product.weight.map((w, idx) => (
+                                                <option key={idx} value={w}>{w}g</option>
+                                            ))
+                                        ) : (
+                                            <option value={product.weight}>{product.weight}g</option>
+                                        )}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* Purity Selection Dropdown */}
+                            {product.purity && (Array.isArray(product.purity) ? product.purity.length > 0 : !!product.purity) && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">Select Purity</label>
+                                    <select
+                                        value={selectedPurity}
+                                        onChange={(e) => setSelectedPurity(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white shadow-sm font-medium text-gray-700 cursor-pointer"
+                                    >
+                                        {Array.isArray(product.purity) ? (
+                                            product.purity.map((p, idx) => (
+                                                <option key={idx} value={p}>{p}</option>
+                                            ))
+                                        ) : (
+                                            <option value={product.purity}>{product.purity || '22K'}</option>
+                                        )}
+                                    </select>
+                                </div>
+                            )}
+                        </div>
 
                         {/* Size Selection (Display only) */}
                         {product.category === 'Rings' && (

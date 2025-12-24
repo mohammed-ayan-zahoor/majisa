@@ -169,33 +169,49 @@ const JobDetails = () => {
                                         <div className="grid grid-cols-2 gap-4 mt-4 bg-gray-50 p-4 rounded-lg">
                                             <div>
                                                 <span className="block text-xs text-gray-500 uppercase">Metal</span>
-                                                <span className="font-medium text-gray-900">Gold</span>
+                                                <span className="font-medium text-gray-900">{item.metal || 'Gold'}</span>
                                             </div>
                                             <div>
                                                 <span className="block text-xs text-gray-500 uppercase">Purity</span>
-                                                <span className="font-medium text-gray-900">22k</span>
+                                                <span className="font-medium text-gray-900">{item.purity || 'N/A'}</span>
                                             </div>
                                             <div>
-                                                <span className="block text-xs text-gray-500 uppercase">Weight (approx)</span>
-                                                <span className="font-medium text-gray-900">15.5g</span>
+                                                <span className="block text-xs text-gray-500 uppercase">Weight</span>
+                                                <span className="font-medium text-gray-900">{item.selectedWeight || 'N/A'}</span>
                                             </div>
                                             <div>
                                                 <span className="block text-xs text-gray-500 uppercase">Size</span>
-                                                <span className="font-medium text-gray-900">12</span>
+                                                <span className="font-medium text-gray-900">{item.size || 'Standard'}</span>
                                             </div>
                                         </div>
+
+                                        {item.customFieldValues && item.customFieldValues.length > 0 && (
+                                            <div className="mt-4 p-4 border border-gray-100 rounded-lg bg-white shadow-sm">
+                                                <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 italic">Additional Specifications</h5>
+                                                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                                                    {item.customFieldValues.map((field, fidx) => (
+                                                        <div key={fidx} className="flex flex-col">
+                                                            <span className="text-[10px] text-gray-500">{field.fieldName}</span>
+                                                            <span className="text-xs font-medium text-gray-900">{field.value}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="font-bold text-gray-900 mb-4">Special Instructions</h3>
-                        <p className="text-gray-600 bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm">
-                            Please ensure the engraving "A&S" is added to the inner band. Use high polish finish.
-                        </p>
-                    </div>
+                    {job.notes && (
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h3 className="font-bold text-gray-900 mb-4">Special Instructions</h3>
+                            <p className="text-gray-600 bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm">
+                                {job.notes}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right: Actions */}

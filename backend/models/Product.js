@@ -14,8 +14,9 @@ const productSchema = mongoose.Schema({
         required: true,
     },
     purity: {
-        type: String,
+        type: [String],
         required: true,
+        default: []
     },
     weight: {
         type: [String],

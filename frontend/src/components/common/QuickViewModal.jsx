@@ -6,6 +6,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 import { getWatermarkedImage } from '../../utils/urlUtils';
+import toast from 'react-hot-toast';
 
 const QuickViewModal = ({ product, onClose }) => {
     const [quantity, setQuantity] = useState(1);
@@ -27,6 +28,8 @@ const QuickViewModal = ({ product, onClose }) => {
 
     const isWishlisted = checkIsWishlisted(product._id);
     const [selectedImage, setSelectedImage] = useState(product.images?.[0] || product.image);
+    const [selectedWeight, setSelectedWeight] = useState(Array.isArray(product.weight) ? product.weight[0] : (product.weight || ''));
+    const [selectedPurity, setSelectedPurity] = useState(Array.isArray(product.purity) ? product.purity[0] : (product.purity || '22k'));
 
     // Auto-apply watermark
     const displayImage = settings?.watermarkLogo
@@ -34,7 +37,8 @@ const QuickViewModal = ({ product, onClose }) => {
         : selectedImage;
 
     const handleAddToCart = () => {
-        addToCart(product, quantity);
+        addToCart({ ...product, selectedWeight, selectedPurity }, quantity);
+        toast.success(`Added to cart (${selectedWeight}${selectedPurity ? ', ' + selectedPurity : ''})`);
         onClose();
     };
 
@@ -76,9 +80,52 @@ const QuickViewModal = ({ product, onClose }) => {
                         </span>
                         <h2 className="text-3xl font-serif text-charcoal-500 mb-4">{product.name}</h2>
 
-                        <p className="text-gray-600 text-sm leading-relaxed mb-8 line-clamp-3">
+                        <p className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3">
                             {product.description || 'Experience the elegance of fine craftsmanship with this exquisite piece, designed to add a touch of royalty to your collection.'}
                         </p>
+
+                        {/* Variant Selection (Weight & Purity) */}
+                        <div className="flex flex-col gap-4 mb-6">
+                            {/* Weight selection */}
+                            {product.weight && (Array.isArray(product.weight) ? product.weight.length > 0 : !!product.weight) && (
+                                <div className="flex items-center gap-4">
+                                    <span className="text-xs font-bold text-gray-500 uppercase w-16">Weight</span>
+                                    {Array.isArray(product.weight) && product.weight.length > 1 ? (
+                                        <select
+                                            value={selectedWeight}
+                                            onChange={(e) => setSelectedWeight(e.target.value)}
+                                            className="flex-1 bg-gray-50 border border-gray-200 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-primary-500 outline-none cursor-pointer"
+                                        >
+                                            {product.weight.map((w, idx) => (
+                                                <option key={idx} value={w}>{w}g</option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span className="text-sm text-gray-700 font-medium">{Array.isArray(product.weight) ? product.weight[0] : product.weight}g</span>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Purity selection */}
+                            {product.purity && (Array.isArray(product.purity) ? product.purity.length > 0 : !!product.purity) && (
+                                <div className="flex items-center gap-4">
+                                    <span className="text-xs font-bold text-gray-500 uppercase w-16">Purity</span>
+                                    {Array.isArray(product.purity) && product.purity.length > 1 ? (
+                                        <select
+                                            value={selectedPurity}
+                                            onChange={(e) => setSelectedPurity(e.target.value)}
+                                            className="flex-1 bg-gray-50 border border-gray-200 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-primary-500 outline-none cursor-pointer"
+                                        >
+                                            {product.purity.map((p, idx) => (
+                                                <option key={idx} value={p}>{p}</option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span className="text-sm text-gray-700 font-medium">{Array.isArray(product.purity) ? product.purity[0] || '22K' : (product.purity || '22K')}</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
                         {user && (user.role === 'vendor' || user.role === 'admin') ? (
                             <div className="space-y-4">

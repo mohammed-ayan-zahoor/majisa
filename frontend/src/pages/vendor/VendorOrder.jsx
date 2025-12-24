@@ -19,17 +19,21 @@ const VendorOrder = () => {
     const [quantity, setQuantity] = useState(1);
     const [notes, setNotes] = useState('');
     const [selectedWeight, setSelectedWeight] = useState('');
+    const [selectedPurity, setSelectedPurity] = useState('');
     const [customFieldValues, setCustomFieldValues] = useState({});
 
     useEffect(() => {
         const codeFromUrl = searchParams.get('code');
+        const weightFromUrl = searchParams.get('weight');
+        const purityFromUrl = searchParams.get('purity');
+
         if (codeFromUrl) {
             setProductCode(codeFromUrl);
-            fetchProductDetails(codeFromUrl);
+            fetchProductDetails(codeFromUrl, weightFromUrl, purityFromUrl);
         }
     }, [searchParams]);
 
-    const fetchProductDetails = async (code) => {
+    const fetchProductDetails = async (code, defaultWeight, defaultPurity) => {
         if (!code.trim()) return;
 
         setLoading(true);
@@ -43,10 +47,21 @@ const VendorOrder = () => {
             setProduct(productData);
 
             // Initial selected weight
-            if (productData.weight && Array.isArray(productData.weight)) {
+            if (defaultWeight) {
+                setSelectedWeight(defaultWeight);
+            } else if (productData.weight && Array.isArray(productData.weight)) {
                 setSelectedWeight(productData.weight[0]);
             } else {
                 setSelectedWeight(productData.weight);
+            }
+
+            // Initial selected purity
+            if (defaultPurity) {
+                setSelectedPurity(defaultPurity);
+            } else if (productData.purity && Array.isArray(productData.purity)) {
+                setSelectedPurity(productData.purity[0]);
+            } else {
+                setSelectedPurity(productData.purity || '22k');
             }
 
             // 2. Fetch Category to get Custom Fields
@@ -55,10 +70,17 @@ const VendorOrder = () => {
 
             if (matchedCategory) {
                 setCategory(matchedCategory);
-                // Initialize custom fields with defaults if needed
+                // Initialize custom fields with defaults
                 const initialValues = {};
                 matchedCategory.customFields.forEach(field => {
-                    initialValues[field.name] = '';
+                    // Pre-fill from URL params if field name matches
+                    if (field.name === 'Weight' && defaultWeight) {
+                        initialValues[field.name] = defaultWeight;
+                    } else if (field.name === 'Purity' && defaultPurity) {
+                        initialValues[field.name] = defaultPurity;
+                    } else {
+                        initialValues[field.name] = '';
+                    }
                 });
                 setCustomFieldValues(initialValues);
             }
@@ -117,7 +139,7 @@ const VendorOrder = () => {
                     // We can still send size/purity if they are standard, or rely on custom fields
                     // For backward compatibility, if 'Size' or 'Purity' exist in custom fields, use them
                     size: customFieldValues['Size'] || '',
-                    purity: customFieldValues['Purity'] || product.purity,
+                    purity: customFieldValues['Purity'] || selectedPurity,
                     customFieldValues: formattedCustomFields
                 }],
                 shippingAddress: { address: 'Vendor Address', city: 'Vendor City', postalCode: '000000', country: 'India' },
@@ -203,7 +225,19 @@ const VendorOrder = () => {
                                             <span className="font-medium text-gray-900 ml-1">{product.weight}</span>
                                         )}
                                     </div>
-                                    <p>Purity: <span className="font-medium text-gray-900">{product.purity}</span></p>
+                                    <p>
+                                        Purity: {product.purity && Array.isArray(product.purity) ? (
+                                            <select
+                                                value={selectedPurity}
+                                                onChange={(e) => setSelectedPurity(e.target.value)}
+                                                className="ml-1 px-1 py-0.5 border border-gray-300 rounded text-[10px] font-bold text-primary-700 bg-white"
+                                            >
+                                                {product.purity.map((p, i) => <option key={i} value={p}>{p}</option>)}
+                                            </select>
+                                        ) : (
+                                            <span className="font-medium text-gray-900 ml-1">{product.purity || '22k'}</span>
+                                        )}
+                                    </p>
                                     <p>Wastage: <span className="font-medium text-primary-600">{product.wastage}</span></p>
                                 </div>
                             </div>

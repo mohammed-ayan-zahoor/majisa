@@ -61,16 +61,6 @@ const ProductCard = ({ product }) => {
                         >
                             <span>Quick View</span>
                         </button>
-                        {user?.role === 'vendor' && (
-                            <button
-                                onClick={() => addToCart(product, 1)}
-                                className="w-8 md:w-10 bg-white/95 backdrop-blur-sm text-charcoal-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition-all rounded-lg shadow-lg"
-                                title="Add to Cart"
-                                aria-label={`Add ${product.name} to cart`}
-                            >
-                                <ShoppingBag size={14} className="md:w-[18px] md:h-[18px]" />
-                            </button>
-                        )}
                         {user?.role !== 'admin' && (
                             <button
                                 onClick={(e) => {
@@ -98,20 +88,6 @@ const ProductCard = ({ product }) => {
                     <div className="text-sm text-gray-500 space-y-1">
                         {/* Product Code - Visible to All */}
                         <p className="text-xs text-gray-500">Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
-
-                        {/* Technical Details - Only for Vendors/Admins */}
-                        {['vendor', 'admin'].includes(user?.role) && (
-                            <>
-                                <div className="flex justify-center items-center gap-4 text-xs text-gray-400 mt-1">
-                                    <span>{product.weight}g</span>
-                                    <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                                    <span>{product.purity || '22K'}</span>
-                                </div>
-                                <p className="text-primary-600 font-medium text-xs mt-2 bg-primary-50 inline-block px-2 py-1 rounded">
-                                    Wastage: {product.wastage || 'N/A'}
-                                </p>
-                            </>
-                        )}
                     </div>
                 </div>
             </div>

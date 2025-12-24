@@ -133,6 +133,7 @@ const OrderDetails = () => {
                                             <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                             {item.productCode && <p className="text-xs text-gray-400">Code: {item.productCode}</p>}
                                             {item.selectedWeight && <p className="text-xs font-bold text-primary-600 mt-1">Weight: {item.selectedWeight}</p>}
+                                            {item.purity && <p className="text-xs font-bold text-primary-600 mt-0.5">Purity: {item.purity}</p>}
                                             {item.customFieldValues && item.customFieldValues.length > 0 && (
                                                 <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded border border-gray-100">
                                                     {item.customFieldValues.map((field, idx) => (
@@ -286,6 +287,7 @@ const OrderDetails = () => {
                                     <p className="font-medium">{item.name}</p>
                                     {item.productCode && <p className="text-xs text-gray-500 inline mr-3">Code: {item.productCode}</p>}
                                     {item.selectedWeight && <p className="text-xs font-bold text-gray-900 inline">Weight: {item.selectedWeight}</p>}
+                                    {item.purity && <p className="text-xs font-bold text-gray-900 inline ml-3">Purity: {item.purity}</p>}
                                     {item.customFieldValues && item.customFieldValues.length > 0 && (
                                         <div className="mt-1 text-xs text-gray-600">
                                             {item.customFieldValues.map((field, idx) => (

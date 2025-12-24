@@ -35,8 +35,10 @@ const Cart = () => {
             // Let's NOT clear it yet. VendorOrder is just a form filler.
             // Actually, if we clear it, and they don't place order, they lose it.
             // Better to keep it until order is placed.
-            // Navigate to vendor order page with code
-            navigate(`/vendor/place-order?code=${item.productCode}`);
+            // Navigate to vendor order page with code and selected variants
+            const weightParam = item.selectedWeight ? `&weight=${encodeURIComponent(item.selectedWeight)}` : '';
+            const purityParam = item.selectedPurity ? `&purity=${encodeURIComponent(item.selectedPurity)}` : '';
+            navigate(`/vendor/place-order?code=${item.productCode}${weightParam}${purityParam}`);
             return;
         }
 
@@ -52,8 +54,7 @@ const Cart = () => {
                     product: item._id,
                     productCode: item.productCode,
                     selectedWeight: item.selectedWeight,
-                    // size: item.size, // Add if available in cart item
-                    purity: item.purity,
+                    purity: item.selectedPurity || item.purity,
                     wastage: item.wastage
                 })),
                 shippingAddress: { address: 'Vendor Address', city: 'Vendor City', postalCode: '000000', country: 'India' },
@@ -111,11 +112,19 @@ const Cart = () => {
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
                                                 <h3 className="font-serif text-lg text-charcoal-500">{item.name}</h3>
-                                                <p className="text-sm text-gray-500">{item.category} • {item.purity}</p>
-                                                {item.selectedWeight && <p className="text-xs font-bold text-primary-600 mt-1">Weight: {item.selectedWeight}</p>}
+                                                <p className="text-sm text-gray-500">{item.category}</p>
+                                                <div className="flex gap-3 text-xs font-bold text-primary-600 mt-1">
+                                                    {item.selectedWeight && <span>Weight: {item.selectedWeight}g</span>}
+                                                    {item.selectedPurity && (
+                                                        <>
+                                                            <span className="text-gray-300">|</span>
+                                                            <span>Purity: {item.selectedPurity}</span>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                             <button
-                                                onClick={() => removeFromCart(item._id, item.selectedWeight)}
+                                                onClick={() => removeFromCart(item._id, item.selectedWeight, item.selectedPurity)}
                                                 className="text-gray-400 hover:text-red-500 transition-colors"
                                             >
                                                 <Trash2 size={18} />
@@ -125,14 +134,14 @@ const Cart = () => {
                                         <div className="flex justify-between items-end mt-4">
                                             <div className="flex items-center border border-gray-200 rounded-lg">
                                                 <button
-                                                    onClick={() => updateQuantity(item._id, item.quantity - 1, item.selectedWeight)}
+                                                    onClick={() => updateQuantity(item._id, item.quantity - 1, item.selectedWeight, item.selectedPurity)}
                                                     className="px-3 py-1 hover:text-primary-600"
                                                 >
                                                     -
                                                 </button>
                                                 <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                                                 <button
-                                                    onClick={() => updateQuantity(item._id, item.quantity + 1, item.selectedWeight)}
+                                                    onClick={() => updateQuantity(item._id, item.quantity + 1, item.selectedWeight, item.selectedPurity)}
                                                     className="px-3 py-1 hover:text-primary-600"
                                                 >
                                                     +
