@@ -8,6 +8,7 @@ const {
     createProduct,
     getProductByCode,
     getProductsCount,
+    getRelatedProducts,
 } = require('../controllers/productController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -24,5 +25,6 @@ router.route('/:id')
     .put(protect, admin, clearCache, updateProduct)
     .delete(protect, admin, clearCache, deleteProduct);
 router.route('/code/:code').get(protect, getProductByCode);
+router.route('/:id/related').get(cacheSuccess, getRelatedProducts);
 
 module.exports = router;

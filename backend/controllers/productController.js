@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const cloudinary = require('cloudinary').v2;
 
@@ -273,6 +274,57 @@ const getProductsCount = async (req, res) => {
     }
 };
 
+// @desc    Get related products
+// @route   GET /api/products/:id/related
+// @access  Public
+const getRelatedProducts = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Optimized aggregation to get related products in the same category
+        const result = await Product.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(id) } },
+            {
+                $lookup: {
+                    from: 'products',
+                    let: { cat: '$category', prodId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$category', '$$cat'] },
+                                        { $ne: ['$_id', '$$prodId'] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $limit: 8 },
+                        {
+                            $project: {
+                                name: 1,
+                                category: 1,
+                                image: 1,
+                                productCode: 1,
+                                isNewArrival: 1,
+                                isFeatured: 1
+                            }
+                        }
+                    ],
+                    as: 'related'
+                }
+            },
+            { $project: { related: 1 } }
+        ]);
+
+        const relatedProducts = result[0]?.related || [];
+        res.json(relatedProducts);
+    } catch (error) {
+        console.error('Related Products Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     getProducts,
     getProductById,
@@ -281,4 +333,5 @@ module.exports = {
     updateProduct,
     getProductByCode,
     getProductsCount,
+    getRelatedProducts,
 };

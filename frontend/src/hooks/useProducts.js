@@ -60,3 +60,16 @@ export const useProduct = (id) => {
         enabled: !!id,
     });
 };
+
+// 4. Fetch Related Products
+export const useRelatedProducts = (id) => {
+    return useQuery({
+        queryKey: ['products', 'related', id],
+        queryFn: async () => {
+            const { data } = await api.get(`/products/${id}/related`);
+            return data;
+        },
+        enabled: !!id,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+};

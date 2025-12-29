@@ -10,7 +10,9 @@ import { useSettings } from '../context/SettingsContext';
 import { getWatermarkedImage } from '../utils/urlUtils';
 import SEO from '../components/common/SEO';
 
-import { useProduct } from '../hooks/useProducts';
+import { useProduct, useRelatedProducts } from '../hooks/useProducts';
+import ProductCard from '../components/common/ProductCard';
+import Skeleton from '../components/common/Skeleton';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -22,6 +24,9 @@ const ProductDetails = () => {
 
     // Use React Query for single product
     const { data: product, isLoading: loading, error } = useProduct(id);
+
+    // Fetch related products
+    const { data: relatedProducts, isLoading: relatedLoading } = useRelatedProducts(id);
 
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState('');
@@ -283,6 +288,36 @@ const ProductDetails = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Related Products Section */}
+                <div className="mt-20 border-t border-gray-100 pt-16">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-3xl font-serif font-bold text-gray-900">More Products Like This</h2>
+                            <p className="text-gray-500 mt-2 italic">Handpicked recommendations from the {product.category} collection</p>
+                        </div>
+                    </div>
+
+                    {relatedLoading ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {[...Array(4)].map((_, i) => (
+                                <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
+                            ))}
+                        </div>
+                    ) : (
+                        relatedProducts && relatedProducts.length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                {relatedProducts.map(related => (
+                                    <ProductCard key={related._id} product={related} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-gray-50 rounded-2xl">
+                                <p className="text-gray-500">No similar products found at the moment.</p>
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
         </div>
