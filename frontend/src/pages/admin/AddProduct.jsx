@@ -313,9 +313,9 @@ const AddProduct = () => {
                                         setFormData(prev => ({
                                             ...prev,
                                             category: catName,
-                                            // Only pull if currently empty or confirm with user? 
-                                            // For now, if creating new and fields are empty, pull.
-                                            customFields: !isEditMode && prev.customFields.length === 0
+                                            // Always sync custom fields when category changes in ADD mode
+                                            // This ensures a fresh template for the new category
+                                            customFields: !isEditMode
                                                 ? (selectedCat?.customFields || [])
                                                 : prev.customFields
                                         }));
