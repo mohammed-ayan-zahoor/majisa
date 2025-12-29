@@ -11,8 +11,15 @@ const cacheSuccess = cache('5 minutes', (req, res) => res.statusCode === 200);
 
 // Middleware to clear the entire cache when data is modified
 const clearCache = (req, res, next) => {
-    apicache.clear(); // Clears all cached routes
-    console.log('Backend Cache Cleared');
+    // We clear it immediately to be safe
+    apicache.clear();
+
+    // And we also clear it after the response finishes to catch any race conditions
+    res.on('finish', () => {
+        apicache.clear();
+        console.log(`Backend Cache Cleared for ${req.method} ${req.originalUrl}`);
+    });
+
     next();
 };
 

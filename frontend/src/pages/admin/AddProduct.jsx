@@ -134,7 +134,7 @@ const AddProduct = () => {
                 await api.post('/products', payload);
                 toast.success('Product created successfully');
             }
-            queryClient.invalidateQueries(['products']);
+            queryClient.invalidateQueries({ queryKey: ['products'] });
             navigate('/admin/products');
         } catch (error) {
             console.error('Save product error:', error);

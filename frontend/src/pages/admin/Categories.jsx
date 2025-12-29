@@ -106,7 +106,7 @@ const Categories = () => {
                 await api.post('/categories', formData);
                 toast.success('Category created successfully');
             }
-            queryClient.invalidateQueries(['categories']);
+            queryClient.invalidateQueries({ queryKey: ['categories'] });
             handleCloseModal();
         } catch (error) {
             toast.error(error.response?.data || 'Operation failed');
@@ -133,7 +133,7 @@ const Categories = () => {
                             try {
                                 await api.delete(`/categories/${id}`);
                                 toast.success('Category deleted', { id: loadingToast });
-                                queryClient.invalidateQueries(['categories']);
+                                queryClient.invalidateQueries({ queryKey: ['categories'] });
                             } catch (error) {
                                 const message = error.response?.data || 'Failed to delete category';
                                 toast.error(message, { id: loadingToast });

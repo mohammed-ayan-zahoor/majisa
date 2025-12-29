@@ -154,7 +154,7 @@ const AdminProducts = () => {
                             const loadingToast = toast.loading('Deleting product...');
                             try {
                                 await api.delete(`/products/${id}`);
-                                queryClient.invalidateQueries(['products']);
+                                queryClient.invalidateQueries({ queryKey: ['products'] });
                                 toast.success('Product deleted successfully', { id: loadingToast });
                             } catch (error) {
                                 toast.error('Failed to delete product', { id: loadingToast });
