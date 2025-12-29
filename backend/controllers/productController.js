@@ -157,80 +157,102 @@ const deleteProduct = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
-    const {
-        name,
-        price,
-        description,
-        image,
-        images,
-        category,
-        metal,
-        purity,
-        weight,
-        isNewArrival,
-        productCode,
-        wastage
-    } = req.body;
+    try {
+        const {
+            name,
+            price,
+            description,
+            image,
+            images,
+            category,
+            metal,
+            purity,
+            weight,
+            isNewArrival,
+            productCode,
+            wastage,
+        } = req.body;
 
-    const product = new Product({
-        name,
-        price,
-        user: req.user._id,
-        image,
-        images,
-        category,
-        metal,
-        purity,
-        weight,
-        isNewArrival,
-        description,
-        productCode,
-        wastage,
-    });
+        const product = new Product({
+            name,
+            price,
+            user: req.user._id,
+            image,
+            images,
+            category,
+            metal,
+            purity,
+            weight,
+            isNewArrival,
+            description,
+            productCode,
+            wastage,
+        });
 
-    const createdProduct = await product.save();
-    res.status(201).json(createdProduct);
+        const createdProduct = await product.save();
+        res.status(201).json(createdProduct);
+    } catch (error) {
+        console.error('Create Product Error:', error);
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: `Product Code "${req.body.productCode}" already exists. Please use a unique code.`,
+            });
+        }
+        res.status(500).json({ message: error.message || 'Failed to create product' });
+    }
 };
 
 // @desc    Update a product
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-    const {
-        name,
-        price,
-        description,
-        image,
-        images,
-        category,
-        metal,
-        purity,
-        weight,
-        isNewArrival,
-        productCode,
-        wastage
-    } = req.body;
+    try {
+        const {
+            name,
+            price,
+            description,
+            image,
+            images,
+            category,
+            metal,
+            purity,
+            weight,
+            isNewArrival,
+            productCode,
+            wastage,
+            isFeatured,
+        } = req.body;
 
-    const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id);
 
-    if (product) {
-        product.name = name;
-        product.price = price;
-        product.description = description;
-        product.image = image;
-        product.images = images;
-        product.category = category;
-        product.metal = metal;
-        product.purity = purity;
-        product.weight = weight;
-        product.isNewArrival = isNewArrival;
-        product.productCode = productCode;
-        product.wastage = wastage;
+        if (product) {
+            product.name = name || product.name;
+            product.price = price !== undefined ? price : product.price;
+            product.description = description || product.description;
+            product.image = image || product.image;
+            product.images = images || product.images;
+            product.category = category || product.category;
+            product.metal = metal || product.metal;
+            product.purity = purity || product.purity;
+            product.weight = weight || product.weight;
+            product.isNewArrival = isNewArrival !== undefined ? isNewArrival : product.isNewArrival;
+            product.productCode = productCode || product.productCode;
+            product.wastage = wastage || product.wastage;
+            product.isFeatured = isFeatured !== undefined ? isFeatured : product.isFeatured;
 
-        const updatedProduct = await product.save();
-        res.json(updatedProduct);
-    } else {
-        res.status(404).send('Product not found');
+            const updatedProduct = await product.save();
+            res.json(updatedProduct);
+        } else {
+            res.status(404).json({ message: 'Product not found' });
+        }
+    } catch (error) {
+        console.error('Update Product Error:', error);
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: `Product Code "${req.body.productCode}" is already taken by another product.`,
+            });
+        }
+        res.status(500).json({ message: error.message || 'Failed to update product' });
     }
 };
 

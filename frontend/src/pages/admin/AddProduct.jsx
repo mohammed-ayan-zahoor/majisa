@@ -138,7 +138,8 @@ const AddProduct = () => {
             navigate('/admin/products');
         } catch (error) {
             console.error('Save product error:', error);
-            toast.error(isEditMode ? 'Failed to update product' : 'Failed to create product');
+            const message = error.response?.data?.message || (isEditMode ? 'Failed to update product' : 'Failed to create product');
+            toast.error(message);
         } finally {
             setLoading(false);
         }
