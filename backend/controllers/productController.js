@@ -30,7 +30,7 @@ const extractPublicId = (url) => {
 // @access  Public
 const getProducts = async (req, res) => {
     try {
-        const pageSize = Number(req.query.limit) || 12;
+        const pageSize = Number(req.query.limit) || 20;
         const page = Number(req.query.page) || 1;
 
         const keyword = req.query.keyword
@@ -55,7 +55,8 @@ const getProducts = async (req, res) => {
 
         const newArrivalFilter = req.query.newArrival === 'true' ? { isNewArrival: true } : {};
 
-        const isDiscoveryMode = page === 1 && !req.query.keyword && (!req.query.category || req.query.category === 'All') && !req.query.minPrice && !req.query.maxPrice && !req.query.newArrival;
+        // Only use Discovery Mode (Randomization) if explicitly requested and on page 1 with no filters
+        const isDiscoveryMode = req.query.discovery === 'true' && page === 1 && !req.query.keyword && (!req.query.category || req.query.category === 'All') && !req.query.minPrice && !req.query.maxPrice && !req.query.newArrival;
 
         const count = await Product.countDocuments({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter });
 

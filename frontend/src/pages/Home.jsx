@@ -14,7 +14,8 @@ const Home = () => {
     // 2. Fetch Featured Products using shared hook (cached)
     const { data: featuredData, isLoading: featuredLoading } = useProducts({
         newArrival: true,
-        limit: 8
+        limit: 8,
+        discovery: true
     });
 
     const featuredProducts = featuredData?.products || [];
