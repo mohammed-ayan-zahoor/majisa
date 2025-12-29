@@ -233,6 +233,19 @@ const updateProduct = async (req, res) => {
     }
 };
 
+// @desc    Get total products count
+// @route   GET /api/products/count/total
+// @access  Private/Admin
+const getProductsCount = async (req, res) => {
+    try {
+        const count = await Product.countDocuments({});
+        res.json({ count });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     getProducts,
     getProductById,
@@ -240,4 +253,5 @@ module.exports = {
     createProduct,
     updateProduct,
     getProductByCode,
+    getProductsCount,
 };

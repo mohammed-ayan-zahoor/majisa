@@ -42,10 +42,19 @@ const AdminDashboard = () => {
                 const { data: vendors } = await api.get('/users?role=vendor');
                 const pending = vendors.filter(v => v.status === 'Pending');
 
+                // Fetch total products count
+                const { data: productStats } = await api.get('/products/count/total');
+
                 setPendingVendorsList(pending.slice(0, 3));
+                setStats(prev => ({
+                    ...prev,
+                    pendingVendors: pending.length,
+                    totalProducts: productStats.count
+                }));
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
+                setStats(prev => ({ ...prev, totalProducts: 0 })); // Fallback
                 setLoading(false);
             }
         };
@@ -90,6 +99,12 @@ const AdminDashboard = () => {
                     value={dashboardStats.totalOrders}
                     icon={ShoppingBag}
                     color="bg-blue-500"
+                />
+                <StatCard
+                    title="Products Uploaded"
+                    value={stats.totalProducts || 0}
+                    icon={AlertCircle}
+                    color="bg-purple-500"
                 />
                 <StatCard
                     title="Pending Vendors"

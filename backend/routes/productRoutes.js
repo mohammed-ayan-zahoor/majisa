@@ -7,10 +7,13 @@ const {
     updateProduct,
     createProduct,
     getProductByCode,
+    getProductsCount,
 } = require('../controllers/productController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 const { cacheSuccess, clearCache } = require('../middleware/cache');
+
+router.route('/count/total').get(protect, admin, getProductsCount);
 
 router.route('/')
     .get(cacheSuccess, getProducts)
