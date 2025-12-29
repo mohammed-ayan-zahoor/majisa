@@ -171,6 +171,7 @@ const createProduct = async (req, res) => {
             isNewArrival,
             productCode,
             wastage,
+            customFields,
         } = req.body;
 
         const product = new Product({
@@ -187,6 +188,7 @@ const createProduct = async (req, res) => {
             description,
             productCode,
             wastage,
+            customFields,
         });
 
         const createdProduct = await product.save();
@@ -221,6 +223,7 @@ const updateProduct = async (req, res) => {
             productCode,
             wastage,
             isFeatured,
+            customFields,
         } = req.body;
 
         const product = await Product.findById(req.params.id);
@@ -239,6 +242,7 @@ const updateProduct = async (req, res) => {
             product.productCode = productCode || product.productCode;
             product.wastage = wastage || product.wastage;
             product.isFeatured = isFeatured !== undefined ? isFeatured : product.isFeatured;
+            product.customFields = customFields || product.customFields;
 
             const updatedProduct = await product.save();
             res.json(updatedProduct);

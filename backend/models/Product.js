@@ -50,9 +50,26 @@ const productSchema = mongoose.Schema({
     isFeatured: {
         type: Boolean,
         default: false,
-    }
+    },
+    customFields: [{
+        name: { type: String, required: true },
+        type: { type: String, required: true, enum: ['text', 'number', 'dropdown'] },
+        options: [{ type: String }],
+        required: { type: Boolean, default: false }
+    }]
 }, {
     timestamps: true,
+});
+
+// Middleware to handle legacy string data for purity and weight
+productSchema.pre('save', function (next) {
+    if (this.purity && typeof this.purity === 'string') {
+        this.purity = [this.purity];
+    }
+    if (this.weight && typeof this.weight === 'string') {
+        this.weight = [this.weight];
+    }
+    next();
 });
 
 const Product = mongoose.model('Product', productSchema);

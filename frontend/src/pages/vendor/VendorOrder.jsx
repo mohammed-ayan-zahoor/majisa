@@ -64,26 +64,34 @@ const VendorOrder = () => {
                 setSelectedPurity(productData.purity || '22k');
             }
 
-            // 2. Fetch Category to get Custom Fields
-            const { data: categoriesData } = await api.get('/categories');
-            const matchedCategory = categoriesData.find(c => c.name === productData.category);
-
-            if (matchedCategory) {
-                setCategory(matchedCategory);
-                // Initialize custom fields with defaults
-                const initialValues = {};
-                matchedCategory.customFields.forEach(field => {
-                    // Pre-fill from URL params if field name matches
-                    if (field.name === 'Weight' && defaultWeight) {
-                        initialValues[field.name] = defaultWeight;
-                    } else if (field.name === 'Purity' && defaultPurity) {
-                        initialValues[field.name] = defaultPurity;
-                    } else {
-                        initialValues[field.name] = '';
-                    }
-                });
-                setCustomFieldValues(initialValues);
+            // 2. Fetch Category/Product Custom Fields
+            let fieldsToUse = [];
+            if (productData.customFields && productData.customFields.length > 0) {
+                fieldsToUse = productData.customFields;
+                // For UI consistency in the form
+                setCategory({ name: productData.category, customFields: fieldsToUse });
+            } else {
+                const { data: categoriesData } = await api.get('/categories');
+                const matchedCategory = categoriesData.find(c => c.name === productData.category);
+                if (matchedCategory) {
+                    setCategory(matchedCategory);
+                    fieldsToUse = matchedCategory.customFields || [];
+                }
             }
+
+            // Initialize custom fields with defaults
+            const initialValues = {};
+            fieldsToUse.forEach(field => {
+                // Pre-fill from URL params if field name matches
+                if (field.name === 'Weight' && defaultWeight) {
+                    initialValues[field.name] = defaultWeight;
+                } else if (field.name === 'Purity' && defaultPurity) {
+                    initialValues[field.name] = defaultPurity;
+                } else {
+                    initialValues[field.name] = '';
+                }
+            });
+            setCustomFieldValues(initialValues);
 
         } catch (error) {
             console.error('Error fetching details:', error);

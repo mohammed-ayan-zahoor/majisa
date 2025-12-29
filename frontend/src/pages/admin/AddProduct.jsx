@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
 
 import { useQueryClient } from '@tanstack/react-query';
+import CustomFieldManager from '../../components/admin/CustomFieldManager';
 
 const AddProduct = () => {
     const queryClient = useQueryClient();
@@ -28,7 +29,8 @@ const AddProduct = () => {
         wastage: '',
         images: [], // Array of image URLs
         isNewArrival: false,
-        isFeatured: false
+        isFeatured: false,
+        customFields: [] // Specialized fields per product
     });
 
     useEffect(() => {
@@ -44,7 +46,12 @@ const AddProduct = () => {
             setCategories(data);
             // Set default category if creating new and categories exist
             if (!isEditMode && data.length > 0) {
-                setFormData(prev => ({ ...prev, category: data[0].name }));
+                const defaultCat = data[0];
+                setFormData(prev => ({
+                    ...prev,
+                    category: defaultCat.name,
+                    customFields: defaultCat.customFields || []
+                }));
             }
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -66,7 +73,8 @@ const AddProduct = () => {
                 wastage: data.wastage || '',
                 images: data.images && data.images.length > 0 ? data.images : (data.image ? [data.image] : []),
                 isNewArrival: data.isNewArrival,
-                isFeatured: data.isFeatured || false
+                isFeatured: data.isFeatured || false,
+                customFields: data.customFields || []
             });
         } catch (error) {
             console.error('Error fetching product:', error);
@@ -299,7 +307,19 @@ const AddProduct = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                                 <select
                                     value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                    onChange={(e) => {
+                                        const catName = e.target.value;
+                                        const selectedCat = categories.find(c => c.name === catName);
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            category: catName,
+                                            // Only pull if currently empty or confirm with user? 
+                                            // For now, if creating new and fields are empty, pull.
+                                            customFields: !isEditMode && prev.customFields.length === 0
+                                                ? (selectedCat?.customFields || [])
+                                                : prev.customFields
+                                        }));
+                                    }}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
                                 >
                                     <option value="" disabled>Select Category</option>
@@ -401,6 +421,13 @@ const AddProduct = () => {
                                 />
                                 <label htmlFor="isFeatured" className="text-sm font-medium text-gray-700 font-bold text-amber-600">⭐ Feature this Product (Catalog Discovery)</label>
                             </div>
+                        </div>
+
+                        <div className="bg-cream-50 p-6 rounded-xl border border-cream-200">
+                            <CustomFieldManager
+                                fields={formData.customFields}
+                                onChange={(fields) => setFormData({ ...formData, customFields: fields })}
+                            />
                         </div>
 
                         <div>
