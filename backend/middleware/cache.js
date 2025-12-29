@@ -7,7 +7,12 @@ const apicache = require('apicache');
 const cache = apicache.middleware;
 
 // Middleware to cache successful responses
-const cacheSuccess = cache('5 minutes', (req, res) => res.statusCode === 200);
+// CRITICAL: We DO NOT cache requests with an Authorization header.
+// This ensures Admins and Vendors always see fresh data after updates.
+const cacheSuccess = cache('5 minutes', (req, res) => {
+    const isAuth = !!req.headers.authorization;
+    return res.statusCode === 200 && !isAuth;
+});
 
 // Middleware to clear the entire cache when data is modified
 const clearCache = (req, res, next) => {
