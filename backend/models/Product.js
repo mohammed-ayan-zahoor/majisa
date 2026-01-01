@@ -62,14 +62,14 @@ const productSchema = mongoose.Schema({
 });
 
 // Middleware to handle legacy string data for purity and weight
-productSchema.pre('save', function (next) {
+// Middleware to handle legacy string data for purity and weight
+productSchema.pre('save', async function () {
     if (this.purity && typeof this.purity === 'string') {
         this.purity = [this.purity];
     }
     if (this.weight && typeof this.weight === 'string') {
         this.weight = [this.weight];
     }
-    next();
 });
 
 const Product = mongoose.model('Product', productSchema);
