@@ -1,14 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useSettings } from '../../context/SettingsContext';
 import { getWatermarkedImage, getOptimizedImage } from '../../utils/urlUtils';
 
 const ProductCard = ({ product }) => {
-    const { addToCart } = useCart();
     const { toggleWishlist, checkIsWishlisted } = useWishlist();
     const { settings } = useSettings();
     const { user } = useAuth();
@@ -23,15 +21,17 @@ const ProductCard = ({ product }) => {
     return (
         <div className="group relative bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
             {/* Image Container - Click to Navigate */}
-            <Link to={`/product/${product._id}`} className="block relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4 cursor-pointer">
-                <img
-                    src={displayImage}
-                    alt={product.name}
-                    loading="lazy"
-                    width="300"
-                    height="400"
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                />
+            <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4">
+                <Link to={`/product/${product._id}`} className="block absolute inset-0">
+                    <img
+                        src={displayImage}
+                        alt={product.name}
+                        loading="lazy"
+                        width="300"
+                        height="400"
+                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    />
+                </Link>
 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -51,11 +51,7 @@ const ProductCard = ({ product }) => {
                 <div className="absolute inset-x-2 bottom-2 md:inset-x-3 md:bottom-3 flex justify-end z-10">
                     {user?.role !== 'admin' && (
                         <button
-                            onClick={(e) => {
-                                e.preventDefault(); // Prevent navigation
-                                e.stopPropagation();
-                                toggleWishlist(product._id);
-                            }}
+                            onClick={() => toggleWishlist(product._id)}
                             className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
                             aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
                             aria-pressed={isWishlisted}
@@ -64,8 +60,7 @@ const ProductCard = ({ product }) => {
                         </button>
                     )}
                 </div>
-            </Link>
-
+            </div>
             {/* Content */}
             <div className="text-center px-2 pb-2">
                 <p className="text-xs text-gold-600 mb-1 uppercase tracking-widest font-medium">{product.category}</p>
