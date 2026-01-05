@@ -17,11 +17,11 @@ export const getWatermarkedImage = (imageUrl, watermarkId, options = {}) => {
         opacity = 50,       // 0-100
         width = 0.2,        // 20% of the image width
         position = 'south_east', // south_east, center, north_west etc.
+        pixelWidth
     } = options;
 
     try {
         // Cloudinary URL structure: https://res.cloudinary.com/<cloud_name>/image/upload/<transformations>/<version>/<public_id>
-        // We need to inject the overlay transformation after /upload/
 
         const uploadIndex = imageUrl.indexOf('/upload/');
         if (uploadIndex === -1) return imageUrl;
@@ -29,12 +29,18 @@ export const getWatermarkedImage = (imageUrl, watermarkId, options = {}) => {
         const baseUrl = imageUrl.substring(0, uploadIndex + 8); // includes /upload/
         const restUrl = imageUrl.substring(uploadIndex + 8);
 
-        // Transformation string: l_<watermark_id>,o_<opacity>,w_<width>,fl_relative,g_<position>,q_auto,f_auto
-        // w_<pixel_width> can also be added for resizing
-        const pixelWidth = options.pixelWidth ? `w_${options.pixelWidth},c_scale,` : '';
-        const transformation = `l_${watermarkId.replace(/\//g, ':')},o_${opacity},w_${width},fl_relative,g_${position},${pixelWidth}q_auto,f_auto/`;
+        // 1. Resize/Optimize Base Image Transformation
+        const baseTransform = pixelWidth
+            ? `w_${pixelWidth},c_scale,q_auto,f_auto/`
+            : `q_auto,f_auto/`;
 
-        return `${baseUrl}${transformation}${restUrl}`;
+        // 2. Watermark Overlay Transformation
+        // Note: nesting w_... inside l_... affected the layer size if not separated.
+        const overlayTransform = `l_${watermarkId.replace(/\//g, ':')},o_${opacity},w_${width},fl_relative,g_${position}/`;
+
+        // Combine: BaseURL + Resize + Overlay + Rest
+        // Order: Resize first (efficiency), then overlay (on resized image)
+        return `${baseUrl}${baseTransform}${overlayTransform}${restUrl}`;
     } catch (error) {
         console.error('Error applying watermark:', error);
         return imageUrl;
