@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
-import QuickViewModal from './QuickViewModal';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -9,7 +8,6 @@ import { useSettings } from '../../context/SettingsContext';
 import { getWatermarkedImage, getOptimizedImage } from '../../utils/urlUtils';
 
 const ProductCard = ({ product }) => {
-    const [showQuickView, setShowQuickView] = useState(false);
     const { addToCart } = useCart();
     const { toggleWishlist, checkIsWishlisted } = useWishlist();
     const { settings } = useSettings();
@@ -23,83 +21,65 @@ const ProductCard = ({ product }) => {
         : getOptimizedImage(product.image, 600);
 
     return (
-        <>
-            <div className="group relative bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
-                {/* Image Container */}
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4">
-                    <img
-                        src={displayImage}
-                        alt={product.name}
-                        loading="lazy"
-                        width="300"
-                        height="400"
-                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                    />
+        <div className="group relative bg-white rounded-2xl p-3 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
+            {/* Image Container - Click to Navigate */}
+            <Link to={`/product/${product._id}`} className="block relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-50 mb-4 cursor-pointer">
+                <img
+                    src={displayImage}
+                    alt={product.name}
+                    loading="lazy"
+                    width="300"
+                    height="400"
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                />
 
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                        {product.isNewArrival && (
-                            <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-charcoal-500 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm">
-                                New
-                            </span>
-                        )}
-                        {product.isFeatured && (
-                            <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm flex items-center gap-1">
-                                <span>⭐</span> Featured
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Hover Actions */}
-                    {/* Actions - Always visible on mobile, Hover on Desktop */}
-                    <div className="absolute inset-x-2 bottom-2 md:inset-x-3 md:bottom-3 flex gap-2 z-10 transition-all duration-300
-                        translate-y-0 lg:translate-y-[120%] lg:group-hover:translate-y-0">
-                        <button
-                            onClick={() => setShowQuickView(true)}
-                            className="flex-1 bg-white/95 backdrop-blur-sm text-charcoal-600 py-1.5 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-charcoal-600 hover:text-white transition-all rounded-lg shadow-lg"
-                            aria-label={`Quick view ${product.name}`}
-                        >
-                            <span>Quick View</span>
-                        </button>
-                        {user?.role !== 'admin' && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleWishlist(product._id);
-                                }}
-                                className={`w-8 md:w-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
-                                aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-                                aria-pressed={isWishlisted}
-                            >
-                                <Heart size={14} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
-                            </button>
-                        )}
-                    </div>
+                {/* Badges */}
+                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                    {product.isNewArrival && (
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-charcoal-500 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm">
+                            New
+                        </span>
+                    )}
+                    {product.isFeatured && (
+                        <span className="px-3 py-1 bg-amber-500/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm flex items-center gap-1">
+                            <span>⭐</span> Featured
+                        </span>
+                    )}
                 </div>
 
-                {/* Content */}
-                <div className="text-center px-2 pb-2">
-                    <p className="text-xs text-gold-600 mb-1 uppercase tracking-widest font-medium">{product.category}</p>
-                    <h3 className="text-base font-serif text-charcoal-600 mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">
-                        <Link to={`/product/${product._id}`}>
-                            {product.name}
-                        </Link>
-                    </h3>
-                    <div className="text-sm text-gray-500 space-y-1">
-                        {/* Product Code - Visible to All */}
-                        <p className="text-xs text-gray-500">Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
-                    </div>
+                {/* Wishlist Button - Only valid action on overlay now */}
+                <div className="absolute inset-x-2 bottom-2 md:inset-x-3 md:bottom-3 flex justify-end z-10">
+                    {user?.role !== 'admin' && (
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault(); // Prevent navigation
+                                e.stopPropagation();
+                                toggleWishlist(product._id);
+                            }}
+                            className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center transition-all rounded-lg shadow-lg ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-white' : 'bg-white/95 backdrop-blur-sm text-charcoal-600 hover:text-red-500'}`}
+                            aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                            aria-pressed={isWishlisted}
+                        >
+                            <Heart size={14} className={`md:w-[18px] md:h-[18px] ${isWishlisted ? 'fill-current' : ''}`} />
+                        </button>
+                    )}
+                </div>
+            </Link>
+
+            {/* Content */}
+            <div className="text-center px-2 pb-2">
+                <p className="text-xs text-gold-600 mb-1 uppercase tracking-widest font-medium">{product.category}</p>
+                <h3 className="text-base font-serif text-charcoal-600 mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">
+                    <Link to={`/product/${product._id}`}>
+                        {product.name}
+                    </Link>
+                </h3>
+                <div className="text-sm text-gray-500 space-y-1">
+                    {/* Product Code - Visible to All */}
+                    <p className="text-xs text-gray-500">Code: <span className="font-medium text-gray-900">{product.productCode || 'N/A'}</span></p>
                 </div>
             </div>
-
-            {/* Quick View Modal */}
-            {showQuickView && (
-                <QuickViewModal
-                    product={product}
-                    onClose={() => setShowQuickView(false)}
-                />
-            )}
-        </>
+        </div>
     );
 };
 
