@@ -84,7 +84,7 @@ const Home = () => {
                                 </div>
                             ) : (
                                 categories.map((cat) => (
-                                    <Link key={cat._id} to={`/products?category=${cat.name}`} className="group/item flex flex-col items-center flex-shrink-0 snap-center">
+                                    <Link key={cat._id} to={`/products?category=${encodeURIComponent(cat.name)}`} className="group/item flex flex-col items-center flex-shrink-0 snap-center">
                                         <div className="relative w-20 h-20 rounded-full p-0.5 bg-gradient-to-tr from-gold-300 to-gold-600 group-hover/item:from-primary-400 group-hover/item:to-primary-600 transition-all duration-300">
                                             <div className="w-full h-full rounded-full border-[2px] border-white overflow-hidden bg-gray-100 flex items-center justify-center">
                                                 {cat.image ? (
@@ -119,7 +119,7 @@ const Home = () => {
                             ))
                         ) : (
                             categories.map((cat) => (
-                                <Link key={cat._id} to={`/products?category=${cat.name}`} className="group block" style={{ willChange: 'transform' }}>
+                                <Link key={cat._id} to={`/products?category=${encodeURIComponent(cat.name)}`} className="group block" style={{ willChange: 'transform' }}>
                                     <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 shadow-md group-hover:shadow-xl transition-all duration-500 transform group-hover:-translate-y-2 bg-gray-100">
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-10" />
                                         {cat.image ? (
@@ -144,11 +144,11 @@ const Home = () => {
                             ))
                         )}
                     </div>
-                </div>
-            </section>
+                </div >
+            </section >
 
             {/* Featured Products - Clean & Spacious */}
-            <section className="bg-white py-12 md:py-16">
+            < section className="bg-white py-12 md:py-16" >
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                         <div>
@@ -173,10 +173,10 @@ const Home = () => {
                         )}
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* Trust/About Section - Minimalist */}
-            <section className="container mx-auto px-4 py-24">
+            < section className="container mx-auto px-4 py-24" >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
                     <div className="px-4 pt-8 md:pt-0">
                         <ShieldCheck size={32} className="text-gold-600 mx-auto mb-6" strokeWidth={1.5} />
@@ -200,11 +200,11 @@ const Home = () => {
                         </p>
                     </div>
                 </div>
-            </section>
+            </section >
 
 
 
-        </div>
+        </div >
     );
 };
 
