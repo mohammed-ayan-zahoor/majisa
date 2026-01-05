@@ -1,6 +1,7 @@
 const Customer = require('../models/Customer');
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
+const CustomerVisit = require('../models/CustomerVisit');
 
 // @desc    Login or Register Customer (Mock OTP)
 // @route   POST /api/customers/login
@@ -10,8 +11,10 @@ const loginOrRegister = async (req, res) => {
 
     try {
         // 1. Verify Referral Code (Vendor exists?)
-        // If they are logging in, they might not send referral code again, 
-        // but for MVP flow in ReferralGate, we always send it or we check if user exists first.
+        let vendor;
+        if (referralCode) {
+            vendor = await User.findOne({ referralCode, role: 'vendor' });
+        }
 
         let customer = await Customer.findOne({ phone });
 
@@ -21,7 +24,6 @@ const loginOrRegister = async (req, res) => {
                 return res.status(400).json({ message: 'Name and Referral Code required for new users.' });
             }
 
-            const vendor = await User.findOne({ referralCode, role: 'vendor' });
             if (!vendor) {
                 return res.status(400).json({ message: 'Invalid Referral Code.' });
             }
@@ -46,6 +48,42 @@ const loginOrRegister = async (req, res) => {
         customer.lastVisitedAt = Date.now();
         await customer.save();
 
+        // --- Log Customer Visit (Critical Fix) ---
+        // If referral code was provided (gate entry), verify vendor and log visit
+        // If logging in without code, we might skip or use customer's original vendor?
+        // But logic says referralCode is usually passed from Gate.
+
+        let visitVendor = vendor;
+        if (!visitVendor && customer.vendor) {
+            // If no code passed (re-login?), use original vendor? 
+            // Logic in gate says code is required. So we typically have a vendor.
+            // If we don't have a vendor here, we can't log a visit for a specific vendor.
+            visitVendor = await User.findById(customer.vendor);
+        }
+
+        if (visitVendor) {
+            const existingVisit = await CustomerVisit.findOne({
+                vendor: visitVendor._id,
+                phone: phone, // Match by phone as unique identifier for customer
+                // name: name // Name might change or match loosely? Phone is better key.
+            });
+
+            if (existingVisit) {
+                existingVisit.visitedAt = Date.now();
+                existingVisit.name = name || existingVisit.name; // Update name if provided
+                existingVisit.referralCode = referralCode || existingVisit.referralCode;
+                await existingVisit.save();
+            } else {
+                await CustomerVisit.create({
+                    name: name || customer.name,
+                    phone: phone,
+                    referralCode: referralCode || customer.referralCode,
+                    vendor: visitVendor._id
+                });
+            }
+        }
+        // ----------------------------------------
+
         // Populate wishlist
         await customer.populate('wishlist');
 
@@ -54,7 +92,7 @@ const loginOrRegister = async (req, res) => {
             name: customer.name,
             phone: customer.phone,
             wishlist: customer.wishlist,
-            vendorName: (await User.findById(customer.vendor)).name // Send vendor name for UI
+            vendorName: visitVendor ? (visitVendor.businessName || visitVendor.name) : 'Authorized Vendor'
         });
 
     } catch (error) {

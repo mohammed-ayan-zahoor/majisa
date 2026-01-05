@@ -14,6 +14,12 @@ const Products = () => {
     const [activeCategory, setActiveCategory] = useState(initialCategory);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Sync state with URL params
+    useEffect(() => {
+        const categoryFromUrl = searchParams.get('category') || 'All';
+        setActiveCategory(categoryFromUrl);
+    }, [searchParams]);
+
     const observer = useRef();
     const scrollRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
