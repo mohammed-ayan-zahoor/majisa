@@ -14,13 +14,8 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 
+//Helmet security configuration
 const helmet = require('helmet');
-
-// Connect to database
-connectDB().then(() => {
-    const { migrateUsernames } = require('./utils/migrationUtils');
-    migrateUsernames();
-});
 
 const app = express();
 

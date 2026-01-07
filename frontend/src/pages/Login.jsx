@@ -35,7 +35,7 @@ const Login = () => {
         const isEmail = identifier.includes('@');
 
         if (isEmail) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+$/;
             if (!emailRegex.test(identifier)) {
                 return toast.error('Please enter a valid email address');
             }
