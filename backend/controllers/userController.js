@@ -352,8 +352,8 @@ const updateUser = async (req, res) => {
 
         if (user) {
             user.name = req.body.name || user.name;
-            user.email = req.body.email || user.email;
-            user.username = req.body.username || user.username;
+            user.email = req.body.email?.toLowerCase() || user.email;
+            user.username = req.body.username?.toLowerCase() || user.username;
             user.role = req.body.role || user.role;
             user.businessName = req.body.businessName || user.businessName;
             user.phone = req.body.phone || user.phone;

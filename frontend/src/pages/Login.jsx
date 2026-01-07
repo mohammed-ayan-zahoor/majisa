@@ -48,12 +48,12 @@ const Login = () => {
                 return toast.error('Username can only contain letters, numbers and underscores');
             }
         } else if (role === 'customer') {
-            // Basic phone/email check for customers
-            if (identifier.length < 5) {
-                return toast.error('Please enter a valid email or phone number');
+            // Phone number validation for customers (assuming 10+ digit format)
+            const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+            if (!phoneRegex.test(identifier)) {
+                return toast.error('Please enter a valid phone number (at least 10 digits)');
             }
         }
-
         setIsLoading(true);
 
         try {

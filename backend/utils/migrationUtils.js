@@ -2,59 +2,73 @@ const User = require('../models/User');
 
 const migrateUsernames = async () => {
     try {
-        const users = await User.find({ username: { $exists: false } });
+        // 1. Auto-generate missing usernames
+        const missingUsernames = await User.find({ username: { $exists: false } });
+        if (missingUsernames.length > 0) {
+            console.log(`[Migration] Found ${missingUsernames.length} users without usernames. Starting auto-generation...`);
+            for (const user of missingUsernames) {
+                if (!user.email) continue;
+                let baseUsername = user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '');
+                if (!baseUsername) baseUsername = 'user';
 
-        if (users.length === 0) return;
-
-        console.log(`[Migration] Found ${users.length} users without usernames. Starting atomic auto-migration...`);
-
-        for (const user of users) {
-            if (!user.email || typeof user.email !== 'string') {
-                console.warn(`[Migration] Skipping user ${user._id}: missing or invalid email`);
-                continue;
-            }
-
-            let baseUsername = user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (!baseUsername) baseUsername = 'user';
-
-            let candidate = baseUsername;
-            let counter = 1;
-            let success = false;
-            let attempts = 0;
-            const MAX_ATTEMPTS = 15;
-
-            while (!success && attempts < MAX_ATTEMPTS) {
-                try {
-                    // Atomic update strategy: Attempt to set the username directly
-                    // This relies on the unique index in MongoDB to throw an E11000 error on conflict
-                    user.username = candidate;
-                    await user.save();
-                    console.log(`[Migration] Success: ${user.email} -> ${candidate}`);
-                    success = true;
-                } catch (error) {
-                    // Check for duplicate key error (E11000)
-                    if (error.code === 11000 || (error.name === 'MongoServerError' && error.message.includes('E11000'))) {
-                        // Conflict detected! Generate a new candidate and retry
-                        candidate = `${baseUsername}${counter}`;
-                        counter++;
-                        attempts++;
-                    } else {
-                        // Some other error occurred, stop processing this user
-                        console.error(`[Migration] Error migrating user ${user._id}:`, error.message);
-                        break;
-                    }
-                }
-            }
-
-            if (!success && attempts >= MAX_ATTEMPTS) {
-                console.error(`[Migration] Failed: Max attempts (${MAX_ATTEMPTS}) reached for user ${user._id}`);
+                await saveWithRetry(user, baseUsername);
             }
         }
 
-        console.log('[Migration] Username auto-migration complete.');
+        // 2. Normalize existing uppercase usernames to lowercase
+        // MongoDB treats 'UserA' and 'usera' as different if the index isn't case-insensitive (which it isn't by default)
+        // Since we added lowercase: true to the model, we should normalize everything in DB.
+        const usersToNormalize = await User.find({
+            username: { $exists: true, $ne: null },
+            $expr: { $ne: [{ $toLower: "$username" }, "$username"] }
+        });
+
+        if (usersToNormalize.length > 0) {
+            console.log(`[Migration] Found ${usersToNormalize.length} users with non-lowercase usernames. Normalizing...`);
+            for (const user of usersToNormalize) {
+                const targetUsername = user.username.toLowerCase();
+                await saveWithRetry(user, targetUsername);
+            }
+        }
+
+        console.log('[Migration] Username migration and normalization complete.');
     } catch (error) {
         console.error('[Migration] Username migration failed:', error);
     }
 };
+
+/**
+ * Attempts to save a user with a desired username, appending a numeric suffix if a collision occurs.
+ */
+async function saveWithRetry(user, desiredUsername) {
+    let candidate = desiredUsername;
+    let counter = 1;
+    let success = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 20;
+
+    while (!success && attempts < MAX_ATTEMPTS) {
+        try {
+            user.username = candidate;
+            // Use validateBeforeSave: false if we only want to update username without triggering other validations if they might fail
+            await user.save();
+            console.log(`[Migration] Updated ${user.email}: username -> ${candidate}`);
+            success = true;
+        } catch (error) {
+            if (error.code === 11000 || (error.name === 'MongoServerError' && error.message.includes('E11000'))) {
+                candidate = `${desiredUsername}${counter}`;
+                counter++;
+                attempts++;
+            } else {
+                console.error(`[Migration] Error saving user ${user._id}:`, error.message);
+                break;
+            }
+        }
+    }
+
+    if (!success && attempts >= MAX_ATTEMPTS) {
+        console.error(`[Migration] Failed to save username for user ${user._id} after ${MAX_ATTEMPTS} attempts`);
+    }
+}
 
 module.exports = { migrateUsernames };

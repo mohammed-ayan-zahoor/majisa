@@ -153,6 +153,7 @@ const AdminGoldsmiths = () => {
     };
 
     const openEditModal = (goldsmith) => {
+        setUsernameError('');
         setSelectedGoldsmith(goldsmith);
         setFormData({
             name: goldsmith.name,
@@ -182,7 +183,10 @@ const AdminGoldsmiths = () => {
                     <p className="text-xs text-gray-500 hidden md:block">Manage your manufacturing team</p>
                 </div>
                 <button
-                    onClick={() => setIsAddModalOpen(true)}
+                    onClick={() => {
+                        setUsernameError('');
+                        setIsAddModalOpen(true);
+                    }}
                     className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
                 >
                     <Plus size={16} />
@@ -285,7 +289,10 @@ const AdminGoldsmiths = () => {
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 m-4">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-900">Add New Goldsmith</h2>
-                            <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => {
+                                setUsernameError('');
+                                setIsAddModalOpen(false);
+                            }} className="text-gray-400 hover:text-gray-600">
                                 <X size={24} />
                             </button>
                         </div>
@@ -357,7 +364,10 @@ const AdminGoldsmiths = () => {
                             <div className="flex gap-4 pt-4">
                                 <button
                                     type="button"
-                                    onClick={() => setIsAddModalOpen(false)}
+                                    onClick={() => {
+                                        setUsernameError('');
+                                        setIsAddModalOpen(false);
+                                    }}
                                     className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
                                 >
                                     Cancel
@@ -380,7 +390,10 @@ const AdminGoldsmiths = () => {
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 m-4">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-900">Edit Goldsmith</h2>
-                            <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => {
+                                setUsernameError('');
+                                setIsEditModalOpen(false);
+                            }} className="text-gray-400 hover:text-gray-600">
                                 <X size={24} />
                             </button>
                         </div>
@@ -452,7 +465,10 @@ const AdminGoldsmiths = () => {
                             <div className="flex gap-4 pt-4">
                                 <button
                                     type="button"
-                                    onClick={() => setIsEditModalOpen(false)}
+                                    onClick={() => {
+                                        setUsernameError('');
+                                        setIsEditModalOpen(false);
+                                    }}
                                     className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
                                 >
                                     Cancel
