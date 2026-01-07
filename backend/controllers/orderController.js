@@ -75,7 +75,7 @@ const addOrderItems = async (req, res) => {
             // We don't want to fail the order creation just because email failed
         }
 
-        const populatedOrder = await createdOrder.populate('user', 'id name businessName email');
+        const populatedOrder = await createdOrder.populate('user', 'id name businessName email username');
         res.status(201).json(populatedOrder);
     }
 };
@@ -86,7 +86,7 @@ const addOrderItems = async (req, res) => {
 const getOrderById = async (req, res) => {
     const order = await Order.findById(req.params.id).populate(
         'user',
-        'id name businessName email'
+        'id name businessName email username'
     );
 
     if (order) {
@@ -132,7 +132,7 @@ const updateOrderStatus = async (req, res) => {
         if (goldsmithId) order.goldsmith = goldsmithId;
 
         const updatedOrder = await order.save();
-        const populatedOrder = await updatedOrder.populate('user', 'id name businessName email');
+        const populatedOrder = await updatedOrder.populate('user', 'id name businessName email username');
         res.json(populatedOrder);
     } else {
         res.status(404).send('Order not found');
@@ -155,7 +155,7 @@ const getMyOrders = async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = async (req, res) => {
-    const orders = await Order.find({}).populate('user', 'id name businessName email').sort({ createdAt: -1 });
+    const orders = await Order.find({}).populate('user', 'id name businessName email username').sort({ createdAt: -1 });
     res.json(orders);
 };
 

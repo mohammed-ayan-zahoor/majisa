@@ -75,7 +75,7 @@ const Login = () => {
             subtitle: "Discover the finest craftsmanship.",
             accent: "text-primary-600",
             bg: "bg-cream-50",
-            button: "bg-primary-600 hover:bg-primary-700",
+            button: "bg-primary-600 hover:bg-primary-700 text-white",
             icon: Gem
         },
         goldsmith: {
@@ -91,7 +91,7 @@ const Login = () => {
             subtitle: "Connect with excellence.",
             accent: "text-charcoal-500",
             bg: "bg-white",
-            button: "bg-charcoal-600 hover:bg-charcoal-700",
+            button: "bg-charcoal-600 hover:bg-charcoal-700 text-white",
             icon: User
         },
         admin: {
@@ -99,7 +99,7 @@ const Login = () => {
             subtitle: "Orchestrate the vision.",
             accent: "text-primary-800",
             bg: "bg-gray-50",
-            button: "bg-charcoal-900 hover:bg-black",
+            button: "bg-charcoal-900 hover:bg-black text-white",
             icon: Lock
         }
     };

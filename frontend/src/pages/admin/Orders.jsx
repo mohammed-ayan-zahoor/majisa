@@ -76,9 +76,12 @@ const AdminOrders = () => {
     };
 
     const filteredOrders = orders.filter(order => {
+        const searchLower = searchTerm.toLowerCase();
         const matchesSearch =
-            order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (order.user && order.user.name.toLowerCase().includes(searchTerm.toLowerCase()));
+            order._id.toLowerCase().includes(searchLower) ||
+            (order.user?.name?.toLowerCase().includes(searchLower)) ||
+            (order.user?.businessName?.toLowerCase().includes(searchLower)) ||
+            (order.user?.username?.toLowerCase().includes(searchLower));
         const matchesStatus = filterStatus === 'All' || order.status === filterStatus;
         return matchesSearch && matchesStatus;
     });
@@ -149,8 +152,12 @@ const AdminOrders = () => {
                                                 <Store size={14} className="text-gray-500" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-gray-900">{order.user?.businessName || 'Unknown'}</p>
-                                                <p className="text-[10px] text-gray-500">{order.user?.name}</p>
+                                                <p className="text-sm font-medium text-gray-900">
+                                                    {order.user?.businessName || order.user?.name || 'Unknown Vendor'}
+                                                </p>
+                                                <p className="text-[10px] text-gray-500">
+                                                    {order.user?.businessName ? order.user?.name : (order.user?.username ? `@${order.user.username}` : order.user?.email)}
+                                                </p>
                                             </div>
                                         </div>
                                     </td>
