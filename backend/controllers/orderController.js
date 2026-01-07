@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const sendEmail = require('../utils/sendEmail');
+const { addEmailToQueue } = require('../queues/emailQueue');
 const { createNotification } = require('./notificationController');
 
 // @desc    Create new order
@@ -44,7 +45,7 @@ const addOrderItems = async (req, res) => {
         try {
             // Email to Vendor
             if (req.user.email) {
-                await sendEmail({
+                await addEmailToQueue({
                     email: req.user.email,
                     subject: `Order Confirmation - #${createdOrder._id}`,
                     message: `
@@ -59,7 +60,7 @@ const addOrderItems = async (req, res) => {
             // Email to Admin (Optional: sends to the sender/admin email)
             const adminEmail = process.env.EMAIL_FROM || process.env.EMAIL_USERNAME;
             if (adminEmail) {
-                await sendEmail({
+                await addEmailToQueue({
                     email: adminEmail,
                     subject: `New Order Received - #${createdOrder._id}`,
                     message: `

@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+const { addEmailToQueue } = require('../queues/emailQueue');
 const { createNotification } = require('./notificationController');
 
 // ... (existing generateToken)
@@ -42,7 +43,7 @@ const forgotPassword = async (req, res) => {
     `;
 
     try {
-        await sendEmail({
+        await addEmailToQueue({
             email: user.email,
             subject: 'Password Reset Request',
             message,

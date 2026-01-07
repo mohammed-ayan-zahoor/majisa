@@ -218,6 +218,10 @@ const startServer = async () => {
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
+
+            // Initialize Background Workers
+            console.log('Initializing Background Workers...');
+            require('./workers/emailWorker');
         });
     } catch (error) {
         console.error('CRITICAL: Server failed to start:', error.message);
