@@ -10,6 +10,7 @@ const AdminGoldsmiths = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedGoldsmith, setSelectedGoldsmith] = useState(null);
+    const [usernameError, setUsernameError] = useState('');
 
     // Modal States
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -38,6 +39,27 @@ const AdminGoldsmiths = () => {
 
         fetchGoldsmiths();
     }, []);
+
+    const validateUsername = (username) => {
+        if (!username) {
+            setUsernameError('Username is required');
+            return false;
+        }
+        if (username.length < 3) {
+            setUsernameError('Username must be at least 3 characters');
+            return false;
+        }
+        if (username.length > 30) {
+            setUsernameError('Username cannot exceed 30 characters');
+            return false;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            setUsernameError('Only letters, numbers and underscores allowed');
+            return false;
+        }
+        setUsernameError('');
+        return true;
+    };
 
     const handleToggleStatus = async (id, currentStatus) => {
         try {
@@ -98,6 +120,7 @@ const AdminGoldsmiths = () => {
 
     const handleAddGoldsmith = async (e) => {
         e.preventDefault();
+        if (!validateUsername(formData.username)) return;
         try {
             const { data } = await api.post('/users/create', {
                 ...formData,
@@ -115,6 +138,7 @@ const AdminGoldsmiths = () => {
 
     const handleEditGoldsmith = async (e) => {
         e.preventDefault();
+        if (!validateUsername(formData.username)) return;
         try {
             const { data } = await api.put(`/users/${selectedGoldsmith._id}`, formData);
             setGoldsmiths(prev => prev.map(g => g._id === selectedGoldsmith._id ? { ...g, ...data } : g));
@@ -203,8 +227,7 @@ const AdminGoldsmiths = () => {
                                             </div>
                                             <div>
                                                 <p className="font-medium text-gray-900 text-sm">{goldsmith.name}</p>
-                                                <p className="text-[10px] text-primary-600 font-mono">@{goldsmith.username}</p>
-                                            </div>
+                                                {goldsmith.username && <p className="text-[10px] text-primary-600 font-mono">@{goldsmith.username}</p>}                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 text-gray-600">
@@ -284,10 +307,20 @@ const AdminGoldsmiths = () => {
                                     <input
                                         type="text"
                                         required
+                                        placeholder="e.g., john_smith"
+                                        pattern="^[a-zA-Z0-9_]{3,30}$"
+                                        aria-describedby="username-helper"
                                         value={formData.username}
-                                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, username: e.target.value });
+                                            validateUsername(e.target.value);
+                                        }}
+                                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary-500 ${usernameError ? 'border-red-500' : 'border-gray-300'}`}
                                     />
+                                    <p id="username-helper" className="text-[10px] text-gray-500 mt-1">
+                                        3-30 chars, letters, numbers, underscores only
+                                    </p>
+                                    {usernameError && <p className="text-[10px] text-red-500 mt-0.5">{usernameError}</p>}
                                 </div>
                             </div>
                             <div>
@@ -369,10 +402,20 @@ const AdminGoldsmiths = () => {
                                     <input
                                         type="text"
                                         required
+                                        placeholder="e.g., johndoe"
+                                        pattern="^[a-zA-Z0-9_]{3,30}$"
+                                        aria-describedby="edit-username-helper"
                                         value={formData.username}
-                                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, username: e.target.value });
+                                            validateUsername(e.target.value);
+                                        }}
+                                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary-500 ${usernameError ? 'border-red-500' : 'border-gray-300'}`}
                                     />
+                                    <p id="edit-username-helper" className="text-[10px] text-gray-500 mt-1">
+                                        3-30 chars, letters, numbers, underscores only
+                                    </p>
+                                    {usernameError && <p className="text-[10px] text-red-500 mt-0.5">{usernameError}</p>}
                                 </div>
                             </div>
                             <div>

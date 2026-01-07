@@ -188,8 +188,26 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
+// Port configuration
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Root startup function
+const startServer = async () => {
+    try {
+        console.log('Connecting to database...');
+        await connectDB();
+
+        console.log('Running database migrations...');
+        const { migrateUsernames } = require('./utils/migrationUtils');
+        await migrateUsernames();
+
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('CRITICAL: Server failed to start:', error.message);
+        process.exit(1);
+    }
+};
+
+startServer();

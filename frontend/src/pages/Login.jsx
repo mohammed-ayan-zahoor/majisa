@@ -30,6 +30,30 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const identifier = formData.username;
+        const isEmail = identifier.includes('@');
+
+        if (isEmail) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(identifier)) {
+                return toast.error('Please enter a valid email address');
+            }
+        } else if (role !== 'customer') {
+            // Username validation for non-customers
+            if (identifier.length < 3) {
+                return toast.error('Username must be at least 3 characters');
+            }
+            if (!/^[a-zA-Z0-9_]+$/.test(identifier)) {
+                return toast.error('Username can only contain letters, numbers and underscores');
+            }
+        } else if (role === 'customer') {
+            // Basic phone/email check for customers
+            if (identifier.length < 5) {
+                return toast.error('Please enter a valid email or phone number');
+            }
+        }
+
         setIsLoading(true);
 
         try {

@@ -14,8 +14,11 @@ const CustomerVisits = () => {
 
     useEffect(() => {
         fetchVisits(page);
+    }, [page]);
+
+    useEffect(() => {
         fetchVendors();
-    }, [page]); // Re-fetch when page changes
+    }, []);
 
     const fetchVisits = async (pageNumber = 1) => {
         try {
@@ -89,7 +92,8 @@ const CustomerVisits = () => {
         doc.save('customer_visits.pdf');
     };
 
-    if (loading && visits.length === 0) return <div className="p-8 text-center">Loading visits...</div>;
+    // Removed blocking loading check to allow consistent table rendering
+    // if (loading && visits.length === 0) return <div className="p-8 text-center">Loading visits...</div>;
 
     return (
         <div className="space-y-4">
@@ -137,7 +141,15 @@ const CustomerVisits = () => {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <div className={`bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden relative transition-opacity duration-300 ${loading ? 'opacity-60' : 'opacity-100'}`}>
+                {loading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/10 backdrop-blur-[1px]">
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-[10px] font-medium text-primary-600 uppercase tracking-wider">Updating...</span>
+                        </div>
+                    </div>
+                )}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left min-w-[700px]">
                         <thead className="bg-gray-50 text-gray-500 text-[10px] uppercase font-medium">
@@ -204,7 +216,8 @@ const CustomerVisits = () => {
                     >
                         Previous
                     </button>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-400 flex items-center gap-2">
+                        {loading && <div className="w-3 h-3 border border-primary-400 border-t-transparent rounded-full animate-spin"></div>}
                         Page <span className="font-medium text-gray-900">{page}</span> of <span className="font-medium text-gray-900">{totalPages}</span>
                     </span>
                     <button
