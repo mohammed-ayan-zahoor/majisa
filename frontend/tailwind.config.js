@@ -43,6 +43,9 @@ export default {
                     400: '#2D2D2D', // Main text
                     500: '#1A1A1A',
                     600: '#0D0D0D',
+                    700: '#0A0A0A',
+                    800: '#050505',
+                    900: '#000000',
                 }
             },
             fontFamily: {
