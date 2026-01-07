@@ -38,6 +38,26 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
+
+// Health Check Endpoint
+app.get('/api/health', (req, res) => {
+    const mongoose = require('mongoose');
+    const healthcheck = {
+        uptime: process.uptime(),
+        message: 'OK',
+        timestamp: Date.now(),
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        memory: process.memoryUsage(),
+        cpu: process.cpuUsage()
+    };
+    try {
+        res.status(200).json(healthcheck);
+    } catch (e) {
+        healthcheck.message = e;
+        res.status(503).json(healthcheck);
+    }
+});
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
