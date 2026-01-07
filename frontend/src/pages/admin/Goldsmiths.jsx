@@ -17,6 +17,7 @@ const AdminGoldsmiths = () => {
     // Form States
     const [formData, setFormData] = useState({
         name: '',
+        username: '',
         email: '',
         password: '',
         phone: ''
@@ -131,6 +132,7 @@ const AdminGoldsmiths = () => {
         setSelectedGoldsmith(goldsmith);
         setFormData({
             name: goldsmith.name,
+            username: goldsmith.username || '',
             email: goldsmith.email,
             password: '', // Keep empty
             phone: goldsmith.phone || ''
@@ -140,6 +142,7 @@ const AdminGoldsmiths = () => {
 
     const filteredGoldsmiths = goldsmiths.filter(goldsmith =>
         goldsmith.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        goldsmith.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         goldsmith.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         goldsmith.phone?.includes(searchTerm)
     );
@@ -200,7 +203,7 @@ const AdminGoldsmiths = () => {
                                             </div>
                                             <div>
                                                 <p className="font-medium text-gray-900 text-sm">{goldsmith.name}</p>
-                                                <p className="text-[10px] text-gray-500">{goldsmith.role}</p>
+                                                <p className="text-[10px] text-primary-600 font-mono">@{goldsmith.username}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -265,15 +268,27 @@ const AdminGoldsmiths = () => {
                         </div>
 
                         <form onSubmit={handleAddGoldsmith} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.username}
+                                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
@@ -338,15 +353,27 @@ const AdminGoldsmiths = () => {
                         </div>
 
                         <form onSubmit={handleEditGoldsmith} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.username}
+                                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>

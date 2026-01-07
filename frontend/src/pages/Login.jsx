@@ -170,7 +170,7 @@ const Login = () => {
                             <div className="space-y-6">
                                 <div className="group">
                                     <label className={`block text-xs font-medium uppercase tracking-wider mb-2 ${isDark ? 'text-gray-400 group-focus-within:text-gold-400' : 'text-gray-500 group-focus-within:text-primary-600'} transition-colors`}>
-                                        {role === 'customer' ? 'Email or Phone' : 'Username / ID'}
+                                        {role === 'customer' ? 'Email or Phone' : 'Username or Email'}
                                     </label>
                                     <div className="relative">
                                         <input

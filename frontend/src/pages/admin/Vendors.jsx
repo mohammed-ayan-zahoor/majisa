@@ -17,6 +17,7 @@ const AdminVendors = () => {
     // Form States
     const [formData, setFormData] = useState({
         name: '',
+        username: '',
         email: '',
         password: '',
         businessName: '',
@@ -127,6 +128,7 @@ const AdminVendors = () => {
         setSelectedVendor(vendor);
         setFormData({
             name: vendor.name,
+            username: vendor.username || '',
             email: vendor.email,
             password: '', // Don't show existing password
             businessName: vendor.businessName || '',
@@ -142,6 +144,7 @@ const AdminVendors = () => {
 
     const filteredVendors = vendors.filter(vendor =>
         vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vendor.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vendor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vendor.phone?.includes(searchTerm) ||
@@ -210,6 +213,7 @@ const AdminVendors = () => {
                                         <div className="text-xs text-gray-400">{vendor.phone}</div>
                                     </td>
                                     <td className="px-4 py-3 font-mono text-xs text-primary-600">
+                                        <div className="font-bold text-gray-900 mb-1">@{vendor.username}</div>
                                         <div>{vendor.referralCode}</div>
                                         {vendor.gst && <div className="text-gray-500 text-[10px]">{vendor.gst}</div>}
                                     </td>
@@ -274,6 +278,7 @@ const AdminVendors = () => {
                         <h2 className="text-xl font-bold mb-4">Add New Vendor</h2>
                         <form onSubmit={handleAddVendor} className="space-y-4">
                             <input type="text" placeholder="Full Name" required className="w-full p-2 border rounded" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                            <input type="text" placeholder="Username" required className="w-full p-2 border rounded" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
                             <input type="email" placeholder="Email" required className="w-full p-2 border rounded" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                             <input type="password" placeholder="Password" required className="w-full p-2 border rounded" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
                             <input type="text" placeholder="Business Name" className="w-full p-2 border rounded" value={formData.businessName} onChange={e => setFormData({ ...formData, businessName: e.target.value })} />
@@ -293,7 +298,10 @@ const AdminVendors = () => {
                     <div className="bg-white rounded-xl p-6 w-full max-w-md">
                         <h2 className="text-xl font-bold mb-4">Edit Vendor</h2>
                         <form onSubmit={handleEditVendor} className="space-y-4">
-                            <input type="text" placeholder="Full Name" required className="w-full p-2 border rounded" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                            <div className="grid grid-cols-2 gap-2">
+                                <input type="text" placeholder="Full Name" required className="w-full p-2 border rounded" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                <input type="text" placeholder="Username" required className="w-full p-2 border rounded" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
+                            </div>
                             <input type="email" placeholder="Email" required className="w-full p-2 border rounded" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                             <input type="password" placeholder="New Password (leave blank to keep current)" className="w-full p-2 border rounded" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
                             <input type="text" placeholder="Business Name" className="w-full p-2 border rounded" value={formData.businessName} onChange={e => setFormData({ ...formData, businessName: e.target.value })} />

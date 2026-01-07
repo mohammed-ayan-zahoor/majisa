@@ -105,15 +105,21 @@ const generateToken = (id) => {
 // @route   POST /api/users/login
 // @access  Public
 const authUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body; // 'email' field may contain username
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+        $or: [
+            { email: email.toLowerCase() },
+            { username: email.toLowerCase() }
+        ]
+    });
 
     if (user && (await user.matchPassword(password))) {
         res.json({
             _id: user._id,
             name: user.name,
             email: user.email,
+            username: user.username,
             role: user.role,
             token: generateToken(user._id),
         });
@@ -126,12 +132,14 @@ const authUser = async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, username } = req.body;
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({
+        $or: [{ email: email.toLowerCase() }, { username: username?.toLowerCase() }]
+    });
 
     if (userExists) {
-        res.status(400).send('User already exists');
+        res.status(400).send('User with this email or username already exists');
         return;
     }
 
@@ -145,7 +153,8 @@ const registerUser = async (req, res) => {
 
     const user = await User.create({
         name,
-        email,
+        email: email.toLowerCase(),
+        username: username?.toLowerCase(),
         password,
         role: role || 'customer',
         referralCode
@@ -294,12 +303,14 @@ const deleteUser = async (req, res) => {
 // @route   POST /api/users/create
 // @access  Private/Admin
 const createUser = async (req, res) => {
-    const { name, email, password, role, businessName, phone, gst } = req.body;
+    const { name, email, password, role, businessName, phone, gst, username } = req.body;
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({
+        $or: [{ email: email.toLowerCase() }, { username: username?.toLowerCase() }]
+    });
 
     if (userExists) {
-        res.status(400).send('User already exists');
+        res.status(400).send('User with this email or username already exists');
         return;
     }
 
@@ -307,7 +318,8 @@ const createUser = async (req, res) => {
 
     const user = await User.create({
         name,
-        email,
+        email: email.toLowerCase(),
+        username: username?.toLowerCase(),
         password,
         role: role || 'vendor', // Default to vendor if created via this admin panel section
         referralCode,
@@ -322,6 +334,7 @@ const createUser = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            username: user.username,
             role: user.role,
             referralCode: user.referralCode,
         });
@@ -340,10 +353,12 @@ const updateUser = async (req, res) => {
         if (user) {
             user.name = req.body.name || user.name;
             user.email = req.body.email || user.email;
+            user.username = req.body.username || user.username;
             user.role = req.body.role || user.role;
             user.businessName = req.body.businessName || user.businessName;
             user.phone = req.body.phone || user.phone;
             user.gst = req.body.gst || user.gst;
+            user.status = req.body.status || user.status;
 
             // Update address fields if provided
             if (req.body.address !== undefined) user.address = req.body.address;
@@ -362,6 +377,7 @@ const updateUser = async (req, res) => {
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
+                username: updatedUser.username,
                 role: updatedUser.role,
                 referralCode: updatedUser.referralCode,
             });
@@ -422,12 +438,19 @@ const verifyReferral = async (req, res) => {
     }
 };
 
-// @desc    Get all customer visits
-// @route   GET /api/users/visits
-// @access  Private/Admin
 const getCustomerVisits = async (req, res) => {
-    const visits = await CustomerVisit.find({}).populate('vendor', 'name businessName').sort({ visitedAt: -1 });
-    res.json(visits);
+    const pageSize = 20;
+    const page = Number(req.query.pageNumber) || 1;
+
+    const count = await CustomerVisit.countDocuments({});
+
+    const visits = await CustomerVisit.find({})
+        .populate('vendor', 'name businessName')
+        .sort({ visitedAt: -1 })
+        .limit(pageSize)
+        .skip(pageSize * (page - 1));
+
+    res.json({ visits, page, pages: Math.ceil(count / pageSize), total: count });
 };
 
 // @desc    Get user by ID

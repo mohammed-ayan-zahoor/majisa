@@ -9,20 +9,24 @@ const CustomerVisits = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedVendor, setSelectedVendor] = useState('');
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
-        fetchVisits();
+        fetchVisits(page);
         fetchVendors();
-    }, []);
+    }, [page]); // Re-fetch when page changes
 
-    const fetchVisits = async () => {
+    const fetchVisits = async (pageNumber = 1) => {
         try {
-            const { data } = await api.get('/users/visits');
-            setVisits(data);
+            setLoading(true);
+            const { data } = await api.get(`/users/visits?pageNumber=${pageNumber}`);
+            setVisits(data.visits);
+            setTotalPages(data.pages);
+            setLoading(false);
         } catch (error) {
             console.error('Error fetching visits:', error);
             toast.error('Failed to load customer visits');
-        } finally {
             setLoading(false);
         }
     };
@@ -85,7 +89,7 @@ const CustomerVisits = () => {
         doc.save('customer_visits.pdf');
     };
 
-    if (loading) return <div className="p-8 text-center">Loading visits...</div>;
+    if (loading && visits.length === 0) return <div className="p-8 text-center">Loading visits...</div>;
 
     return (
         <div className="space-y-4">
@@ -110,7 +114,7 @@ const CustomerVisits = () => {
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Search by name, phone..."
+                        placeholder="Search current page..."
                         className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -187,9 +191,30 @@ const CustomerVisits = () => {
 
                 {filteredVisits.length === 0 && (
                     <div className="p-8 text-center text-gray-500">
-                        No visits found matching your filters.
+                        {loading ? 'Loading...' : 'No visits found matching your filters.'}
                     </div>
                 )}
+
+                {/* Pagination Controls */}
+                <div className="border-t border-gray-100 p-3 flex justify-between items-center bg-gray-50">
+                    <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="px-3 py-1 text-sm bg-white border border-gray-200 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Previous
+                    </button>
+                    <span className="text-xs text-gray-500">
+                        Page <span className="font-medium text-gray-900">{page}</span> of <span className="font-medium text-gray-900">{totalPages}</span>
+                    </span>
+                    <button
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className="px-3 py-1 text-sm bg-white border border-gray-200 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     );

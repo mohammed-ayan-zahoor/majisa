@@ -17,7 +17,10 @@ const customerRoutes = require('./routes/customerRoutes');
 const helmet = require('helmet');
 
 // Connect to database
-connectDB();
+connectDB().then(() => {
+    const { migrateUsernames } = require('./utils/migrationUtils');
+    migrateUsernames();
+});
 
 const app = express();
 
