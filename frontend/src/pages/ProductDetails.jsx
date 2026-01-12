@@ -138,7 +138,12 @@ const ProductDetails = () => {
                             <div className="flex items-center gap-2 text-sm text-primary-600 font-medium mb-2">
                                 <span>{product.category}</span>
                             </div>
-                            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">{product.name}</h1>
+                            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-2">{product.name}</h1>
+
+                            {/* Product Code - Visible to everyone */}
+                            <p className="text-sm text-gray-500 mb-6 font-medium tracking-wide">
+                                Product Code: <span className="text-gray-900">{product.productCode || 'N/A'}</span>
+                            </p>
 
                             {/* Technical Details - Only for Vendors/Admins */}
                             {['vendor', 'admin'].includes(user?.role) && (
