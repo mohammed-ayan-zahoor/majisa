@@ -12,6 +12,7 @@ const ReferralGate = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
+    const [recaptchaError, setRecaptchaError] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -100,6 +101,7 @@ const ReferralGate = ({ children }) => {
                     console.error('Error rendering recaptcha:', error);
                     recaptchaInitialized.current = false;
                     setIsRecaptchaReady(false);
+                    setRecaptchaError(true);
                 });
 
             } catch (error) {
@@ -153,7 +155,9 @@ const ReferralGate = ({ children }) => {
 
         // Check if recaptcha is initialized
         if (!recaptchaVerifierRef.current || !recaptchaInitialized.current) {
-            // Should be disabled by UI, but double check
+            // Sync state if it drifted
+            setIsRecaptchaReady(false);
+            toast.error('Security check not ready. Please try again.');
             return;
         }
 
@@ -193,6 +197,7 @@ const ReferralGate = ({ children }) => {
                     recaptchaVerifierRef.current.clear();
                     recaptchaVerifierRef.current = null;
                     recaptchaInitialized.current = false;
+                    setIsRecaptchaReady(false); // Sync state
                     // Force re-render of effect? No, just let usage fail and user retry or reload.
                 } catch (e) { }
             }
@@ -328,10 +333,17 @@ const ReferralGate = ({ children }) => {
 
                             <button
                                 type="submit"
-                                disabled={submitLoading || !isRecaptchaReady}
-                                className="w-full bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                                disabled={submitLoading || (!isRecaptchaReady && !recaptchaError)}
+                                onClick={(e) => {
+                                    if (recaptchaError) {
+                                        e.preventDefault();
+                                        setRecaptchaError(false);
+                                        window.location.reload(); // Simple retry strategy
+                                    }
+                                }}
+                                className={`w-full font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none ${recaptchaError ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gradient-to-r from-gold-400 to-gold-600 text-white'}`}
                             >
-                                {submitLoading ? 'Sending...' : (!isRecaptchaReady ? 'Initializing Security...' : 'Send Verification Code')}
+                                {submitLoading ? 'Sending...' : (recaptchaError ? 'Security Check Failed - Tap to Retry' : (!isRecaptchaReady ? 'Initializing Security...' : 'Send Verification Code'))}
                             </button>
                         </form>
                     ) : (
@@ -377,6 +389,13 @@ const ReferralGate = ({ children }) => {
                     <a href="/login" className="text-white/50 hover:text-white text-sm transition-colors">
                         Admin Login
                     </a>
+                </div>
+
+                {/* Legal Attribution for Invisible reCAPTCHA */}
+                <div className="absolute bottom-2 text-center w-full text-[10px] text-white/30">
+                    This site is protected by reCAPTCHA and the Google
+                    <a href="https://policies.google.com/privacy" className="underline hover:text-white/50 ml-1">Privacy Policy</a> and
+                    <a href="https://policies.google.com/terms" className="underline hover:text-white/50 ml-1">Terms of Service</a> apply.
                 </div>
 
                 {/* Recaptcha container - must be in DOM */}

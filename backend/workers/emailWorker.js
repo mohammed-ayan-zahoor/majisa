@@ -1,4 +1,4 @@
-const { Worker } = require('bullmq');
+const { Worker, UnrecoverableError } = require('bullmq');
 const { redisConnection } = require('../config/redis');
 const sendEmail = require('../utils/sendEmail');
 
@@ -6,7 +6,8 @@ const emailWorker = new Worker('email-queue', async (job) => {
     console.log(`Processing email job ${job.id}`);
     // Validate required fields
     if (!job.data.email || !job.data.subject || !job.data.message) {
-        throw new Error('Missing required fields: email, subject, or message');
+        await job.discard();
+        throw new UnrecoverableError('Missing required fields: email, subject, or message');
     }
 
     try {
@@ -23,14 +24,16 @@ const emailWorker = new Worker('email-queue', async (job) => {
 }, {
     connection: redisConnection,
     concurrency: 5, // Process up to 5 emails in parallel per instance
-    lockDuration: 30000, // 30 seconds - job fails if not completed in time
+    lockDuration: 30000, // 30s lock duration; if processing exceeds this, the job may be picked up by another worker (duplicates) attempt duplicate prevention via timeouts/idempotency if needed
 });
 emailWorker.on('completed', (job) => {
     console.log(`Job ${job.id} completed!`);
 });
 
 emailWorker.on('failed', (job, err) => {
-    console.error(`Job ${job.id} failed with error: ${err.message}`);
+    const jobId = job ? job.id : 'unknown';
+    const errorDetails = err.stack || err.message || err;
+    console.error(`Job ${jobId} failed. Error: ${errorDetails}`);
 });
 
 module.exports = emailWorker;

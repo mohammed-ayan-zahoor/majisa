@@ -17,6 +17,12 @@ const addEmailToQueue = async (emailData) => {
         throw new Error('Missing required fields: email, subject, or message');
     }
 
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        throw new Error('Invalid email format');
+    }
+
     try {
         const job = await emailQueue.add('send-email', emailData, {
             attempts: 3,
