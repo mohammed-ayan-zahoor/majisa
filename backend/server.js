@@ -220,8 +220,13 @@ const startServer = async () => {
             console.log(`Server running on port ${PORT}`);
 
             // Initialize Background Workers
-            console.log('Initializing Background Workers...');
-            require('./workers/emailWorker');
+            try {
+                console.log('Initializing Background Workers...');
+                require('./workers/emailWorker');
+            } catch (workerError) {
+                console.error('CRITICAL: Failed to initialize email worker:', workerError);
+                process.exit(1); // Exit if critical worker fails
+            }
         });
     } catch (error) {
         console.error('CRITICAL: Server failed to start:', error.message);

@@ -11,6 +11,7 @@ const ReferralGate = ({ children }) => {
     const [isVerified, setIsVerified] = useState(false);
     const [loading, setLoading] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -93,10 +94,12 @@ const ReferralGate = ({ children }) => {
                 // Render the verifier
                 recaptchaVerifierRef.current.render().then(() => {
                     recaptchaInitialized.current = true;
+                    setIsRecaptchaReady(true);
                     console.log('reCAPTCHA initialized successfully');
                 }).catch((error) => {
                     console.error('Error rendering recaptcha:', error);
                     recaptchaInitialized.current = false;
+                    setIsRecaptchaReady(false);
                 });
 
             } catch (error) {
@@ -150,8 +153,7 @@ const ReferralGate = ({ children }) => {
 
         // Check if recaptcha is initialized
         if (!recaptchaVerifierRef.current || !recaptchaInitialized.current) {
-            // Attempt to re-init if missing
-            toast.error('Initializing security check...');
+            // Should be disabled by UI, but double check
             return;
         }
 
@@ -326,10 +328,10 @@ const ReferralGate = ({ children }) => {
 
                             <button
                                 type="submit"
-                                disabled={submitLoading}
-                                className="w-full bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
+                                disabled={submitLoading || !isRecaptchaReady}
+                                className="w-full bg-gradient-to-r from-gold-400 to-gold-600 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                             >
-                                {submitLoading ? 'Sending...' : 'Send Verification Code'}
+                                {submitLoading ? 'Sending...' : (!isRecaptchaReady ? 'Initializing Security...' : 'Send Verification Code')}
                             </button>
                         </form>
                     ) : (

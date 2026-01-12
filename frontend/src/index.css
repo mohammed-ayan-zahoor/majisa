@@ -37,6 +37,11 @@
   @apply bg-gray-300 rounded-full hover:bg-gray-400;
 }
 
+/* Hide reCAPTCHA badge */
+.grecaptcha-badge {
+    visibility: hidden;
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;

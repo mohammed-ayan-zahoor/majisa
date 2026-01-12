@@ -3,7 +3,12 @@ const { redisConnection } = require('../config/redis');
 const sendEmail = require('../utils/sendEmail');
 
 const emailWorker = new Worker('email-queue', async (job) => {
-    console.log(`Processing email job ${job.id} for ${job.data.email}`);
+    console.log(`Processing email job ${job.id}`);
+    // Validate required fields
+    if (!job.data.email || !job.data.subject || !job.data.message) {
+        throw new Error('Missing required fields: email, subject, or message');
+    }
+
     try {
         await sendEmail({
             email: job.data.email,
@@ -18,8 +23,8 @@ const emailWorker = new Worker('email-queue', async (job) => {
 }, {
     connection: redisConnection,
     concurrency: 5, // Process up to 5 emails in parallel per instance
+    lockDuration: 30000, // 30 seconds - job fails if not completed in time
 });
-
 emailWorker.on('completed', (job) => {
     console.log(`Job ${job.id} completed!`);
 });
