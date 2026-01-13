@@ -232,7 +232,7 @@ const VendorOrder = () => {
                                             </select>
                                         ) : (
                                             <span className="font-medium text-gray-900 text-sm px-2 py-1.5 bg-gray-50 rounded-md border border-gray-200 block">
-                                                {product.weight}
+                                                {product.weight ?? 'N/A'}
                                             </span>
                                         )}
                                     </div>
@@ -248,14 +248,14 @@ const VendorOrder = () => {
                                             </select>
                                         ) : (
                                             <span className="font-medium text-gray-900 text-sm px-2 py-1.5 bg-gray-50 rounded-md border border-gray-200 block">
-                                                {product.purity || '22k'}
+                                                {product.purity ?? '22k'}
                                             </span>
                                         )}
                                     </div>
                                     <div className="sm:col-span-2 flex flex-col gap-1">
                                         <span className="font-semibold text-gray-500 uppercase tracking-wider text-[10px]">Wastage</span>
                                         <span className="font-medium text-primary-700 text-sm px-2 py-1.5 bg-primary-50/50 rounded-md border border-primary-100 block">
-                                            {product.wastage}
+                                            {product.wastage ?? 'N/A'}
                                         </span>
                                     </div>
                                 </div>
@@ -313,10 +313,9 @@ const VendorOrder = () => {
                                         type="number"
                                         min="1"
                                         value={quantity}
-                                        onChange={(e) => setQuantity(parseInt(e.target.value))}
+                                        onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
                                         className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
-                                    />
-                                </div>
+                                    />                                </div>
                                 <div className="col-span-full">
                                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Additional Notes</label>
                                     <textarea
