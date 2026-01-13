@@ -219,34 +219,45 @@ const VendorOrder = () => {
                                     <span className="text-xs text-gray-500">Code: {product.productCode}</span>
                                 </div>
                                 <h2 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h2>
-                                <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
-                                    <div>
-                                        Weight: {product.weight && Array.isArray(product.weight) ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-600 mt-3">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="font-semibold text-gray-500 uppercase tracking-wider text-[10px]">Weight</span>
+                                        {product.weight && Array.isArray(product.weight) ? (
                                             <select
                                                 value={selectedWeight}
                                                 onChange={(e) => setSelectedWeight(e.target.value)}
-                                                className="ml-1 px-1 py-0.5 border border-gray-300 rounded text-[10px] font-bold text-primary-700 bg-white"
+                                                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
                                             >
                                                 {product.weight.map((w, i) => <option key={i} value={w}>{w}</option>)}
                                             </select>
                                         ) : (
-                                            <span className="font-medium text-gray-900 ml-1">{product.weight}</span>
+                                            <span className="font-medium text-gray-900 text-sm px-2 py-1.5 bg-gray-50 rounded-md border border-gray-200 block">
+                                                {product.weight}
+                                            </span>
                                         )}
                                     </div>
-                                    <p>
-                                        Purity: {product.purity && Array.isArray(product.purity) ? (
+                                    <div className="flex flex-col gap-1">
+                                        <span className="font-semibold text-gray-500 uppercase tracking-wider text-[10px]">Purity</span>
+                                        {product.purity && Array.isArray(product.purity) ? (
                                             <select
                                                 value={selectedPurity}
                                                 onChange={(e) => setSelectedPurity(e.target.value)}
-                                                className="ml-1 px-1 py-0.5 border border-gray-300 rounded text-[10px] font-bold text-primary-700 bg-white"
+                                                className="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
                                             >
                                                 {product.purity.map((p, i) => <option key={i} value={p}>{p}</option>)}
                                             </select>
                                         ) : (
-                                            <span className="font-medium text-gray-900 ml-1">{product.purity || '22k'}</span>
+                                            <span className="font-medium text-gray-900 text-sm px-2 py-1.5 bg-gray-50 rounded-md border border-gray-200 block">
+                                                {product.purity || '22k'}
+                                            </span>
                                         )}
-                                    </p>
-                                    <p>Wastage: <span className="font-medium text-primary-600">{product.wastage}</span></p>
+                                    </div>
+                                    <div className="sm:col-span-2 flex flex-col gap-1">
+                                        <span className="font-semibold text-gray-500 uppercase tracking-wider text-[10px]">Wastage</span>
+                                        <span className="font-medium text-primary-700 text-sm px-2 py-1.5 bg-primary-50/50 rounded-md border border-primary-100 block">
+                                            {product.wastage}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -257,11 +268,11 @@ const VendorOrder = () => {
                                 Order Configuration
                             </h3>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                                 {/* Dynamic Fields from Category */}
                                 {category && category.customFields.map((field, index) => (
                                     <div key={index}>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
                                             {field.name} {field.required && <span className="text-red-500">*</span>}
                                         </label>
 
@@ -269,7 +280,7 @@ const VendorOrder = () => {
                                             <select
                                                 value={customFieldValues[field.name] || ''}
                                                 onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
-                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 bg-white"
+                                                className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 bg-white"
                                             >
                                                 <option value="">Select {field.name}</option>
                                                 {field.options.map((opt, idx) => (
@@ -281,39 +292,39 @@ const VendorOrder = () => {
                                                 type={field.type === 'number' ? 'number' : 'text'}
                                                 value={customFieldValues[field.name] || ''}
                                                 onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}
-                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                                className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
                                                 placeholder={`Enter ${field.name}`}
                                             />
                                         )}
                                     </div>
                                 ))}
 
-                                {/* Fallback if no category or no custom fields (Optional: keep standard fields if needed) */}
+                                {/* Fallback if no category or no custom fields */}
                                 {!category && (
-                                    <div className="col-span-full text-center p-3 bg-yellow-50 text-yellow-700 rounded-lg text-xs">
-                                        <AlertCircle size={14} className="inline mr-2" />
+                                    <div className="col-span-full text-center p-4 bg-yellow-50 text-yellow-800 rounded-lg text-sm border border-yellow-100">
+                                        <AlertCircle size={16} className="inline mr-2" />
                                         No specific category configuration found. Please add notes below.
                                     </div>
                                 )}
 
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Quantity</label>
                                     <input
                                         type="number"
                                         min="1"
                                         value={quantity}
                                         onChange={(e) => setQuantity(parseInt(e.target.value))}
-                                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                                 <div className="col-span-full">
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Additional Notes</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Additional Notes</label>
                                     <textarea
                                         value={notes}
                                         onChange={(e) => setNotes(e.target.value)}
                                         placeholder="Any specific customization or instructions..."
-                                        rows="2"
-                                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
+                                        rows="3"
+                                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500"
                                     ></textarea>
                                 </div>
                             </div>
