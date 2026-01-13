@@ -27,6 +27,20 @@ const SEO = ({ title, description, keywords, image, url }) => {
             <meta property="twitter:title" content={title || siteTitle} />
             <meta property="twitter:description" content={description || siteDescription} />
             <meta property="twitter:image" content={image || defaultImage} />
+
+            {/* Google Schema -- Helps with Logo in Search Results */}
+            <script type="application/ld+json">
+                {JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Organization",
+                    "name": "Majisa Jewellers",
+                    "url": "https://www.majisa.co.in",
+                    "logo": "https://www.majisa.co.in/logo.png",
+                    "sameAs": [
+                        "https://www.majisa.co.in"
+                    ]
+                })}
+            </script>
         </Helmet>
     );
 };
