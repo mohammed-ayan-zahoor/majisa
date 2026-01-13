@@ -169,16 +169,24 @@ const ProductDetails = () => {
                         {['vendor', 'admin'].includes(user?.role) && (
                             <div className="grid grid-cols-2 gap-4 py-6 border-y border-gray-100">
                                 <div>
-                                    <span className="block text-xs text-gray-500 uppercase tracking-wider">Weight</span>
-                                    <span className="font-medium text-gray-900">
-                                        {Array.isArray(product.weight) ? product.weight.join(', ') : product.weight}
-                                    </span>
+                                    <span className="block text-xs text-gray-500 uppercase tracking-wider mb-1">Weight</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(Array.isArray(product.weight) ? product.weight : [product.weight]).map((w, idx) => (
+                                            <span key={idx} className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium border border-gray-200">
+                                                {w}g
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                                 <div>
-                                    <span className="block text-xs text-gray-500 uppercase tracking-wider">Purity</span>
-                                    <span className="font-medium text-gray-900">
-                                        {Array.isArray(product.purity) ? product.purity.join(', ') : (product.purity || '22K')}
-                                    </span>
+                                    <span className="block text-xs text-gray-500 uppercase tracking-wider mb-1">Purity</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(Array.isArray(product.purity) ? product.purity : [product.purity || '22K']).map((p, idx) => (
+                                            <span key={idx} className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium border border-gray-200">
+                                                {p}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                                 <div>
                                     <span className="block text-xs text-gray-500 uppercase tracking-wider">Metal</span>
