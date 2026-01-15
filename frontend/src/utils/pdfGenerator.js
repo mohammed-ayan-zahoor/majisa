@@ -40,25 +40,19 @@ const drawCardBackground = (doc, width, height) => {
     doc.roundedRect(borderMargin, borderMargin, width - (borderMargin * 2), height - (borderMargin * 2), 3, 3, 'S');
 };
 
-const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) => {
+const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
-
-    // Add Font if not exists
-    if (!doc.existsFileInVFS("Mosseta-Regular.otf")) {
-        doc.addFileToVFS("Mosseta-Regular.otf", fontBase64);
-        doc.addFont("Mosseta-Regular.otf", "Mosseta", "normal");
-    }
 
     if (!isFirstPage) doc.addPage();
 
     // --- FRONT PAGE ---
     drawCardBackground(doc, width, height);
 
-    // "MAJISA" Heading
+    // "MAJISA" Heading - Using Standard Serif (Times)
     doc.setTextColor(COLOR_GOLD);
-    doc.setFont("Mosseta", "normal");
-    doc.setFontSize(32);
+    doc.setFont("times", "bold"); // Standard Serif
+    doc.setFontSize(36); // Slightly larger for impact
     doc.text("MAJISA", width / 2, 45, { align: 'center' });
 
     // QR Code Box
@@ -90,7 +84,7 @@ const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) =>
     // "SCAN TO VISIT"
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(COLOR_ROSE_RED); // Using primary color for call to action
+    doc.setTextColor(COLOR_ROSE_RED);
     doc.text("SCAN TO VISIT", width / 2, boxY + boxSize + 8, { align: 'center', charSpace: 1.5 });
 
     // "VENDOR CODE" Label
@@ -99,7 +93,7 @@ const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) =>
     doc.text("VENDOR CODE", width / 2, 160, { align: 'center', charSpace: 1 });
 
     // Actual Vendor Code
-    doc.setFont("Mosseta", "normal"); // Or Bold Helvetica
+    doc.setFont("times", "bold");
     doc.setFontSize(22);
     doc.setTextColor(COLOR_GOLD);
     doc.text(vendorCode, width / 2, 172, { align: 'center' });
@@ -115,7 +109,7 @@ const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) =>
     drawCardBackground(doc, width, height);
 
     // Heading
-    doc.setFont("Mosseta", "normal");
+    doc.setFont("times", "bold");
     doc.setFontSize(28);
     doc.setTextColor(COLOR_GOLD);
     doc.text("MAJISA", width / 2, 35, { align: 'center' });
@@ -132,7 +126,7 @@ const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) =>
     doc.text("USERNAME", width / 2, 105, { align: 'center', charSpace: 1 });
 
     // Username Value
-    doc.setFont("Mosseta", "normal");
+    doc.setFont("times", "bold");
     doc.setFontSize(18);
     doc.setTextColor(COLOR_GOLD);
     doc.text(vendor.username || '-----', width / 2, 115, { align: 'center' });
@@ -149,7 +143,7 @@ const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) =>
     doc.text("PASSWORD", width / 2, 140, { align: 'center', charSpace: 1 });
 
     // Password Value (Masked)
-    doc.setFont("Mosseta", "normal");
+    doc.setFont("times", "bold");
     doc.setFontSize(18);
     doc.setTextColor(COLOR_GOLD);
     const passwordText = 'Set via Secure Channel';
@@ -158,7 +152,7 @@ const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) =>
 
     // Security Warning at bottom
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
+    doc.setFontSize(8); // Increased slightly for readability
     doc.setTextColor('#665c3b'); // Darker Gold/Brown
     doc.text("Keep this information secure", width / 2, height - 15, { align: 'center' });
 };
