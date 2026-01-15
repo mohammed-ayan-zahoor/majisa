@@ -65,28 +65,48 @@ const VendorOrder = () => {
             }
 
             // 2. Fetch Category/Product Custom Fields
-            let fieldsToUse = [];
-            if (productData.customFields && productData.customFields.length > 0) {
-                fieldsToUse = productData.customFields;
-                // For UI consistency in the form
-                setCategory({ name: productData.category, customFields: fieldsToUse });
+            // ALWAYS fetch category to get the latest schema (e.g. new Color fields)
+            const { data: categoriesData } = await api.get('/categories');
+            const matchedCategory = categoriesData.find(c => c.name === productData.category);
+
+            let finalFields = [];
+
+            if (matchedCategory) {
+                // Start with Category fields as the base
+                finalFields = matchedCategory.customFields.map(catField => {
+                    // Check if product has an override or specific version of this field
+                    const productField = productData.customFields?.find(pf => pf.name === catField.name);
+                    return productField || catField;
+                });
+
+                // Add any extra fields that exist on Product but NOT on Category
+                const extraProductFields = productData.customFields?.filter(pf =>
+                    !matchedCategory.customFields.some(cf => cf.name === pf.name)
+                ) || [];
+
+                finalFields = [...finalFields, ...extraProductFields];
+
+                setCategory({ ...matchedCategory, customFields: finalFields });
             } else {
-                const { data: categoriesData } = await api.get('/categories');
-                const matchedCategory = categoriesData.find(c => c.name === productData.category);
-                if (matchedCategory) {
-                    setCategory(matchedCategory);
-                    fieldsToUse = matchedCategory.customFields || [];
-                }
+                // Fallback if category not found (shouldn't happen usually)
+                finalFields = productData.customFields || [];
+                setCategory({ name: productData.category, customFields: finalFields });
             }
+
+            // check if category is set correctly for validation
+            // setCategory above handles it.
 
             // Initialize custom fields with defaults
             const initialValues = {};
-            fieldsToUse.forEach(field => {
+            finalFields.forEach(field => {
                 // Pre-fill from URL params if field name matches
                 if (field.name === 'Weight' && defaultWeight) {
                     initialValues[field.name] = defaultWeight;
                 } else if (field.name === 'Purity' && defaultPurity) {
                     initialValues[field.name] = defaultPurity;
+                } else if (field.type === 'color' && field.options && field.options.length > 0) {
+                    // Auto-select first color
+                    initialValues[field.name] = field.options[0].split('|')[0];
                 } else {
                     initialValues[field.name] = '';
                 }
@@ -277,15 +297,26 @@ const VendorOrder = () => {
                                         </label>
 
                                         {field.type === 'color' ? (
-                                            <div className="flex flex-wrap gap-3">
+                                            <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={field.name}>
                                                 {(field.options || []).map((opt, optIndex) => {
-                                                    const [name, hex] = opt.split('|');
-                                                    const isSelected = customFieldValues[field.name] === name;
-                                                    return (
+                                                    const parts = opt.split('|');
+                                                    const name = parts[0] || opt;
+                                                    const hex = parts[1] || '#cccccc';
+                                                    const isSelected = customFieldValues[field.name] === name; return (
                                                         <div
                                                             key={optIndex}
                                                             onClick={() => handleCustomFieldChange(field.name, name)}
                                                             className={`cursor-pointer group relative flex flex-col items-center gap-1`}
+                                                            tabIndex={0}
+                                                            role="radio"
+                                                            aria-checked={isSelected}
+                                                            aria-label={`${name} color`}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                    e.preventDefault();
+                                                                    handleCustomFieldChange(field.name, name);
+                                                                }
+                                                            }}
                                                         >
                                                             <div
                                                                 className={`w-9 h-9 rounded-full shadow-sm items-center justify-center flex transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-primary-600 scale-110' : 'hover:scale-105 border border-gray-200'}`}

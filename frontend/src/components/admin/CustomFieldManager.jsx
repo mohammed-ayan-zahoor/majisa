@@ -113,7 +113,8 @@ const CustomFieldManager = ({ fields = [], onChange }) => {
                                                     value={name || ''}
                                                     onChange={(e) => {
                                                         const newOptions = [...(field.options || [])];
-                                                        newOptions[optIndex] = `${e.target.value}|${hex || '#000000'}`;
+                                                        const sanitizedName = e.target.value.replace(/\|/g, '');
+                                                        newOptions[optIndex] = `${sanitizedName}|${hex || '#000000'}`;
                                                         handleFieldChange(index, 'options', newOptions);
                                                     }}
                                                     placeholder="Color Name (e.g. Rose Gold)"
@@ -145,7 +146,6 @@ const CustomFieldManager = ({ fields = [], onChange }) => {
                                 </div>
                             </div>
                         )}
-
                         <div className="flex items-center">
                             <input
                                 type="checkbox"

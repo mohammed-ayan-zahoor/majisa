@@ -53,22 +53,50 @@ const ProductDetails = () => {
             if (pOptions.length > 0) {
                 setSelectedPurity(pOptions[0]);
             }
-
             // Init custom fields
-            if (product.customFields) {
+            // We need to merge Product fields with Category fields to ensure new fields (like Color) show up
+            const initFields = async () => {
+                let finalFields = product.customFields || [];
+
+                try {
+                    // We must fetch the category to see if there are missing fields (like Color)
+                    const { data: categories } = await api.get('/categories');
+                    const category = categories.find(c => c.name === product.category);
+
+                    if (category && category.customFields) {
+                        // Merge: Use Product field if exists, otherwise Category field
+                        const merged = category.customFields.map(catField => {
+                            const prodField = finalFields.find(pf => pf.name === catField.name);
+                            return prodField || catField;
+                        });
+
+                        // Add product-only fields
+                        const extra = finalFields.filter(pf => !category.customFields.some(cf => cf.name === pf.name));
+                        finalFields = [...merged, ...extra];
+                    }
+                } catch (err) {
+                    console.error('Error fetching category fields:', err);
+                }
+
+                // Temporary: Mutate product object to update fields for rendering
+                // In a real app we might store this in local state separte from 'product'
+                product.mergedFields = finalFields;
+
                 const defaults = {};
-                product.customFields.forEach(f => {
+                finalFields.forEach(f => {
                     if (f.type === 'color' && f.options && f.options.length > 0) {
                         // Select first color by default
                         defaults[f.name] = f.options[0].split('|')[0];
                     } else if (f.type === 'dropdown' && f.options && f.options.length > 0) {
-                        defaults[f.name] = f.options[0];
+                        defaults[f.name] = '';
                     } else {
                         defaults[f.name] = '';
                     }
                 });
                 setCustomFieldValues(defaults);
-            }
+            };
+
+            initFields();
         }
     }, [product]);
 
@@ -81,20 +109,14 @@ const ProductDetails = () => {
     }, [error, navigate]);
 
     const handleAddToCart = () => {
-        // Validate required fields
-        if (product.customFields) {
-            for (const field of product.customFields) {
-                if (field.required && !customFieldValues[field.name]) {
-                    return toast.error(`Please select ${field.name}`);
-                }
-            }
-        }
+        // Validation removed for custom fields on this page as per requirement.
+        // Users will fill details in Vendor Order page.
 
         addToCart({
             ...product,
             selectedWeight,
             selectedPurity,
-            customFieldValues // Formatting happens in context or backend
+            customFieldValues: customFieldValues // Formatting happens in context or backend
         }, quantity);
         toast.success(`Added to cart (${selectedWeight}${selectedPurity ? ', ' + selectedPurity : ''})`);
     };
@@ -291,25 +313,40 @@ const ProductDetails = () => {
                             </div>
                         )}
 
-                        {/* Custom Fields (Colors, Dropdowns, etc.) */}
-                        {product.customFields && product.customFields.length > 0 && (
+                        {/* Custom Fields (Colors ONLY) */}
+                        {(product.mergedFields || product.customFields) && (product.mergedFields || product.customFields).length > 0 && (
                             <div className="space-y-6 mb-8">
-                                {product.customFields.map((field, index) => (
-                                    <div key={index}>
-                                        <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">
-                                            {field.name} {field.required && <span className="text-red-500">*</span>}
-                                        </label>
+                                {(product.mergedFields || product.customFields).map((field, index) => {
+                                    // ONLY SHOW COLOR FIELDS
+                                    if (field.type !== 'color') return null;
 
-                                        {field.type === 'color' ? (
-                                            <div className="flex flex-wrap gap-3">
+                                    return (
+                                        <div key={index}>
+                                            <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">
+                                                {field.name}
+                                            </label>
+
+                                            <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={field.name}>
                                                 {field.options.map((opt, optIndex) => {
-                                                    const [name, hex] = opt.split('|');
+                                                    const parts = opt.split('|');
+                                                    const name = parts[0];
+                                                    const hex = parts[1] || '#cccccc';
                                                     const isSelected = customFieldValues[field.name] === name;
                                                     return (
                                                         <div
                                                             key={optIndex}
                                                             onClick={() => setCustomFieldValues(prev => ({ ...prev, [field.name]: name }))}
                                                             className={`cursor-pointer group relative flex flex-col items-center gap-1`}
+                                                            tabIndex={0}
+                                                            role="radio"
+                                                            aria-checked={isSelected}
+                                                            aria-label={`${name} color`}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                    e.preventDefault();
+                                                                    setCustomFieldValues(prev => ({ ...prev, [field.name]: name }));
+                                                                }
+                                                            }}
                                                         >
                                                             <div
                                                                 className={`w-10 h-10 rounded-full shadow-sm items-center justify-center flex transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-primary-600 scale-110' : 'hover:scale-105 border border-gray-200'}`}
@@ -322,28 +359,9 @@ const ProductDetails = () => {
                                                     );
                                                 })}
                                             </div>
-                                        ) : field.type === 'dropdown' ? (
-                                            <select
-                                                value={customFieldValues[field.name] || ''}
-                                                onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
-                                            >
-                                                <option value="">Select Option</option>
-                                                {field.options.map((opt, i) => (
-                                                    <option key={i} value={opt}>{opt}</option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <input
-                                                type={field.type === 'number' ? 'number' : 'text'}
-                                                value={customFieldValues[field.name] || ''}
-                                                onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
-                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                                placeholder={`Enter ${field.name}`}
-                                            />
-                                        )}
-                                    </div>
-                                ))}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 
