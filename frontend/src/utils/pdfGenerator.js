@@ -85,12 +85,12 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("SCAN TO VISIT", width / 2, boxY + boxSize + 8, { align: 'center', charSpace: 1.5 });
+    doc.text("SCAN TO VISIT", width / 2, boxY + boxSize + 8, { align: 'center' });
 
     // "VENDOR CODE" Label
     doc.setFontSize(8);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("VENDOR CODE", width / 2, 160, { align: 'center', charSpace: 1 });
+    doc.text("VENDOR CODE", width / 2, 160, { align: 'center' });
 
     // Actual Vendor Code
     doc.setFont("times", "bold");
@@ -118,12 +118,12 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     doc.setFont("helvetica", "normal"); // Keeping clean
     doc.setFontSize(14);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("Vendor Login", width / 2, 85, { align: 'center', charSpace: 1 });
+    doc.text("Vendor Login", width / 2, 85, { align: 'center' });
 
     // Username Label
     doc.setFontSize(9);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("USERNAME", width / 2, 105, { align: 'center', charSpace: 1 });
+    doc.text("USERNAME", width / 2, 105, { align: 'center' });
 
     // Username Value
     doc.setFont("times", "bold");
@@ -140,15 +140,16 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("PASSWORD", width / 2, 140, { align: 'center', charSpace: 1 });
+    doc.text("PASSWORD", width / 2, 140, { align: 'center' });
 
     // Password Value (Masked)
     doc.setFont("times", "bold");
     doc.setFontSize(18);
     doc.setTextColor(COLOR_GOLD);
-    const passwordText = 'Set via Secure Channel';
-    // If we wanted to show a temp password, we could: vendor.tempPassword || '***'
-    doc.text(passwordText, width / 2, 150, { align: 'center' });
+    // Password Field - Blank Line for Manual Entry
+    doc.setDrawColor(COLOR_GOLD);
+    doc.setLineWidth(0.2);
+    doc.line(width / 2 - 30, 160, width / 2 + 30, 160);
 
     // Security Warning at bottom
     doc.setFont("helvetica", "normal");
