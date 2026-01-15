@@ -276,7 +276,29 @@ const VendorOrder = () => {
                                             {field.name} {field.required && <span className="text-red-500">*</span>}
                                         </label>
 
-                                        {field.type === 'dropdown' ? (
+                                        {field.type === 'color' ? (
+                                            <div className="flex flex-wrap gap-3">
+                                                {(field.options || []).map((opt, optIndex) => {
+                                                    const [name, hex] = opt.split('|');
+                                                    const isSelected = customFieldValues[field.name] === name;
+                                                    return (
+                                                        <div
+                                                            key={optIndex}
+                                                            onClick={() => handleCustomFieldChange(field.name, name)}
+                                                            className={`cursor-pointer group relative flex flex-col items-center gap-1`}
+                                                        >
+                                                            <div
+                                                                className={`w-9 h-9 rounded-full shadow-sm items-center justify-center flex transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-primary-600 scale-110' : 'hover:scale-105 border border-gray-200'}`}
+                                                                style={{ backgroundColor: hex }}
+                                                            >
+                                                                {isSelected && <svg className="w-4 h-4 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
+                                                            </div>
+                                                            <span className={`text-[10px] font-medium ${isSelected ? 'text-primary-700' : 'text-gray-500'}`}>{name}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : field.type === 'dropdown' ? (
                                             <select
                                                 value={customFieldValues[field.name] || ''}
                                                 onChange={(e) => handleCustomFieldChange(field.name, e.target.value)}

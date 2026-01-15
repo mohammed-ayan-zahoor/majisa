@@ -32,10 +32,12 @@ const ProductDetails = () => {
     const [selectedImage, setSelectedImage] = useState('');
     const [selectedWeight, setSelectedWeight] = useState('');
     const [selectedPurity, setSelectedPurity] = useState('');
+    const [customFieldValues, setCustomFieldValues] = useState({});
 
     // Handle initial selection when data arrives
     useEffect(() => {
         if (product) {
+            // ... existing image/weight logic ...
             if (product.images && product.images.length > 0) {
                 setSelectedImage(product.images[0]);
             } else {
@@ -51,6 +53,22 @@ const ProductDetails = () => {
             if (pOptions.length > 0) {
                 setSelectedPurity(pOptions[0]);
             }
+
+            // Init custom fields
+            if (product.customFields) {
+                const defaults = {};
+                product.customFields.forEach(f => {
+                    if (f.type === 'color' && f.options && f.options.length > 0) {
+                        // Select first color by default
+                        defaults[f.name] = f.options[0].split('|')[0];
+                    } else if (f.type === 'dropdown' && f.options && f.options.length > 0) {
+                        defaults[f.name] = f.options[0];
+                    } else {
+                        defaults[f.name] = '';
+                    }
+                });
+                setCustomFieldValues(defaults);
+            }
         }
     }, [product]);
 
@@ -63,7 +81,21 @@ const ProductDetails = () => {
     }, [error, navigate]);
 
     const handleAddToCart = () => {
-        addToCart({ ...product, selectedWeight, selectedPurity }, quantity);
+        // Validate required fields
+        if (product.customFields) {
+            for (const field of product.customFields) {
+                if (field.required && !customFieldValues[field.name]) {
+                    return toast.error(`Please select ${field.name}`);
+                }
+            }
+        }
+
+        addToCart({
+            ...product,
+            selectedWeight,
+            selectedPurity,
+            customFieldValues // Formatting happens in context or backend
+        }, quantity);
         toast.success(`Added to cart (${selectedWeight}${selectedPurity ? ', ' + selectedPurity : ''})`);
     };
 
@@ -244,7 +276,7 @@ const ProductDetails = () => {
 
                         {/* Size Selection (Display only) */}
                         {product.category === 'Rings' && (
-                            <div>
+                            <div className="mb-6">
                                 <label className="block text-sm font-medium text-gray-900 mb-3">Available Sizes</label>
                                 <div className="flex gap-3">
                                     {['10', '12', '14', '16', '18'].map(size => (
@@ -256,6 +288,62 @@ const ProductDetails = () => {
                                         </div>
                                     ))}
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Custom Fields (Colors, Dropdowns, etc.) */}
+                        {product.customFields && product.customFields.length > 0 && (
+                            <div className="space-y-6 mb-8">
+                                {product.customFields.map((field, index) => (
+                                    <div key={index}>
+                                        <label className="block text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider">
+                                            {field.name} {field.required && <span className="text-red-500">*</span>}
+                                        </label>
+
+                                        {field.type === 'color' ? (
+                                            <div className="flex flex-wrap gap-3">
+                                                {field.options.map((opt, optIndex) => {
+                                                    const [name, hex] = opt.split('|');
+                                                    const isSelected = customFieldValues[field.name] === name;
+                                                    return (
+                                                        <div
+                                                            key={optIndex}
+                                                            onClick={() => setCustomFieldValues(prev => ({ ...prev, [field.name]: name }))}
+                                                            className={`cursor-pointer group relative flex flex-col items-center gap-1`}
+                                                        >
+                                                            <div
+                                                                className={`w-10 h-10 rounded-full shadow-sm items-center justify-center flex transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-primary-600 scale-110' : 'hover:scale-105 border border-gray-200'}`}
+                                                                style={{ backgroundColor: hex }}
+                                                            >
+                                                                {isSelected && <svg className="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
+                                                            </div>
+                                                            <span className={`text-xs font-medium ${isSelected ? 'text-primary-700' : 'text-gray-500'}`}>{name}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : field.type === 'dropdown' ? (
+                                            <select
+                                                value={customFieldValues[field.name] || ''}
+                                                onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                            >
+                                                <option value="">Select Option</option>
+                                                {field.options.map((opt, i) => (
+                                                    <option key={i} value={opt}>{opt}</option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <input
+                                                type={field.type === 'number' ? 'number' : 'text'}
+                                                value={customFieldValues[field.name] || ''}
+                                                onChange={(e) => setCustomFieldValues(prev => ({ ...prev, [field.name]: e.target.value }))}
+                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                                placeholder={`Enter ${field.name}`}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         )}
 

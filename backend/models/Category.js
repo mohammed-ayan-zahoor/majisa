@@ -15,7 +15,7 @@ const categorySchema = mongoose.Schema({
     },
     customFields: [{
         name: { type: String, required: true },
-        type: { type: String, required: true, enum: ['text', 'number', 'dropdown'] },
+        type: { type: String, required: true, enum: ['text', 'number', 'dropdown', 'color'] },
         options: [{ type: String }], // For dropdowns
         required: { type: Boolean, default: false }
     }]

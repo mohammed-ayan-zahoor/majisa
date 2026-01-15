@@ -72,6 +72,7 @@ const CustomFieldManager = ({ fields = [], onChange }) => {
                                     <option value="text">Text</option>
                                     <option value="number">Number</option>
                                     <option value="dropdown">Dropdown</option>
+                                    <option value="color">Color</option>
                                 </select>
                             </div>
                         </div>
@@ -86,6 +87,62 @@ const CustomFieldManager = ({ fields = [], onChange }) => {
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                                     placeholder="Option 1, Option 2, Option 3"
                                 />
+                            </div>
+                        )}
+
+                        {field.type === 'color' && (
+                            <div className="mb-3">
+                                <label className="block text-xs text-gray-500 mb-2">Color Options</label>
+                                <div className="space-y-2">
+                                    {(field.options || []).map((opt, optIndex) => {
+                                        const [name, hex] = opt.split('|');
+                                        return (
+                                            <div key={optIndex} className="flex gap-2 items-center">
+                                                <input
+                                                    type="color"
+                                                    value={hex || '#000000'}
+                                                    onChange={(e) => {
+                                                        const newOptions = [...(field.options || [])];
+                                                        newOptions[optIndex] = `${name || 'Color'}|${e.target.value}`;
+                                                        handleFieldChange(index, 'options', newOptions);
+                                                    }}
+                                                    className="h-8 w-8 rounded cursor-pointer border-0 p-0"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={name || ''}
+                                                    onChange={(e) => {
+                                                        const newOptions = [...(field.options || [])];
+                                                        newOptions[optIndex] = `${e.target.value}|${hex || '#000000'}`;
+                                                        handleFieldChange(index, 'options', newOptions);
+                                                    }}
+                                                    placeholder="Color Name (e.g. Rose Gold)"
+                                                    className="flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newOptions = field.options.filter((_, i) => i !== optIndex);
+                                                        handleFieldChange(index, 'options', newOptions);
+                                                    }}
+                                                    className="text-red-500 hover:text-red-700 p-1"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const newOptions = [...(field.options || []), 'New Color|#000000'];
+                                            handleFieldChange(index, 'options', newOptions);
+                                        }}
+                                        className="text-xs text-primary-600 font-medium flex items-center gap-1 hover:bg-gray-100 px-2 py-1 rounded"
+                                    >
+                                        <Plus size={12} /> Add Color Option
+                                    </button>
+                                </div>
                             </div>
                         )}
 

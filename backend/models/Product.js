@@ -53,7 +53,7 @@ const productSchema = mongoose.Schema({
     },
     customFields: [{
         name: { type: String, required: true },
-        type: { type: String, required: true, enum: ['text', 'number', 'dropdown'] },
+        type: { type: String, required: true, enum: ['text', 'number', 'dropdown', 'color'] },
         options: [{ type: String }],
         required: { type: Boolean, default: false }
     }]
