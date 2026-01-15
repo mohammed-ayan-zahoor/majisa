@@ -27,24 +27,27 @@ const addVendorCardToDoc = async (doc, vendor, frontBg, backBg, isFirstPage, dom
 
     // QR Code
     const vendorCode = vendor.referralCode || vendor.username || 'N/A';
-    const visitUrl = `${domainUrl}/shop?ref=${vendorCode}`;
-    const qrCodeDataUrl = await QRCode.toDataURL(visitUrl, {
+    const visitUrl = `${domainUrl}/shop?ref=${encodeURIComponent(vendorCode)}`; const qrCodeDataUrl = await QRCode.toDataURL(visitUrl, {
         errorCorrectionLevel: 'H',
         margin: 0,
         color: { dark: COLOR_CHARCOAL, light: '#F9F7F2' }
     });
 
-    const qrSize = 55; // mm
+    // QR Code - Adjusted Position
+    // The box is nearly central. 
+    // Moving QR down to fit inside the gold box better.
+    const qrSize = 45; // Reduced size slightly to fit comfortably
     const qrX = (width - qrSize) / 2;
-    const qrY = 62; // mm
+    const qrY = 70; // Pushed down from 62
     doc.addImage(qrCodeDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
 
     // Vendor Code Text
     doc.setTextColor(COLOR_WHITE);
-    doc.setFontSize(14);
+    doc.setFontSize(12); // Slightly smaller
     doc.setFont('helvetica', 'normal');
-    // Approx position below "Vendor Code" label
-    doc.text(vendorCode, width / 2, 142, { align: 'center' });
+    // Position below "Vendor Code" label
+    // The design has "Vendor Code" text at bottom. We place the actual code below it.
+    doc.text(vendorCode, width / 2, 148, { align: 'center' }); // Pushed down from 142
 
     // --- BACK PAGE ---
     doc.addPage();
@@ -52,17 +55,24 @@ const addVendorCardToDoc = async (doc, vendor, frontBg, backBg, isFirstPage, dom
 
     // Credentials
     doc.setTextColor(COLOR_WHITE);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11); // Smaller font for fields
+    doc.setFont('text', 'normal'); // Use standard font
 
-    // Username
-    const usernameY = 75; // mm
+    // Username Field - Adjusted to fall INTO the box
+    // Box 1 is approx at Y=85-95 range based on visual 
+    const usernameY = 88; // Adjusted from 75
     doc.text(vendor.username || '-----', width / 2, usernameY, { align: 'center' });
 
-    // Password - Placeholder or Temp
-    const passwordY = 105; // mm
-    const passwordText = vendor.tempPassword || '******';
+    // Password Field
+    const passwordY = 118; // Adjusted from 105 to fall into second box
+    // MASKED PASSWORD for Security
+    const passwordText = 'Set via Secure Channel';
     doc.text(passwordText, width / 2, passwordY, { align: 'center' });
+
+    // Security Warning
+    doc.setFontSize(8);
+    doc.setTextColor('#a0616a'); // Rose Goldish Red for warning
+    doc.text("SECURITY WARNING: Keep credentials safe. Reset password on first login.", width / 2, 150, { align: 'center' });
 };
 
 /**
@@ -84,7 +94,8 @@ export const generateVendorCardPDF = async (vendor, domainUrl = window.location.
         ]);
 
         await addVendorCardToDoc(doc, vendor, frontBg, backBg, true, domainUrl);
-        doc.save(`Majisa_Card_${vendor.name.replace(/\s+/g, '_')}.pdf`);
+        const vendorName = vendor.name || vendor.username || 'Unknown';
+        doc.save(`Majisa_Card_${vendorName.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
         console.error("Single PDF Generation Failed:", error);
         alert("Failed to generate PDF. Check assets.");
