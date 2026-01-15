@@ -69,7 +69,7 @@ function App() {
             <CartProvider>
               <WishlistProvider>
                 <OrderProvider>
-                  <Toaster position="top-center" />
+                  <Toaster position="top-center" toastOptions={{ duration: 1000 }} />
                   <Routes>
                     <Route path="/" element={<Layout />}>
                       <Route index element={
