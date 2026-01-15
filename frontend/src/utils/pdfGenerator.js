@@ -103,7 +103,7 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl, logoDataUrl) =
 
     // Generate QR
     const vendorCode = vendor.referralCode || vendor.username || 'N/A';
-    const visitUrl = `${domainUrl}/shop?ref=${vendorCode}`;
+    const visitUrl = `${domainUrl}`;
     const qrCodeDataUrl = await QRCode.toDataURL(visitUrl, {
         errorCorrectionLevel: 'H',
         margin: 0,
