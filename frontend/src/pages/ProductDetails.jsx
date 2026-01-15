@@ -35,24 +35,30 @@ const ProductDetails = () => {
     const [customFieldValues, setCustomFieldValues] = useState({});
 
     // Handle initial selection when data arrives
+    const [mergedFields, setMergedFields] = useState([]);
+
+    // Handle initial selection when data arrives
     useEffect(() => {
+        let isMounted = true;
+
         if (product) {
             // ... existing image/weight logic ...
             if (product.images && product.images.length > 0) {
-                setSelectedImage(product.images[0]);
+                if (isMounted) setSelectedImage(product.images[0]);
             } else {
-                setSelectedImage(product.image);
+                if (isMounted) setSelectedImage(product.image);
             }
 
             const wOptions = Array.isArray(product.weight) ? product.weight : (product.weight ? [product.weight] : []);
             if (wOptions.length > 0) {
-                setSelectedWeight(wOptions[0]);
+                if (isMounted) setSelectedWeight(wOptions[0]);
             }
 
             const pOptions = Array.isArray(product.purity) ? product.purity : (product.purity ? [product.purity] : []);
             if (pOptions.length > 0) {
-                setSelectedPurity(pOptions[0]);
+                if (isMounted) setSelectedPurity(pOptions[0]);
             }
+
             // Init custom fields
             // We need to merge Product fields with Category fields to ensure new fields (like Color) show up
             const initFields = async () => {
@@ -61,6 +67,10 @@ const ProductDetails = () => {
                 try {
                     // We must fetch the category to see if there are missing fields (like Color)
                     const { data: categories } = await api.get('/categories');
+
+                    // Check if component mounted and product hasn't changed fundamentally
+                    if (!isMounted) return;
+
                     const category = categories.find(c => c.name === product.category);
 
                     if (category && category.customFields) {
@@ -78,9 +88,9 @@ const ProductDetails = () => {
                     console.error('Error fetching category fields:', err);
                 }
 
-                // Temporary: Mutate product object to update fields for rendering
-                // In a real app we might store this in local state separte from 'product'
-                product.mergedFields = finalFields;
+                if (!isMounted) return;
+
+                setMergedFields(finalFields);
 
                 const defaults = {};
                 finalFields.forEach(f => {
@@ -98,6 +108,10 @@ const ProductDetails = () => {
 
             initFields();
         }
+
+        return () => {
+            isMounted = false;
+        };
     }, [product]);
 
     useEffect(() => {
@@ -314,9 +328,9 @@ const ProductDetails = () => {
                         )}
 
                         {/* Custom Fields (Colors ONLY) */}
-                        {(product.mergedFields || product.customFields) && (product.mergedFields || product.customFields).length > 0 && (
+                        {(mergedFields && mergedFields.length > 0) && (
                             <div className="space-y-6 mb-8">
-                                {(product.mergedFields || product.customFields).map((field, index) => {
+                                {mergedFields.map((field, index) => {
                                     // ONLY SHOW COLOR FIELDS
                                     if (field.type !== 'color') return null;
 

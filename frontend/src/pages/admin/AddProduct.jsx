@@ -24,7 +24,7 @@ const AddProduct = () => {
         description: '',
         category: '',
         metal: 'Gold',
-        purity: [], // Array of purity options
+        purity: ['22K=92', '18K=75'], // Default purity options
         weight: [], // Array of weight options
         wastage: '',
         images: [], // Array of image URLs
