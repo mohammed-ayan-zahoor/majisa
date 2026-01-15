@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
+import { Search, CheckCircle, XCircle, MoreVertical, Download } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import SEO from '../../components/common/SEO';
+import { generateVendorCardPDF, generateAllVendorsPDF } from '../../utils/pdfGenerator';
 
 const AdminVendors = () => {
     const [vendors, setVendors] = useState([]);
@@ -185,16 +186,25 @@ const AdminVendors = () => {
                     <h1 className="text-xl font-serif font-bold text-gray-900">Vendors</h1>
                     <p className="text-xs text-gray-500 hidden md:block">Manage vendor registrations and approvals</p>
                 </div>
-                <button
-                    onClick={() => {
-                        setUsernameError('');
-                        setIsAddModalOpen(true);
-                    }}
-                    className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
-                >
-                    <span>+</span>
-                    <span>Add <span className="hidden md:inline">New Vendor</span></span>
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => generateAllVendorsPDF(vendors)}
+                        className="bg-white text-gray-700 border border-gray-300 px-3 py-1.5 text-sm rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap flex items-center gap-2"
+                    >
+                        <Download size={16} />
+                        <span>Export All Cards</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            setUsernameError('');
+                            setIsAddModalOpen(true);
+                        }}
+                        className="bg-primary-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-primary-700 transition-colors whitespace-nowrap flex items-center gap-2"
+                    >
+                        <span>+</span>
+                        <span>Add <span className="hidden md:inline">New Vendor</span></span>
+                    </button>
+                </div>
             </div>
 
             {/* Search Only - Filters Removed */}
@@ -284,6 +294,13 @@ const AdminVendors = () => {
                                                 title="Delete"
                                             >
                                                 <XCircle size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => generateVendorCardPDF(vendor)}
+                                                className="p-1.5 text-gold-600 hover:bg-gold-50 rounded-lg"
+                                                title="Export QR Card"
+                                            >
+                                                <Download size={16} />
                                             </button>
                                         </div>
                                     </td>
