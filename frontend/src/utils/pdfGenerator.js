@@ -165,15 +165,7 @@ export const generateVendorCardPDF = async (vendor, domainUrl = window.location.
             format: 'a5'
         });
 
-        // Load Font
-        let fontBase64 = null;
-        try {
-            fontBase64 = await loadFont('/fonts/Mosseta-Regular.otf');
-        } catch (e) {
-            console.warn("Could not load custom font, falling back to standard.", e);
-        }
-
-        await addVendorCard(doc, vendor, fontBase64, true, domainUrl);
+        await addVendorCard(doc, vendor, true, domainUrl);
         doc.save(`Majisa_Card_${vendor.name.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
         console.error("Single PDF Generation Failed:", error);
@@ -190,13 +182,6 @@ export const generateAllVendorsPDF = async (vendors, domainUrl = window.location
             unit: 'mm',
             format: 'a5'
         });
-
-        let fontBase64 = null;
-        try {
-            fontBase64 = await loadFont('/fonts/Mosseta-Regular.otf');
-        } catch (e) {
-            console.warn("Font load failed", e);
-        }
 
         for (let i = 0; i < vendors.length; i++) {
             await addVendorCard(doc, vendors[i], i === 0, domainUrl);
