@@ -8,14 +8,49 @@ const COLOR_WHITE = '#FFFFFF';
 const COLOR_ROSE_RED = '#a0616a';
 const COLOR_CREAM = '#F9F7F2';
 
-// Helper: Load Image
+// Helper: Load Image and Recolor to Gold (Remove White BG)
 const loadImage = async (url) => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = url;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+
+            // RGBA values for Gold #e3c73d => (227, 199, 61)
+            const rGold = 227;
+            const gGold = 199;
+            const bGold = 61;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                // const a = data[i + 3];
+
+                // Simple threshold to detect "White" background
+                // If pixel is bright enough, make it transparent
+                if (r > 200 && g > 200 && b > 200) {
+                    data[i + 3] = 0; // Alpha = 0 (Transparent)
+                } else {
+                    // It's part of the logo (Darker pixels) -> Color it Gold
+                    data[i] = rGold;
+                    data[i + 1] = gGold;
+                    data[i + 2] = bGold;
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
     });
 };
 
