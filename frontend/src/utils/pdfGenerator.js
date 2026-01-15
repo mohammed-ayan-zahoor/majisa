@@ -1,85 +1,168 @@
 import { jsPDF } from 'jspdf';
 import QRCode from 'qrcode';
 
-// Colors from tailwind config
-const COLOR_GOLD = '#e3c73d';
+// Colors
 const COLOR_CHARCOAL = '#2D2D2D';
+const COLOR_GOLD = '#e3c73d';
 const COLOR_WHITE = '#FFFFFF';
+const COLOR_ROSE_RED = '#a0616a';
+const COLOR_CREAM = '#F9F7F2';
 
-// Helper to load image
-const loadImg = (src) => new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-});
+// Font Setup
+// We need to fetch the font file from the public directory
+const loadFont = async (url) => {
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
+    return arrayBufferToBase64(buffer);
+};
 
-// Helper to generate a single card page (Front + Back)
-const addVendorCardToDoc = async (doc, vendor, frontBg, backBg, isFirstPage, domainUrl) => {
+const arrayBufferToBase64 = (buffer) => {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+};
+
+// Helper: Draw Background with Border
+const drawCardBackground = (doc, width, height) => {
+    // 1. Fill Charcoal Background
+    doc.setFillColor(COLOR_CHARCOAL);
+    doc.rect(0, 0, width, height, 'F');
+
+    // 2. Draw Gold Border
+    // Margin 5mm, Stroke 1mm
+    doc.setDrawColor(COLOR_GOLD);
+    doc.setLineWidth(1);
+    const borderMargin = 6;
+    doc.roundedRect(borderMargin, borderMargin, width - (borderMargin * 2), height - (borderMargin * 2), 3, 3, 'S');
+};
+
+const addVendorCard = async (doc, vendor, fontBase64, isFirstPage, domainUrl) => {
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
 
-    // If not first page, add new page for Front
+    // Add Font if not exists
+    if (!doc.existsFileInVFS("Mosseta-Regular.otf")) {
+        doc.addFileToVFS("Mosseta-Regular.otf", fontBase64);
+        doc.addFont("Mosseta-Regular.otf", "Mosseta", "normal");
+    }
+
     if (!isFirstPage) doc.addPage();
 
     // --- FRONT PAGE ---
-    doc.addImage(frontBg, 'PNG', 0, 0, width, height);
+    drawCardBackground(doc, width, height);
 
-    // QR Code
+    // "MAJISA" Heading
+    doc.setTextColor(COLOR_GOLD);
+    doc.setFont("Mosseta", "normal");
+    doc.setFontSize(32);
+    doc.text("MAJISA", width / 2, 45, { align: 'center' });
+
+    // QR Code Box
+    // Center Box: White/Cream Background + Gold Border
+    const boxSize = 65;
+    const boxX = (width - boxSize) / 2;
+    const boxY = 60;
+
+    doc.setFillColor(COLOR_CREAM);
+    doc.setDrawColor(COLOR_GOLD);
+    doc.setLineWidth(1);
+    doc.roundedRect(boxX, boxY, boxSize, boxSize, 2, 2, 'FD'); // Fill + Draw
+
+    // Generate QR
     const vendorCode = vendor.referralCode || vendor.username || 'N/A';
-    const visitUrl = `${domainUrl}/shop?ref=${encodeURIComponent(vendorCode)}`; const qrCodeDataUrl = await QRCode.toDataURL(visitUrl, {
+    const visitUrl = `${domainUrl}/shop?ref=${vendorCode}`;
+    const qrCodeDataUrl = await QRCode.toDataURL(visitUrl, {
         errorCorrectionLevel: 'H',
         margin: 0,
-        color: { dark: COLOR_CHARCOAL, light: '#F9F7F2' }
+        color: { dark: COLOR_CHARCOAL, light: COLOR_CREAM }
     });
 
-    // QR Code - Adjusted Position
-    // The box is nearly central. 
-    // Moving QR down to fit inside the gold box better.
-    const qrSize = 45; // Reduced size slightly to fit comfortably
-    const qrX = (width - qrSize) / 2;
-    const qrY = 70; // Pushed down from 62
+    // Place QR inside box
+    const qrSize = 55;
+    const qrX = boxX + (boxSize - qrSize) / 2;
+    const qrY = boxY + (boxSize - qrSize) / 2;
     doc.addImage(qrCodeDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
 
-    // Vendor Code Text
-    doc.setTextColor(COLOR_WHITE);
-    doc.setFontSize(12); // Slightly smaller
-    doc.setFont('helvetica', 'normal');
-    // Position below "Vendor Code" label
-    // The design has "Vendor Code" text at bottom. We place the actual code below it.
-    doc.text(vendorCode, width / 2, 148, { align: 'center' }); // Pushed down from 142
+    // "SCAN TO VISIT"
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(COLOR_ROSE_RED); // Using primary color for call to action
+    doc.text("SCAN TO VISIT", width / 2, boxY + boxSize + 8, { align: 'center', charSpace: 1.5 });
+
+    // "VENDOR CODE" Label
+    doc.setFontSize(8);
+    doc.setTextColor(COLOR_ROSE_RED);
+    doc.text("VENDOR CODE", width / 2, 160, { align: 'center', charSpace: 1 });
+
+    // Actual Vendor Code
+    doc.setFont("Mosseta", "normal"); // Or Bold Helvetica
+    doc.setFontSize(22);
+    doc.setTextColor(COLOR_GOLD);
+    doc.text(vendorCode, width / 2, 172, { align: 'center' });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor('#6a5c36'); // Dim Gold
+    doc.text("Tap to view credentials", width / 2, 182, { align: 'center' });
+
 
     // --- BACK PAGE ---
     doc.addPage();
-    doc.addImage(backBg, 'PNG', 0, 0, width, height);
+    drawCardBackground(doc, width, height);
 
-    // Credentials
-    doc.setTextColor(COLOR_WHITE);
-    doc.setFontSize(11); // Smaller font for fields
-    doc.setFont('text', 'normal'); // Use standard font
+    // Heading
+    doc.setFont("Mosseta", "normal");
+    doc.setFontSize(28);
+    doc.setTextColor(COLOR_GOLD);
+    doc.text("MAJISA", width / 2, 35, { align: 'center' });
 
-    // Username Field - Adjusted to fall INTO the box
-    // Box 1 is approx at Y=85-95 range based on visual 
-    const usernameY = 88; // Adjusted from 75
-    doc.text(vendor.username || '-----', width / 2, usernameY, { align: 'center' });
+    // Subheading
+    doc.setFont("helvetica", "normal"); // Keeping clean
+    doc.setFontSize(14);
+    doc.setTextColor(COLOR_ROSE_RED);
+    doc.text("Vendor Login", width / 2, 85, { align: 'center', charSpace: 1 });
 
-    // Password Field
-    const passwordY = 118; // Adjusted from 105 to fall into second box
-    // MASKED PASSWORD for Security
+    // Username Label
+    doc.setFontSize(9);
+    doc.setTextColor(COLOR_ROSE_RED);
+    doc.text("USERNAME", width / 2, 105, { align: 'center', charSpace: 1 });
+
+    // Username Value
+    doc.setFont("Mosseta", "normal");
+    doc.setFontSize(18);
+    doc.setTextColor(COLOR_GOLD);
+    doc.text(vendor.username || '-----', width / 2, 115, { align: 'center' });
+
+    // Divider Line
+    doc.setDrawColor(COLOR_GOLD);
+    doc.setLineWidth(0.2);
+    doc.line(width / 2 - 30, 125, width / 2 + 30, 125);
+
+    // Password Label
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(COLOR_ROSE_RED);
+    doc.text("PASSWORD", width / 2, 140, { align: 'center', charSpace: 1 });
+
+    // Password Value (Masked)
+    doc.setFont("Mosseta", "normal");
+    doc.setFontSize(18);
+    doc.setTextColor(COLOR_GOLD);
     const passwordText = 'Set via Secure Channel';
-    doc.text(passwordText, width / 2, passwordY, { align: 'center' });
+    // If we wanted to show a temp password, we could: vendor.tempPassword || '***'
+    doc.text(passwordText, width / 2, 150, { align: 'center' });
 
-    // Security Warning
-    doc.setFontSize(8);
-    doc.setTextColor('#a0616a'); // Rose Goldish Red for warning
-    doc.text("SECURITY WARNING: Keep credentials safe. Reset password on first login.", width / 2, 150, { align: 'center' });
+    // Security Warning at bottom
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor('#665c3b'); // Darker Gold/Brown
+    doc.text("Keep this information secure", width / 2, height - 15, { align: 'center' });
 };
 
-/**
- * Generates a PDF for a single vendor
- * @param {Object} vendor - Vendor object containing name, username, password, etc.
- * @param {string} domainUrl - The base domain URL (e.g., https://majisa.co.in)
- */
 export const generateVendorCardPDF = async (vendor, domainUrl = window.location.origin) => {
     try {
         const doc = new jsPDF({
@@ -88,25 +171,22 @@ export const generateVendorCardPDF = async (vendor, domainUrl = window.location.
             format: 'a5'
         });
 
-        const [frontBg, backBg] = await Promise.all([
-            loadImg('/assets/cards/front.png'),
-            loadImg('/assets/cards/back.png')
-        ]);
+        // Load Font
+        let fontBase64 = null;
+        try {
+            fontBase64 = await loadFont('/fonts/Mosseta-Regular.otf');
+        } catch (e) {
+            console.warn("Could not load custom font, falling back to standard.", e);
+        }
 
-        await addVendorCardToDoc(doc, vendor, frontBg, backBg, true, domainUrl);
-        const vendorName = vendor.name || vendor.username || 'Unknown';
-        doc.save(`Majisa_Card_${vendorName.replace(/\s+/g, '_')}.pdf`);
+        await addVendorCard(doc, vendor, fontBase64, true, domainUrl);
+        doc.save(`Majisa_Card_${vendor.name.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
         console.error("Single PDF Generation Failed:", error);
-        alert("Failed to generate PDF. Check assets.");
+        alert("Failed to generate PDF.");
     }
 };
 
-/**
- * Generates a single PDF containing cards for ALL vendors
- * @param {Array<Object>} vendors - Array of vendor objects
- * @param {string} domainUrl - The base domain URL (e.g., https://majisa.co.in)
- */
 export const generateAllVendorsPDF = async (vendors, domainUrl = window.location.origin) => {
     if (!vendors || vendors.length === 0) return;
 
@@ -117,13 +197,15 @@ export const generateAllVendorsPDF = async (vendors, domainUrl = window.location
             format: 'a5'
         });
 
-        const [frontBg, backBg] = await Promise.all([
-            loadImg('/assets/cards/front.png'),
-            loadImg('/assets/cards/back.png')
-        ]);
+        let fontBase64 = null;
+        try {
+            fontBase64 = await loadFont('/fonts/Mosseta-Regular.otf');
+        } catch (e) {
+            console.warn("Font load failed", e);
+        }
 
         for (let i = 0; i < vendors.length; i++) {
-            await addVendorCardToDoc(doc, vendors[i], frontBg, backBg, i === 0, domainUrl);
+            await addVendorCard(doc, vendors[i], fontBase64, i === 0, domainUrl);
         }
 
         doc.save('Majisa_All_Vendor_Cards.pdf');
