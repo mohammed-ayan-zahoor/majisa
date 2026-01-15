@@ -199,7 +199,7 @@ export const generateAllVendorsPDF = async (vendors, domainUrl = window.location
         }
 
         for (let i = 0; i < vendors.length; i++) {
-            await addVendorCard(doc, vendors[i], fontBase64, i === 0, domainUrl);
+            await addVendorCard(doc, vendors[i], i === 0, domainUrl);
         }
 
         doc.save('Majisa_All_Vendor_Cards.pdf');
