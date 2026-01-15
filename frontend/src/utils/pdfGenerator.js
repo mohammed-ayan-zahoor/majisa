@@ -8,22 +8,15 @@ const COLOR_WHITE = '#FFFFFF';
 const COLOR_ROSE_RED = '#a0616a';
 const COLOR_CREAM = '#F9F7F2';
 
-// Font Setup
-// We need to fetch the font file from the public directory
-const loadFont = async (url) => {
+// Helper: Load Image
+const loadImage = async (url) => {
     const response = await fetch(url);
-    const buffer = await response.arrayBuffer();
-    return arrayBufferToBase64(buffer);
-};
-
-const arrayBufferToBase64 = (buffer) => {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
 };
 
 // Helper: Draw Background with Border
@@ -33,14 +26,14 @@ const drawCardBackground = (doc, width, height) => {
     doc.rect(0, 0, width, height, 'F');
 
     // 2. Draw Gold Border
-    // Margin 5mm, Stroke 1mm
+    // Margin 6mm, Stroke 1mm
     doc.setDrawColor(COLOR_GOLD);
     doc.setLineWidth(1);
     const borderMargin = 6;
     doc.roundedRect(borderMargin, borderMargin, width - (borderMargin * 2), height - (borderMargin * 2), 3, 3, 'S');
 };
 
-const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
+const addVendorCard = async (doc, vendor, isFirstPage, domainUrl, logoDataUrl) => {
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
 
@@ -49,22 +42,29 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     // --- FRONT PAGE ---
     drawCardBackground(doc, width, height);
 
-    // "MAJISA" Heading - Using Standard Serif (Times)
+    // LOGO - Top Center
+    if (logoDataUrl) {
+        const logoSize = 30; // 30mm nicely centered
+        const logoX = (width - logoSize) / 2;
+        doc.addImage(logoDataUrl, 'PNG', logoX, 20, logoSize, logoSize);
+    }
+
+    // "MAJISA" Heading
     doc.setTextColor(COLOR_GOLD);
-    doc.setFont("times", "bold"); // Standard Serif
-    doc.setFontSize(36); // Slightly larger for impact
-    doc.text("MAJISA", width / 2, 45, { align: 'center' });
+    doc.setFont("times", "bold");
+    doc.setFontSize(28);
+    // Position below Logo (20 + 30 = 50, plus padding)
+    doc.text("MAJISA", width / 2, 58, { align: 'center' });
 
     // QR Code Box
-    // Center Box: White/Cream Background + Gold Border
-    const boxSize = 65;
+    const boxSize = 60; // Slightly reduced to fit better
     const boxX = (width - boxSize) / 2;
-    const boxY = 60;
+    const boxY = 70; // Pushed down
 
     doc.setFillColor(COLOR_CREAM);
     doc.setDrawColor(COLOR_GOLD);
     doc.setLineWidth(1);
-    doc.roundedRect(boxX, boxY, boxSize, boxSize, 2, 2, 'FD'); // Fill + Draw
+    doc.roundedRect(boxX, boxY, boxSize, boxSize, 2, 2, 'FD');
 
     // Generate QR
     const vendorCode = vendor.referralCode || vendor.username || 'N/A';
@@ -76,7 +76,7 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     });
 
     // Place QR inside box
-    const qrSize = 55;
+    const qrSize = 50;
     const qrX = boxX + (boxSize - qrSize) / 2;
     const qrY = boxY + (boxSize - qrSize) / 2;
     doc.addImage(qrCodeDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
@@ -85,37 +85,44 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("SCAN TO VISIT", width / 2, boxY + boxSize + 8, { align: 'center' });
+    doc.text("SCAN TO VISIT", width / 2, boxY + boxSize + 6, { align: 'center' });
 
     // "VENDOR CODE" Label
     doc.setFontSize(8);
     doc.setTextColor(COLOR_ROSE_RED);
-    doc.text("VENDOR CODE", width / 2, 160, { align: 'center' });
+    doc.text("VENDOR CODE", width / 2, 162, { align: 'center' });
 
     // Actual Vendor Code
     doc.setFont("times", "bold");
-    doc.setFontSize(22);
+    doc.setFontSize(20);
     doc.setTextColor(COLOR_GOLD);
     doc.text(vendorCode, width / 2, 172, { align: 'center' });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor('#6a5c36'); // Dim Gold
-    doc.text("Tap to view credentials", width / 2, 182, { align: 'center' });
+    doc.text("Tap to view credentials", width / 2, 185, { align: 'center' });
 
 
     // --- BACK PAGE ---
     doc.addPage();
     drawCardBackground(doc, width, height);
 
+    // LOGO - Top Center
+    if (logoDataUrl) {
+        const logoSize = 30;
+        const logoX = (width - logoSize) / 2;
+        doc.addImage(logoDataUrl, 'PNG', logoX, 20, logoSize, logoSize);
+    }
+
     // Heading
     doc.setFont("times", "bold");
     doc.setFontSize(28);
     doc.setTextColor(COLOR_GOLD);
-    doc.text("MAJISA", width / 2, 35, { align: 'center' });
+    doc.text("MAJISA", width / 2, 58, { align: 'center' });
 
     // Subheading
-    doc.setFont("helvetica", "normal"); // Keeping clean
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(14);
     doc.setTextColor(COLOR_ROSE_RED);
     doc.text("Vendor Login", width / 2, 85, { align: 'center' });
@@ -142,10 +149,6 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
     doc.setTextColor(COLOR_ROSE_RED);
     doc.text("PASSWORD", width / 2, 140, { align: 'center' });
 
-    // Password Value (Masked)
-    doc.setFont("times", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(COLOR_GOLD);
     // Password Field - Blank Line for Manual Entry
     doc.setDrawColor(COLOR_GOLD);
     doc.setLineWidth(0.2);
@@ -153,8 +156,8 @@ const addVendorCard = async (doc, vendor, isFirstPage, domainUrl) => {
 
     // Security Warning at bottom
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8); // Increased slightly for readability
-    doc.setTextColor('#665c3b'); // Darker Gold/Brown
+    doc.setFontSize(8);
+    doc.setTextColor('#665c3b');
     doc.text("Keep this information secure", width / 2, height - 15, { align: 'center' });
 };
 
@@ -166,7 +169,15 @@ export const generateVendorCardPDF = async (vendor, domainUrl = window.location.
             format: 'a5'
         });
 
-        await addVendorCard(doc, vendor, true, domainUrl);
+        // Load Logo
+        let logoDataUrl = null;
+        try {
+            logoDataUrl = await loadImage('/logo.png');
+        } catch (e) {
+            console.warn("Logo load failed", e);
+        }
+
+        await addVendorCard(doc, vendor, true, domainUrl, logoDataUrl);
         doc.save(`Majisa_Card_${vendor.name.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
         console.error("Single PDF Generation Failed:", error);
@@ -184,8 +195,16 @@ export const generateAllVendorsPDF = async (vendors, domainUrl = window.location
             format: 'a5'
         });
 
+        // Load Logo (Once for the batch)
+        let logoDataUrl = null;
+        try {
+            logoDataUrl = await loadImage('/logo.png');
+        } catch (e) {
+            console.warn("Logo load failed", e);
+        }
+
         for (let i = 0; i < vendors.length; i++) {
-            await addVendorCard(doc, vendors[i], i === 0, domainUrl);
+            await addVendorCard(doc, vendors[i], i === 0, domainUrl, logoDataUrl);
         }
 
         doc.save('Majisa_All_Vendor_Cards.pdf');
