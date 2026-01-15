@@ -80,10 +80,27 @@ const getProducts = async (req, res) => {
 
             products = [...newestProducts, ...randomProducts];
         } else {
-            products = await Product.find({ ...keyword, ...category, ...priceFilter, ...newArrivalFilter })
-                .sort({ isFeatured: -1, createdAt: -1 }) // Prioritize featured, then newest
-                .limit(pageSize)
-                .skip(pageSize * (page - 1));
+            // Amazon-style Weighted Ranking Engine
+            // Score = (Featured * 30) + (New * 20) + (Views * 0.15) + (Sales * 0.20) + (Rating * 25)
+            products = await Product.aggregate([
+                { $match: { ...keyword, ...category, ...priceFilter, ...newArrivalFilter } },
+                {
+                    $addFields: {
+                        score: {
+                            $add: [
+                                { $multiply: [{ $cond: ["$isFeatured", 1, 0] }, 30] },     // Featured Boost
+                                { $multiply: [{ $cond: ["$isNewArrival", 1, 0] }, 20] },   // Freshness Boost
+                                { $multiply: [{ $ifNull: ["$views", 0] }, 0.15] },          // Popularity (Views)
+                                { $multiply: [{ $ifNull: ["$sales", 0] }, 0.20] },          // Performance (Sales)
+                                { $multiply: [{ $ifNull: ["$rating", 0] }, 25] }            // Quality (Rating)
+                            ]
+                        }
+                    }
+                },
+                { $sort: { score: -1, createdAt: -1 } }, // Primary sort by Score, Fallback to Newest
+                { $skip: pageSize * (page - 1) },
+                { $limit: pageSize }
+            ]);
         }
 
         res.json({ products, page, pages: Math.ceil(count / pageSize), total: count });
@@ -110,7 +127,12 @@ const getProductByCode = async (req, res) => {
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = async (req, res) => {
-    const product = await Product.findById(req.params.id);
+    // Use findByIdAndUpdate to atomic increment views
+    const product = await Product.findByIdAndUpdate(
+        req.params.id,
+        { $inc: { views: 1 } },
+        { new: true } // Return updated document
+    );
 
     if (product) {
         res.json(product);
@@ -280,44 +302,115 @@ const getProductsCount = async (req, res) => {
 const getRelatedProducts = async (req, res) => {
     try {
         const { id } = req.params;
+        const limit = Number(req.query.limit) || 8;
 
-        // Optimized aggregation to get related products in the same category
-        const result = await Product.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(id) } },
+        // First, get the current product
+        const currentProduct = await Product.findById(id);
+
+        if (!currentProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Calculate price range (±30% of current product price)
+        const priceMin = (currentProduct.price || 0) * 0.7;
+        const priceMax = (currentProduct.price || 0) * 1.3;
+
+        // Strategy: Get related products using weighted scoring
+        const relatedProducts = await Product.aggregate([
             {
-                $lookup: {
-                    from: 'products',
-                    let: { cat: '$category', prodId: '$_id' },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ['$category', '$$cat'] },
-                                        { $ne: ['$_id', '$$prodId'] }
-                                    ]
-                                }
-                            }
-                        },
-                        { $limit: 8 },
-                        {
-                            $project: {
-                                name: 1,
-                                category: 1,
-                                image: 1,
-                                productCode: 1,
-                                isNewArrival: 1,
-                                isFeatured: 1
-                            }
-                        }
-                    ],
-                    as: 'related'
+                $match: {
+                    _id: { $ne: new mongoose.Types.ObjectId(id) },
+                    $or: [
+                        // Primary: Same category
+                        { category: currentProduct.category },
+                        // Secondary: Same metal type
+                        { metal: currentProduct.metal },
+                        // Tertiary: Similar price range
+                        { price: { $gte: priceMin, $lte: priceMax } }
+                    ]
                 }
             },
-            { $project: { related: 1 } }
+            {
+                $addFields: {
+                    relevanceScore: {
+                        $add: [
+                            // Category match gets highest priority
+                            { $cond: [{ $eq: ['$category', currentProduct.category] }, 40, 0] },
+                            // Metal match
+                            { $cond: [{ $eq: ['$metal', currentProduct.metal] }, 20, 0] },
+                            // Price similarity (within range)
+                            {
+                                $cond: [
+                                    {
+                                        $and: [
+                                            { $gte: ['$price', priceMin] },
+                                            { $lte: ['$price', priceMax] }
+                                        ]
+                                    },
+                                    15,
+                                    0
+                                ]
+                            },
+                            // Product quality signals
+                            { $multiply: [{ $cond: ['$isFeatured', 1, 0] }, 10] },
+                            { $multiply: [{ $ifNull: ['$rating', 0] }, 8] },
+                            { $multiply: [{ $ifNull: ['$sales', 0] }, 0.05] },
+                            { $multiply: [{ $ifNull: ['$views', 0] }, 0.02] },
+                            // Slight bonus for new arrivals
+                            { $cond: ['$isNewArrival', 5, 0] }
+                        ]
+                    }
+                }
+            },
+            { $sort: { relevanceScore: -1, createdAt: -1 } },
+            { $limit: limit },
+            {
+                $project: {
+                    name: 1,
+                    category: 1,
+                    metal: 1,
+                    price: 1,
+                    image: 1,
+                    productCode: 1,
+                    isNewArrival: 1,
+                    isFeatured: 1,
+                    rating: 1
+                }
+            }
         ]);
 
-        const relatedProducts = result[0]?.related || [];
+        // Fallback: If we have fewer than 4 related products, add some random popular ones
+        if (relatedProducts.length < 4) {
+            const additionalProducts = await Product.aggregate([
+                {
+                    $match: {
+                        _id: {
+                            $nin: [
+                                new mongoose.Types.ObjectId(id),
+                                ...relatedProducts.map(p => p._id)
+                            ]
+                        }
+                    }
+                },
+                { $sample: { size: limit - relatedProducts.length } },
+                {
+                    $project: {
+                        name: 1,
+                        category: 1,
+                        metal: 1,
+                        price: 1,
+                        image: 1,
+                        productCode: 1,
+                        isNewArrival: 1,
+                        isFeatured: 1,
+                        rating: 1
+                    }
+                }
+            ]);
+
+            relatedProducts.push(...additionalProducts);
+        }
+
         res.json(relatedProducts);
     } catch (error) {
         console.error('Related Products Error:', error);

@@ -34,6 +34,11 @@ const addOrderItems = async (req, res) => {
 
         const createdOrder = await order.save();
 
+        // Increment Sales Count for each product
+        for (const item of orderItems) {
+            await Product.findByIdAndUpdate(item.product, { $inc: { sales: Number(item.qty) || 1 } });
+        }
+
         // Create Admin Notification
         await createNotification(
             'info',

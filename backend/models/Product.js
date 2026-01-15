@@ -51,6 +51,18 @@ const productSchema = mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    views: {
+        type: Number,
+        default: 0
+    },
+    sales: {
+        type: Number,
+        default: 0
+    },
+    rating: {
+        type: Number,
+        default: 0
+    },
     customFields: [{
         name: { type: String, required: true },
         type: { type: String, required: true, enum: ['text', 'number', 'dropdown', 'color'] },
