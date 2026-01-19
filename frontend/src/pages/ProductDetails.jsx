@@ -221,17 +221,10 @@ const ProductDetails = () => {
                                 </div>
                             )}
 
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="flex text-yellow-400">
-                                    {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                                </div>
-                                <span className="text-gray-500 text-sm">(12 Reviews)</span>
-                            </div>
+
                         </div>
 
-                        <p className="text-gray-600 leading-relaxed">
-                            {product.description}
-                        </p>
+
 
                         {/* Specifications - Only for Vendors/Admins */}
                         {['vendor', 'admin'].includes(user?.role) && (
@@ -266,6 +259,17 @@ const ProductDetails = () => {
                                 </div>
                             </div>
                         )}
+
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="flex text-yellow-400">
+                                {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+                            </div>
+                            <span className="text-gray-500 text-sm">(12 Reviews)</span>
+                        </div>
+
+                        <p className="text-gray-600 leading-relaxed mb-6">
+                            {product.description}
+                        </p>
 
                         {/* Variant Selection (Weight & Purity) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
