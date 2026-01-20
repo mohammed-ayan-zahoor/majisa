@@ -33,7 +33,7 @@ const Masters = () => {
         try {
             const endpoint = `/accounts/${activeTab}`; // groups, items, parties
             const response = await api.get(endpoint);
-            setData(response.data);
+            setData(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             console.error(error);
             toast.error("Failed to fetch data");
@@ -192,7 +192,7 @@ const Masters = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {data.map((item) => (
+                                    {(Array.isArray(data) ? data : []).map((item) => (
                                         <tr key={item._id} className="hover:bg-gray-50">
                                             {activeTab === 'groups' && (
                                                 <>
@@ -292,7 +292,7 @@ const PartyForm = ({ formData, handleInputChange, handleNestedInputChange }) => 
                 <label className="block text-sm font-medium text-gray-700 mb-1">Account Group</label>
                 <select required name="group" value={formData.group || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2">
                     <option value="">Select Group</option>
-                    {groups.map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
+                    {(Array.isArray(groups) ? groups : []).map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
                 </select>
             </div>
             <div className="grid grid-cols-2 gap-4">

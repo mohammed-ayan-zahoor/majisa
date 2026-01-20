@@ -9,7 +9,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
         <div className="flex justify-between items-start">
             <div>
                 <p className="text-xs font-medium text-gray-500">{title}</p>
-                <h3 className="text-xl font-bold text-gray-900 mt-1">{value}</h3>
+                <h3 className="text-xl font-bold font-sans text-gray-900 mt-1">{value}</h3>
             </div>
             <div className={`p-2 rounded-lg ${color} shadow-sm`}>
                 <Icon size={20} className="text-white" />
@@ -45,10 +45,10 @@ const AccountsDashboard = () => {
 
                 if (isMounted) {
                     setStats({
-                        groups: groupsRes.data.length,
-                        items: itemsRes.data.length,
-                        parties: partiesRes.data.length,
-                        vouchers: vouchersRes.data.length
+                        groups: Array.isArray(groupsRes.data) ? groupsRes.data.length : 0,
+                        items: Array.isArray(itemsRes.data) ? itemsRes.data.length : 0,
+                        parties: Array.isArray(partiesRes.data) ? partiesRes.data.length : 0,
+                        vouchers: Array.isArray(vouchersRes.data) ? vouchersRes.data.length : 0
                     });
                 }
             } catch (error) {
