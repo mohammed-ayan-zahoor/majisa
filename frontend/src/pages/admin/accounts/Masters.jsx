@@ -631,7 +631,7 @@ const PartyForm = ({ formData, setFormData, handleInputChange, handleNestedInput
                                                 ...(formData.openingBalance?.[field] || {}),
                                                 [isCash ? 'value' : 'weight']: e.target.value
                                             })}
-                                            className="flex-1 border-blue-200 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none"
+                                            className="flex-1 border border-blue-200 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none"
                                         />
                                         <select
                                             value={formData.openingBalance?.[field]?.type || 'Cr'}
@@ -639,12 +639,11 @@ const PartyForm = ({ formData, setFormData, handleInputChange, handleNestedInput
                                                 ...(formData.openingBalance?.[field] || {}),
                                                 type: e.target.value
                                             })}
-                                            className="w-24 border-blue-200 rounded-lg p-2 text-xs font-bold bg-white"
+                                            className="w-24 border border-blue-200 rounded-lg p-2 text-xs font-bold bg-white"
                                         >
                                             <option value="Cr">Credit</option>
                                             <option value="Dr">Debit</option>
-                                        </select>
-                                    </div>
+                                        </select>                                    </div>
                                 </div>
                             );
                         })}

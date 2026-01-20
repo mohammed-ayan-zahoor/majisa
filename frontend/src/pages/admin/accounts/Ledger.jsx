@@ -10,7 +10,7 @@ const Ledger = () => {
 
     useEffect(() => {
         api.get('/accounts/parties')
-            .then(res => setParties(res.data))
+            .then(res => setParties(Array.isArray(res.data) ? res.data : []))
             .catch(err => console.error("Failed to fetch parties", err));
     }, []);
     useEffect(() => {
@@ -39,7 +39,7 @@ const Ledger = () => {
         // Or we just use strict Dr/Cr columns.
         // Let's assume standard accounting: Asset (Customer) -> Debit is positive.
 
-        const processed = transactions.map(txn => {
+        const processed = (Array.isArray(transactions) ? transactions : []).map(txn => {
             let metalDr = 0, metalCr = 0;
             let cashDr = 0, cashCr = 0;
 
@@ -48,11 +48,11 @@ const Ledger = () => {
                 // Sales to Party: Party is Receiver (Dr)
                 // Metal: Party owes metal (Dr)
                 // Cash: Party owes cash (if any labour/other charges) (Dr)
-                metalDr = txn.items.reduce((acc, item) => acc + (item.fineWeight || 0), 0);
+                metalDr = (Array.isArray(txn.items) ? txn.items : []).reduce((acc, item) => acc + (item.fineWeight || 0), 0);
                 cashDr = txn.totalAmount; // Labour/Other charges
             } else if (txn.type === 'Purchase') {
                 // Purchase from Party: Party is Giver (Cr)
-                metalCr = txn.items.reduce((acc, item) => acc + (item.fineWeight || 0), 0);
+                metalCr = (Array.isArray(txn.items) ? txn.items : []).reduce((acc, item) => acc + (item.fineWeight || 0), 0);
                 cashCr = txn.totalAmount;
             } else if (txn.type === 'Receipt') {
                 // Received from Party: Party is Giver (Cr)
@@ -63,7 +63,7 @@ const Ledger = () => {
             } else if (txn.type === 'Issue') {
                 // Open Issue to Karigar? 
                 // Party (Karigar) is Dr.
-                metalDr = txn.items.reduce((acc, item) => acc + (item.fineWeight || 0), 0);
+                metalDr = (Array.isArray(txn.items) ? txn.items : []).reduce((acc, item) => acc + (item.fineWeight || 0), 0);
             }
 
             // Bhav Cutting:
@@ -105,7 +105,7 @@ const Ledger = () => {
         if (!processedTransactions || processedTransactions.length === 0) return;
 
         const headers = ['Date', 'Particulars', 'Vch Type', 'Metal Dr', 'Metal Cr', 'Metal Bal', 'Cash Dr', 'Cash Cr', 'Cash Bal'];
-        const rows = processedTransactions.map(txn => [
+        const rows = (Array.isArray(processedTransactions) ? processedTransactions : []).map(txn => [
             new Date(txn.date).toLocaleDateString(),
             `"${(txn.narration || '-').replace(/"/g, '""')}"`, // Escape quotes
             txn.type,
@@ -147,7 +147,7 @@ const Ledger = () => {
                         className="border rounded-lg p-2 min-w-[250px] focus:ring-2 focus:ring-primary-500 outline-none"
                     >
                         <option value="">Select Party Account</option>
-                        {parties.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+                        {(Array.isArray(parties) ? parties : []).map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
                     </select>
                 </div>
                 <div className="flex gap-2">
@@ -189,7 +189,7 @@ const Ledger = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                {processedTransactions.map((txn) => (
+                                {(Array.isArray(processedTransactions) ? processedTransactions : []).map((txn) => (
                                     <tr key={txn._id} className="hover:bg-gray-50">
                                         <td className="px-4 py-2">{new Date(txn.date).toLocaleDateString()}</td>
                                         <td className="px-4 py-2 text-gray-600">{txn.narration || '-'}</td>

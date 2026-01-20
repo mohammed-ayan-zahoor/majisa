@@ -35,8 +35,8 @@ const Vouchers = () => {
                     api.get('/accounts/parties'),
                     api.get('/accounts/items')
                 ]);
-                setParties(pRes.data);
-                setItems(iRes.data);
+                setParties(Array.isArray(pRes.data) ? pRes.data : []);
+                setItems(Array.isArray(iRes.data) ? iRes.data : []);
 
                 // Set initial voucher no (Mock logic, ideally from backend)
                 // Ideally fetch from backend: const voucherNo = await api.get('/accounts/vouchers/next-number');
@@ -87,7 +87,7 @@ const Vouchers = () => {
     };
 
     const handleRowChange = (id, field, value) => {
-        setRows(rows.map(row => {
+        setRows((Array.isArray(rows) ? rows : []).map(row => {
             if (row.id === id) {
                 const updatedRow = { ...row, [field]: value };
 
@@ -133,7 +133,7 @@ const Vouchers = () => {
                 date: header.date,
                 type: voucherType,
                 party: header.partyId,
-                items: rows.map(r => ({
+                items: (Array.isArray(rows) ? rows : []).map(r => ({
                     item: r.item,
                     grossWeight: r.grossWeight,
                     lessWeight: r.lessWeight,
@@ -197,7 +197,10 @@ const Vouchers = () => {
                         value={header.partyId}
                         onChange={handleHeaderChange}
                         className="w-full mt-1 border-b-2 border-gray-200 focus:border-primary-600 outline-none pb-1 bg-transparent"
-                    />
+                    >
+                        <option value="">Select Party</option>
+                        {(Array.isArray(parties) ? parties : []).map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+                    </select>
                 </div>
                 <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase">Date</label>
@@ -231,7 +234,7 @@ const Vouchers = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {rows.map((row, index) => (
+                            {(Array.isArray(rows) ? rows : []).map((row, index) => (
                                 <tr key={row.id} className="hover:bg-slate-50/50">
                                     <td className="px-3 py-2 text-center text-gray-400">{index + 1}</td>
                                     <td className="px-3 py-2">
@@ -241,7 +244,7 @@ const Vouchers = () => {
                                             className="w-full bg-transparent outline-none focus:text-primary-600"
                                         >
                                             <option value="">Select Item</option>
-                                            {items.map(i => <option key={i._id} value={i._id}>{i.name}</option>)}
+                                            {(Array.isArray(items) ? items : []).map(i => <option key={i._id} value={i._id}>{i.name}</option>)}
                                         </select>
                                     </td>
                                     <td className="px-3 py-2"><input type="number" className="w-full text-right outline-none bg-transparent" value={row.grossWeight} onChange={e => handleRowChange(row.id, 'grossWeight', e.target.value)} /></td>

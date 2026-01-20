@@ -25,15 +25,15 @@ const Inventory = () => {
                 api.get('/accounts/vouchers', { signal })
             ]);
 
-            const items = itemsRes.data;
-            const vouchers = vouchersRes.data;
+            const items = Array.isArray(itemsRes.data) ? itemsRes.data : [];
+            const vouchers = Array.isArray(vouchersRes.data) ? vouchersRes.data : [];
 
             const calculatedInventory = items.map(item => {
                 let currentStock = item.openingStock?.weight || 0;
 
                 // Filter vouchers for this item
                 vouchers.forEach(v => {
-                    v.items.forEach(vItem => {
+                    (Array.isArray(v.items) ? v.items : []).forEach(vItem => {
                         if (vItem.item?._id === item._id || vItem.item === item._id) {
                             // Logic: 
                             // Sales/Issue = Out (-)
@@ -101,7 +101,7 @@ const Inventory = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                {inventory.map((item) => (
+                                {(Array.isArray(inventory) ? inventory : []).map((item) => (
                                     <tr key={item._id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 font-medium flex items-center gap-2">
                                             <div className="p-2 bg-yellow-100 rounded-lg text-yellow-700">
