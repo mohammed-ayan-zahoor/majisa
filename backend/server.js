@@ -13,6 +13,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const customerRoutes = require('./routes/customerRoutes');
+const accountRoutes = require('./routes/accountRoutes');
 
 //Helmet security configuration
 const helmet = require('helmet');
@@ -67,6 +68,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/accounts', accountRoutes);
 
 const path = require('path');
 
@@ -218,11 +220,16 @@ const startServer = async () => {
 
         // Initialize Background Workers
         try {
-            console.log('Initializing Background Workers...');
-            require('./workers/emailWorker');
+            console.log('Checking Redis availability...');
+            const isRedisAvailable = require('./utils/isRedisAvailable');
+            if (await isRedisAvailable()) {
+                console.log('Redis is available. Initializing Background Workers...');
+                require('./workers/emailWorker');
+            } else {
+                console.warn('Redis is unavailable. Background workers (Email) skipped.');
+            }
         } catch (workerError) {
-            console.error('CRITICAL: Failed to initialize email worker:', workerError);
-            process.exit(1); // Exit if critical worker fails
+            console.warn('WARNING: Failed to initialize email worker.', workerError.message);
         }
 
         app.listen(PORT, () => {

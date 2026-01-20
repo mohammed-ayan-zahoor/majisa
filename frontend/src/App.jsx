@@ -28,6 +28,10 @@ import AdminNotifications from './pages/admin/Notifications';
 import AdminSettings from './pages/admin/Settings';
 import CustomerVisits from './pages/admin/CustomerVisits';
 import Categories from './pages/admin/Categories';
+import Masters from './pages/admin/accounts/Masters';
+import Vouchers from './pages/admin/accounts/Vouchers';
+import Ledger from './pages/admin/accounts/Ledger';
+import Inventory from './pages/admin/accounts/Inventory';
 
 import VendorLayout from './components/layout/VendorLayout';
 import VendorDashboard from './pages/vendor/Dashboard';
@@ -45,6 +49,10 @@ import MyJobs from './pages/goldsmith/MyJobs';
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
 import About from './pages/About';
+
+// Accounts Module Imports
+import AccountsLayout from './components/layout/AccountsLayout';
+import AccountsDashboard from './pages/admin/accounts/AccountsDashboard';
 
 // Placeholder pages
 const NotFound = () => <div className="p-10 text-center">404 Not Found</div>;
@@ -144,6 +152,21 @@ function App() {
                       <Route path="orders" element={<MyOrders />} />
                       <Route path="orders/:id" element={<VendorOrderDetails />} />
                       <Route path="profile" element={<VendorProfile />} />
+                    </Route>
+
+                    {/* ACCOUNTS MODULE ROUTES */}
+                    <Route path="/admin/accounts" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <AccountsLayout />
+                      </ProtectedRoute>
+                    }>
+                      <Route index element={<AccountsDashboard />} />
+                      <Route path="dashboard" element={<AccountsDashboard />} />
+                      {/* Placeholders for now, will be implemented next */}
+                      <Route path="masters" element={<Masters />} />
+                      <Route path="vouchers" element={<Vouchers />} />
+                      <Route path="ledger" element={<Ledger />} />
+                      <Route path="stock" element={<Inventory />} />
                     </Route>
                   </Routes>
                 </OrderProvider>
