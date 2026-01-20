@@ -167,13 +167,13 @@ const Vouchers = () => {
     return (
         <div className="space-y-4 max-w-[1400px] mx-auto">
             {/* Header Section */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Voucher Type</label>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Voucher Type</label>
                     <select
                         value={voucherType}
                         onChange={(e) => setVoucherType(e.target.value)}
-                        className="w-full mt-1 border-b-2 border-gray-200 focus:border-primary-600 outline-none pb-1 bg-transparent font-medium"
+                        className="w-full border rounded-lg p-2.5 bg-gray-50/50 focus:ring-2 focus:ring-primary-500 outline-none transition-all font-medium"
                     >
                         <option value="Sales">Sales Voucher</option>
                         <option value="Purchase">Purchase Voucher</option>
@@ -182,34 +182,34 @@ const Vouchers = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Vch No</label>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Vch No</label>
                     <input
                         name="voucherNo"
                         value={header.voucherNo}
                         onChange={handleHeaderChange}
-                        className="w-full mt-1 border-b-2 border-gray-200 focus:border-primary-600 outline-none pb-1 bg-transparent"
+                        className="w-full border rounded-lg p-2.5 bg-gray-50/50 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Party A/c</label>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Party A/c</label>
                     <select
                         name="partyId"
                         value={header.partyId}
                         onChange={handleHeaderChange}
-                        className="w-full mt-1 border-b-2 border-gray-200 focus:border-primary-600 outline-none pb-1 bg-transparent"
+                        className="w-full border rounded-lg p-2.5 bg-gray-50/50 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                     >
                         <option value="">Select Party</option>
                         {(Array.isArray(parties) ? parties : []).map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Date</label>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Date</label>
                     <input
                         type="date"
                         name="date"
                         value={header.date}
                         onChange={handleHeaderChange}
-                        className="w-full mt-1 border-b-2 border-gray-200 focus:border-primary-600 outline-none pb-1 bg-transparent"
+                        className="w-full border rounded-lg p-2.5 bg-gray-50/50 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                     />
                 </div>
             </div>
@@ -241,19 +241,19 @@ const Vouchers = () => {
                                         <select
                                             value={row.item}
                                             onChange={(e) => handleRowChange(row.id, 'item', e.target.value)}
-                                            className="w-full bg-transparent outline-none focus:text-primary-600"
+                                            className="w-full border border-transparent rounded-md p-1.5 focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all"
                                         >
                                             <option value="">Select Item</option>
                                             {(Array.isArray(items) ? items : []).map(i => <option key={i._id} value={i._id}>{i.name}</option>)}
                                         </select>
                                     </td>
-                                    <td className="px-3 py-2"><input type="number" className="w-full text-right outline-none bg-transparent" value={row.grossWeight} onChange={e => handleRowChange(row.id, 'grossWeight', e.target.value)} /></td>
-                                    <td className="px-3 py-2"><input type="number" className="w-full text-right outline-none bg-transparent" value={row.lessWeight} onChange={e => handleRowChange(row.id, 'lessWeight', e.target.value)} /></td>
+                                    <td className="px-3 py-2"><input type="number" className="w-full text-right border border-transparent rounded-md p-1.5 focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" value={row.grossWeight} onChange={e => handleRowChange(row.id, 'grossWeight', e.target.value)} /></td>
+                                    <td className="px-3 py-2"><input type="number" className="w-full text-right border border-transparent rounded-md p-1.5 focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" value={row.lessWeight} onChange={e => handleRowChange(row.id, 'lessWeight', e.target.value)} /></td>
                                     <td className="px-3 py-2 text-right font-medium">{row.netWeight.toFixed(3)}</td>
-                                    <td className="px-3 py-2"><input type="number" className="w-full text-right outline-none bg-transparent" value={row.purity} onChange={e => handleRowChange(row.id, 'purity', e.target.value)} /></td>
-                                    <td className="px-3 py-2"><input type="number" className="w-full text-right outline-none bg-transparent" value={row.wastage} onChange={e => handleRowChange(row.id, 'wastage', e.target.value)} /></td>
+                                    <td className="px-3 py-2"><input type="number" className="w-full text-right border border-transparent rounded-md p-1.5 focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" value={row.purity} onChange={e => handleRowChange(row.id, 'purity', e.target.value)} /></td>
+                                    <td className="px-3 py-2"><input type="number" className="w-full text-right border border-transparent rounded-md p-1.5 focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" value={row.wastage} onChange={e => handleRowChange(row.id, 'wastage', e.target.value)} /></td>
                                     <td className="px-3 py-2 text-right font-medium text-primary-600">{row.fineWeight.toFixed(3)}</td>
-                                    <td className="px-3 py-2"><input type="number" className="w-full text-right outline-none bg-transparent" value={row.labRate} onChange={e => handleRowChange(row.id, 'labRate', e.target.value)} /></td>
+                                    <td className="px-3 py-2"><input type="number" className="w-full text-right border border-transparent rounded-md p-1.5 focus:border-primary-300 focus:bg-white focus:ring-2 focus:ring-primary-100 outline-none transition-all" value={row.labRate} onChange={e => handleRowChange(row.id, 'labRate', e.target.value)} /></td>
                                     <td className="px-3 py-2 text-right">{row.amount.toFixed(2)}</td>
                                     <td className="px-3 py-2 text-center">
                                         <button onClick={() => removeRow(row.id)} className="text-gray-400 hover:text-red-500"><Trash size={16} /></button>
@@ -285,17 +285,16 @@ const Vouchers = () => {
 
             {/* Bottom Actions & Bhav Cutting */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Bhav Cutting / Metal Conversion */}
-                <div className="space-y-4">
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
                     <h3 className="font-bold text-gray-700 text-sm uppercase flex items-center gap-2">
-                        <Calculator size={16} /> Bhav Cutting (Rate Fix)
+                        <Calculator size={16} className="text-primary-600" /> Bhav Cutting (Rate Fix)
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs text-gray-500">Metal Rate</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Metal Rate</label>
                             <input
                                 type="number"
-                                className="w-full border-b border-gray-300 focus:border-primary-500 outline-none py-1"
+                                className="w-full border rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-primary-500 outline-none transition-all shadow-sm"
                                 value={bhav.metalRate}
                                 onChange={e => {
                                     const rate = parseFloat(e.target.value) || 0;
@@ -308,10 +307,10 @@ const Vouchers = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs text-gray-500">Weight to Cut</label>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Weight to Cut</label>
                             <input
                                 type="number"
-                                className="w-full border-b border-gray-300 focus:border-primary-500 outline-none py-1"
+                                className="w-full border rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-primary-500 outline-none transition-all shadow-sm"
                                 value={bhav.bhavCuttingWeight}
                                 onChange={e => {
                                     const wt = parseFloat(e.target.value) || 0;
@@ -329,17 +328,17 @@ const Vouchers = () => {
                 {/* Final Calculations */}
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 items-center">
-                        <label className="text-sm font-medium text-gray-600">Total Cash Amount</label>
-                        <div className="text-right font-bold text-xl text-gray-800">
+                        <label className="text-sm font-bold text-gray-700">Total Cash Amount</label>
+                        <div className="text-right font-bold text-2xl text-primary-900">
                             {/* Logic: Row Amounts + Bhav Cutting Amount */}
                             {(totalAmount + bhav.bhavCuttingAmount).toFixed(2)}
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 items-center">
-                        <label className="text-sm font-medium text-gray-600">Cash Received</label>
+                        <label className="text-sm font-bold text-gray-700">Cash Received</label>
                         <input
                             type="number"
-                            className="text-right border rounded p-2 font-medium"
+                            className="text-right border-2 border-primary-100 rounded-lg p-3 font-bold text-lg focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 outline-none transition-all shadow-inner"
                             value={bhav.cashReceived}
                             onChange={(e) => setBhav({ ...bhav, cashReceived: parseFloat(e.target.value) || 0 })}
                         />
