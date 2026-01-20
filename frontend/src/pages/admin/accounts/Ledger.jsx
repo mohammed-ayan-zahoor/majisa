@@ -9,9 +9,10 @@ const Ledger = () => {
     const [processedTransactions, setProcessedTransactions] = useState([]);
 
     useEffect(() => {
-        api.get('/accounts/parties').then(res => setParties(res.data));
+        api.get('/accounts/parties')
+            .then(res => setParties(res.data))
+            .catch(err => console.error("Failed to fetch parties", err));
     }, []);
-
     useEffect(() => {
         if (selectedParty) {
             fetchLedger();
@@ -72,10 +73,10 @@ const Ledger = () => {
             // Let's rely on `bhavCuttingWeight` and `bhavCuttingAmount`.
             // Assumption: Bhav Cutting in a Voucher implies adjusting that voucher's party.
             if (txn.bhavCuttingWeight > 0) {
-                // Usually means converting Metal Credit to Cash Credit?
-                // Or Party giving Metal to get Cash.
-                // This is complex without strict business rules.
-                // Placeholder: If Weight is positive, reducing Metal Balance?
+                // TODO: Implement business rule for Bhav Cutting.
+                // Warn and flag so it can be handled or debugged later.
+                console.warn(`[Ledger] Unhandled Bhav Cutting for txn ${txn._id}: weight=${txn.bhavCuttingWeight}`);
+                txn._unhandledBhavCutting = true;
             }
 
             // Update Running Balances
@@ -96,6 +97,44 @@ const Ledger = () => {
         setProcessedTransactions(processed);
     };
 
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleDownloadCsv = () => {
+        if (!processedTransactions || processedTransactions.length === 0) return;
+
+        const headers = ['Date', 'Particulars', 'Vch Type', 'Metal Dr', 'Metal Cr', 'Metal Bal', 'Cash Dr', 'Cash Cr', 'Cash Bal'];
+        const rows = processedTransactions.map(txn => [
+            new Date(txn.date).toLocaleDateString(),
+            `"${(txn.narration || '-').replace(/"/g, '""')}"`, // Escape quotes
+            txn.type,
+            txn.metalDr ? txn.metalDr.toFixed(3) : '0.000',
+            txn.metalCr ? txn.metalCr.toFixed(3) : '0.000',
+            txn.metalBal.toFixed(3),
+            txn.cashDr ? txn.cashDr.toFixed(2) : '0.00',
+            txn.cashCr ? txn.cashCr.toFixed(2) : '0.00',
+            txn.cashBal.toFixed(2)
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `ledger_${selectedParty || 'export'}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -111,8 +150,8 @@ const Ledger = () => {
                     </select>
                 </div>
                 <div className="flex gap-2">
-                    <button className="p-2 text-gray-500 hover:text-primary-600 border rounded-lg"><Printer size={20} /></button>
-                    <button className="p-2 text-gray-500 hover:text-green-600 border rounded-lg"><Download size={20} /></button>
+                    <button onClick={handlePrint} className="p-2 text-gray-500 hover:text-primary-600 border rounded-lg" title="Print Ledger"><Printer size={20} /></button>
+                    <button onClick={handleDownloadCsv} className="p-2 text-gray-500 hover:text-green-600 border rounded-lg" title="Download CSV"><Download size={20} /></button>
                 </div>
             </div>
 
@@ -120,10 +159,9 @@ const Ledger = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between">
                         <div>
-                            <span className="font-bold text-gray-700">Opening Balance:</span>
                             <span className="ml-2 text-sm">
-                                Metal: {ledgerData?.party?.openingBalance?.metal?.weight} |
-                                Cash: {ledgerData?.party?.openingBalance?.amount?.value}
+                                Metal: {ledgerData?.party?.openingBalance?.metal?.weight ?? 0} |
+                                Cash: {ledgerData?.party?.openingBalance?.amount?.value ?? 0}
                             </span>
                         </div>
                     </div>
@@ -169,15 +207,18 @@ const Ledger = () => {
                         </table>
                     </div>
                 </div>
-            )}
+            )
+            }
 
-            {!selectedParty && (
-                <div className="text-center py-20 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed">
-                    <Search size={48} className="mx-auto mb-4 opacity-20" />
-                    <p>Select a party to view their ledger</p>
-                </div>
-            )}
-        </div>
+            {
+                !selectedParty && (
+                    <div className="text-center py-20 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed">
+                        <Search size={48} className="mx-auto mb-4 opacity-20" />
+                        <p>Select a party to view their ledger</p>
+                    </div>
+                )
+            }
+        </div >
     );
 };
 

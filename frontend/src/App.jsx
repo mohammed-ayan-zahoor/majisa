@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -126,6 +126,8 @@ function App() {
                       <Route path="categories" element={<Categories />} />
                       <Route path="notifications" element={<AdminNotifications />} />
                       <Route path="settings" element={<AdminSettings />} />
+                      {/* Redirect for incorrect accounts URL */}
+                      <Route path="dashboard/accounts" element={<Navigate to="/admin/accounts" replace />} />
                     </Route>
 
                     {/* Goldsmith Routes */}

@@ -39,9 +39,11 @@ const Vouchers = () => {
                 setItems(iRes.data);
 
                 // Set initial voucher no (Mock logic, ideally from backend)
-                setHeader(prev => ({ ...prev, voucherNo: `VCH-${Date.now().toString().slice(-4)}` }));
+                // Ideally fetch from backend: const voucherNo = await api.get('/accounts/vouchers/next-number');
+                setHeader(prev => ({ ...prev, voucherNo: `VCH-${Date.now()}` }));
             } catch (error) {
                 console.error("Failed to load voucher masters", error);
+                toast.error("Failed to load parties/items. Please refresh the page.")
             }
         };
         fetchData();
@@ -49,7 +51,7 @@ const Vouchers = () => {
     }, []);
 
     const addNewRow = () => {
-        setRows([...rows, {
+        setRows(prevRows => [...prevRows, {
             id: Date.now(),
             item: '',
             grossWeight: 0,
@@ -63,6 +65,18 @@ const Vouchers = () => {
             amount: 0
         }]);
     };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'F9') {
+                e.preventDefault();
+                addNewRow();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const removeRow = (id) => {
         setRows(rows.filter(r => r.id !== id));
@@ -91,7 +105,7 @@ const Vouchers = () => {
                     updatedRow.fineWeight = parseFloat(((updatedRow.netWeight * (purity + wastage)) / 100).toFixed(3));
                 }
 
-                if (['labRate', 'netWeight'].includes(field)) {
+                if (['labRate', 'grossWeight', 'lessWeight'].includes(field)) {
                     // Assuming lab rate is per gm on Net Weight
                     const rate = parseFloat(updatedRow.labRate) || 0;
                     const net = parseFloat(updatedRow.netWeight) || 0;
@@ -183,10 +197,7 @@ const Vouchers = () => {
                         value={header.partyId}
                         onChange={handleHeaderChange}
                         className="w-full mt-1 border-b-2 border-gray-200 focus:border-primary-600 outline-none pb-1 bg-transparent"
-                    >
-                        <option value="">Select Party</option>
-                        {parties.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-                    </select>
+                    />
                 </div>
                 <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase">Date</label>
@@ -278,12 +289,19 @@ const Vouchers = () => {
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs text-gray-500">Bhav/Rate</label>
+                            <label className="block text-xs text-gray-500">Metal Rate</label>
                             <input
                                 type="number"
                                 className="w-full border-b border-gray-300 focus:border-primary-500 outline-none py-1"
                                 value={bhav.metalRate}
-                                onChange={e => setBhav({ ...bhav, metalRate: parseFloat(e.target.value) })}
+                                onChange={e => {
+                                    const rate = parseFloat(e.target.value) || 0;
+                                    setBhav(prev => ({
+                                        ...prev,
+                                        metalRate: rate,
+                                        bhavCuttingAmount: prev.bhavCuttingWeight * rate
+                                    }));
+                                }}
                             />
                         </div>
                         <div>
@@ -320,7 +338,7 @@ const Vouchers = () => {
                             type="number"
                             className="text-right border rounded p-2 font-medium"
                             value={bhav.cashReceived}
-                            onChange={(e) => setBhav({ ...bhav, cashReceived: parseFloat(e.target.value) })}
+                            onChange={(e) => setBhav({ ...bhav, cashReceived: parseFloat(e.target.value) || 0 })}
                         />
                     </div>
 

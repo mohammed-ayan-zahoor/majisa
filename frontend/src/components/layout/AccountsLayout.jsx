@@ -35,7 +35,7 @@ const AccountsLayout = () => {
     return (
         <div className="min-h-screen bg-gray-100 flex font-sans text-gray-900">
             <SEO title="Accounts Module" description="Majisa Accounts Management" />
-            <CustomCursor variant="default" />
+            <CustomCursor variant="vector" />
 
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 w-full bg-gray-900 text-white z-[60] px-4 py-3 flex items-center justify-between shadow-md">
@@ -84,7 +84,7 @@ const AccountsLayout = () => {
                             key={item.path}
                             to={item.path}
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive(item.path)
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${isActive(item.path)
                                 ? 'bg-primary-600 text-white shadow-lg'
                                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                                 }`}

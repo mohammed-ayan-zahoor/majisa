@@ -28,6 +28,13 @@ export const WishlistProvider = ({ children }) => {
                         setWishlist(data.map(p => p._id));
                     } catch (error) {
                         console.error('Failed to sync customer wishlist');
+                        // Fix for Stale Session (404 Not Found)
+                        if (error.response && error.response.status === 404) {
+                            console.warn('Customer not found (404). Clearing stale session.');
+                            localStorage.removeItem('majisa_customer_v2');
+                            localStorage.removeItem('majisa_customer');
+                            setCustomer(null);
+                        }
                     }
                 }
             }

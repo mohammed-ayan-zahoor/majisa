@@ -41,8 +41,7 @@ try {
     });
 
 } catch (err) {
-    console.warn('Failed to initialize Email Worker. Redis might be down.');
-    emailWorker = { on: () => { } }; // Mock worker
+    console.error('Failed to initialize Email Worker:', err);
+    throw err; // Fail fast - let process manager restart
 }
-
 module.exports = emailWorker;

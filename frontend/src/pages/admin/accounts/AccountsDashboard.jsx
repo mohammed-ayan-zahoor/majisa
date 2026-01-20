@@ -26,9 +26,13 @@ const AccountsDashboard = () => {
         vouchers: 0
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
+        let isMounted = true;
+
         const fetchStats = async () => {
+            setError(null);
             try {
                 // Determine base URL dynamically or import from config
                 // Assuming api service is configured with base URL
@@ -39,23 +43,35 @@ const AccountsDashboard = () => {
                     api.get('/accounts/vouchers')
                 ]);
 
-                setStats({
-                    groups: groupsRes.data.length,
-                    items: itemsRes.data.length,
-                    parties: partiesRes.data.length,
-                    vouchers: vouchersRes.data.length
-                });
+                if (isMounted) {
+                    setStats({
+                        groups: groupsRes.data.length,
+                        items: itemsRes.data.length,
+                        parties: partiesRes.data.length,
+                        vouchers: vouchersRes.data.length
+                    });
+                }
             } catch (error) {
                 console.error("Error fetching account stats", error);
+                if (isMounted) {
+                    setError("Failed to load dashboard data. Please try again later.");
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchStats();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     if (loading) return <div className="p-8 text-center text-gray-500">Loading Accounts Data...</div>;
+    if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
     return (
         <div className="space-y-6">

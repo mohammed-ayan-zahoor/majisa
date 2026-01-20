@@ -116,7 +116,7 @@ const getAccountParties = async (req, res) => {
     }
 };
 
-// @desc    Create a new voucher (Sales/Purchase/Issue/Receipt)
+// @desc    Create a new account voucher (Sales/Purchase/Issue/Receipt)
 // @route   POST /api/accounts/vouchers
 // @access  Private/Admin
 const createVoucher = async (req, res) => {
@@ -135,9 +135,36 @@ const createVoucher = async (req, res) => {
             narration
         } = req.body;
 
+        // 1. Validate User
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        // 2. Validate Party
+        if (!party) {
+            return res.status(400).json({ message: 'Party is required' });
+        }
+        const partyExists = await AccountParty.findById(party);
+        if (!partyExists) {
+            return res.status(400).json({ message: 'Invalid Party selected' });
+        }
+
+        // 3. Validate Voucher No Uniqueness
         const voucherExists = await Voucher.findOne({ voucherNo });
         if (voucherExists) {
-            return res.status(400).json({ message: 'Voucher No already exists' });
+            return res.status(400).json({ message: `Voucher No '${voucherNo}' already exists` });
+        }
+
+        // 4. Validate Items
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: 'Voucher must contain at least one item' });
+        }
+
+        // Check if all items exist in AccountItem collection
+        const itemIds = items.map(i => i.item);
+        const validItems = await AccountItem.find({ _id: { $in: itemIds } });
+        if (validItems.length !== itemIds.length) {
+            return res.status(400).json({ message: 'One or more selected items are invalid' });
         }
 
         const voucher = await Voucher.create({
@@ -168,14 +195,13 @@ const getVouchers = async (req, res) => {
     try {
         const vouchers = await Voucher.find({})
             .populate('party', 'name')
-            .populate('items.item', 'name meta')
+            .populate('items.item', 'name metal')
             .sort({ date: -1 });
         res.json(vouchers);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 // @desc    Get Ledger for a Party
 // @route   GET /api/accounts/ledger/:id
 // @access  Private/Admin

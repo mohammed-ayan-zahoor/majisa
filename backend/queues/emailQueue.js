@@ -3,31 +3,56 @@ const { redisConnection } = require('../config/redis');
 const isRedisAvailable = require('../utils/isRedisAvailable');
 
 let emailQueue = null;
+let emailQueueInitPromise = null;
 
 const getEmailQueue = async () => {
+    // 1. Fast path: if initialized, return immediately
     if (emailQueue) return emailQueue;
 
-    const available = await isRedisAvailable();
-    if (available) {
-        try {
-            emailQueue = new Queue('email-queue', { connection: redisConnection });
-            emailQueue.on('error', (err) => console.error('Email Queue Error:', err.message));
-        } catch (e) {
-            console.warn('Failed to create BullMQ queue, using mock.');
-        }
+    // 2. If initialization already in progress, wait for it
+    if (emailQueueInitPromise) {
+        await emailQueueInitPromise;
+        if (emailQueue) return emailQueue;
     }
 
-    if (!emailQueue) {
-        // Mock Queue
-        emailQueue = {
-            add: async (name, data) => {
-                console.log('[Mock Queue] Email task received:', data.email);
-                return { id: 'mock-job-' + Date.now() };
-            },
-            on: () => { },
-            close: async () => { }
-        };
+    // 3. Start initialization
+    emailQueueInitPromise = (async () => {
+        const available = await isRedisAvailable();
+        if (available) {
+            try {
+                const queue = new Queue('email-queue', { connection: redisConnection });
+                queue.on('error', (err) => console.error('Email Queue Error:', err.message));
+                emailQueue = queue;
+            } catch (e) {
+                console.warn('Failed to create BullMQ queue, using mock.');
+            }
+        }
+
+        if (!emailQueue) {
+            // Mock Queue
+            emailQueue = {
+                add: async (name, data) => {
+                    console.log('[Mock Queue] Email task received:', data.email);
+                    return { id: 'mock-job-' + Date.now() };
+                },
+                on: () => { },
+                close: async () => { }
+            };
+        }
+    })();
+
+    try {
+        await emailQueueInitPromise;
+    } catch (err) {
+        console.error("Email Queue Initialization Failed", err);
+        // Fallback or rethrow? Logic says we always ensure emailQueue is at least Mock, 
+        // but if async block throws unexpectedly, we should clear promise.
+    } finally {
+        // Clear promise so future retries (if we eventually support re-init) logic is clean,
+        // though here emailQueue is largely static.
+        emailQueueInitPromise = null;
     }
+
     return emailQueue;
 };
 

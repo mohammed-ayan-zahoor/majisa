@@ -57,6 +57,14 @@ const Masters = () => {
         }));
     };
 
+    const singularizeActiveTab = (tab) => {
+        const irregulars = { 'parties': 'Party', 'categories': 'Category' };
+        if (irregulars[tab]) return irregulars[tab];
+        if (tab.endsWith('ies')) return tab.slice(0, -3) + 'y';
+        if (tab.endsWith('s')) return tab.slice(0, -1);
+        return tab;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -156,7 +164,7 @@ const Masters = () => {
             <div className="flex justify-between items-center">
                 <h1 className="text-xl font-bold font-serif text-gray-900">Masters Management</h1>
                 <button
-                    onClick={() => { setFormData({}); setShowModal(true); }}
+                    onClick={() => { setFormData(activeTab === 'items' ? { metal: 'Gold' } : {}); setShowModal(true); }}
                     className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
                 >
                     <Plus size={20} />
@@ -219,7 +227,7 @@ const Masters = () => {
                                     ))}
                                     {data.length === 0 && (
                                         <tr>
-                                            <td colSpan="6" className="px-4 py-8 text-center text-gray-400">
+                                            <td colSpan={headers[activeTab]?.length + 1 || 6} className="px-4 py-8 text-center text-gray-400">
                                                 No data found. Add new record.
                                             </td>
                                         </tr>
@@ -235,7 +243,7 @@ const Masters = () => {
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-fade-in">
-                        <h2 className="text-xl font-bold font-serif mb-4">Add New {activeTab.slice(0, -1)}</h2>
+                        <h2 className="text-xl font-bold font-serif mb-4">Add New {singularizeActiveTab(activeTab)}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {renderFormInfo()}
                             <div className="flex justify-end gap-3 mt-6">
@@ -266,7 +274,12 @@ const PartyForm = ({ formData, handleInputChange, handleNestedInputChange }) => 
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
-        api.get('/accounts/groups').then(res => setGroups(res.data));
+        api.get('/accounts/groups')
+            .then(res => setGroups(res.data))
+            .catch(err => {
+                console.error("Failed to load groups", err);
+                toast.error("Failed to load account groups");
+            });
     }, []);
 
     return (
