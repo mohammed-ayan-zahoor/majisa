@@ -11,10 +11,13 @@ const getEmailQueue = async () => {
 
     // 2. If initialization already in progress, wait for it
     if (emailQueueInitPromise) {
-        await emailQueueInitPromise;
+        try {
+            await emailQueueInitPromise;
+        } catch {
+            // Initialization failed; fall through to retry or use fallback below
+        }
         if (emailQueue) return emailQueue;
     }
-
     // 3. Start initialization
     emailQueueInitPromise = (async () => {
         const available = await isRedisAvailable();
@@ -45,8 +48,17 @@ const getEmailQueue = async () => {
         await emailQueueInitPromise;
     } catch (err) {
         console.error("Email Queue Initialization Failed", err);
-        // Fallback or rethrow? Logic says we always ensure emailQueue is at least Mock, 
-        // but if async block throws unexpectedly, we should clear promise.
+        // Ensure emailQueue is not null even if init throws
+        if (!emailQueue) {
+            emailQueue = {
+                add: async (name, data) => {
+                    console.log('[Mock Queue] Email task received:', data.email);
+                    return { id: 'mock-job-' + Date.now() };
+                },
+                on: () => { },
+                close: async () => { }
+            };
+        }
     } finally {
         // Clear promise so future retries (if we eventually support re-init) logic is clean,
         // though here emailQueue is largely static.

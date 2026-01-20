@@ -8,10 +8,12 @@ const Inventory = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchInventory();
+        const controller = new AbortController();
+        fetchInventory(controller.signal);
+        return () => controller.abort();
     }, []);
 
-    const fetchInventory = async () => {
+    const fetchInventory = async (signal) => {
         setLoading(true);
         setError(null);
         try {
@@ -19,8 +21,8 @@ const Inventory = () => {
             // For now, we fetch items and vouchers and calculate on client side
             // OR we just show the "Opening Stock" from masters if that's what is expected initially
             const [itemsRes, vouchersRes] = await Promise.all([
-                api.get('/accounts/items'),
-                api.get('/accounts/vouchers')
+                api.get('/accounts/items', { signal }),
+                api.get('/accounts/vouchers', { signal })
             ]);
 
             const items = itemsRes.data;
@@ -53,12 +55,22 @@ const Inventory = () => {
                 };
             });
 
-            setInventory(calculatedInventory);
+            if (!signal.aborted) {
+                setInventory(calculatedInventory);
+            }
         } catch (error) {
+            if (signal?.aborted || error.name === 'CanceledError' || error.name === 'AbortError') {
+                console.log('Fetch aborted');
+                return;
+            }
             console.error("Failed to fetch inventory", error);
-            setError(error.message || "Failed to load inventory data");
+            if (!signal.aborted) {
+                setError(error.message || "Failed to load inventory data");
+            }
         } finally {
-            setLoading(false);
+            if (!signal.aborted) {
+                setLoading(false);
+            }
         }
     };
 

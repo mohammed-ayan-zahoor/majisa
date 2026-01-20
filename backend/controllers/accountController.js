@@ -162,11 +162,11 @@ const createVoucher = async (req, res) => {
 
         // Check if all items exist in AccountItem collection
         const itemIds = items.map(i => i.item);
-        const validItems = await AccountItem.find({ _id: { $in: itemIds } });
-        if (validItems.length !== itemIds.length) {
+        const uniqueItemIds = [...new Set(itemIds.map(id => id.toString()))];
+        const validItems = await AccountItem.find({ _id: { $in: uniqueItemIds } });
+        if (validItems.length !== uniqueItemIds.length) {
             return res.status(400).json({ message: 'One or more selected items are invalid' });
         }
-
         const voucher = await Voucher.create({
             voucherNo,
             date,

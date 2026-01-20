@@ -63,7 +63,8 @@ const voucherSchema = mongoose.Schema({
 voucherSchema.pre('save', function (next) {
     if (this.items && this.items.length > 0) {
         this.totalFineWeight = this.items.reduce((acc, item) => acc + (item.fineWeight || 0), 0);
-        // Note: totalAmount computation deferred to controller
+    } else {
+        this.totalFineWeight = 0;
     }
     next();
 });

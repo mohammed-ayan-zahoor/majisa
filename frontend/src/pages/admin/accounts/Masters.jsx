@@ -60,11 +60,11 @@ const Masters = () => {
     const singularizeActiveTab = (tab) => {
         const irregulars = { 'parties': 'Party', 'categories': 'Category' };
         if (irregulars[tab]) return irregulars[tab];
-        if (tab.endsWith('ies')) return tab.slice(0, -3) + 'y';
-        if (tab.endsWith('s')) return tab.slice(0, -1);
-        return tab;
+        let singular = tab;
+        if (tab.endsWith('ies')) singular = tab.slice(0, -3) + 'y';
+        else if (tab.endsWith('s')) singular = tab.slice(0, -1);
+        return singular.charAt(0).toUpperCase() + singular.slice(1);
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
