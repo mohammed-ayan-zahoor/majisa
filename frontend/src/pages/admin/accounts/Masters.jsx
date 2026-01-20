@@ -23,6 +23,8 @@ const Masters = () => {
 
     // Form States
     const [formData, setFormData] = useState({});
+    const [itemSubTab, setItemSubTab] = useState('inventory');
+    const [partySubTab, setPartySubTab] = useState('general');
 
     useEffect(() => {
         fetchData();
@@ -130,30 +132,230 @@ const Masters = () => {
                 );
             case 'items':
                 return (
-                    <>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
-                            <input required name="name" value={formData.name || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2" />
+                    <div className="space-y-4">
+                        {/* Header Fields */}
+                        <div className="flex gap-6 items-center border-b pb-4">
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm font-medium text-gray-700">Item Type</span>
+                                <div className="flex gap-3">
+                                    {['Goods', 'Service'].map(type => (
+                                        <label key={type} className="flex items-center gap-1 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="itemType"
+                                                value={type}
+                                                checked={(formData.itemType || 'Goods') === type}
+                                                onChange={handleInputChange}
+                                                className="text-primary-600 focus:ring-primary-500"
+                                            />
+                                            <span className="text-sm">{type}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+
+                        <div className="grid grid-cols-2 gap-8">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Metal</label>
-                                <select required name="metal" value={formData.metal || 'Gold'} onChange={handleInputChange} className="w-full border rounded-lg p-2">
-                                    <option value="Gold">Gold</option>
-                                    <option value="Silver">Silver</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Item Name <span className="text-red-500">*</span></label>
+                                <input
+                                    required
+                                    name="name"
+                                    placeholder="Enter item name"
+                                    value={formData.name || ''}
+                                    onChange={handleInputChange}
+                                    className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                                />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Purity (Touch)</label>
-                                <input required type="number" step="0.01" name="purity" value={formData.purity || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2" />
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Category <span className="text-red-500">*</span></label>
+                                <div className="flex gap-3">
+                                    <select
+                                        required
+                                        name="category"
+                                        value={formData.category || ''}
+                                        onChange={handleInputChange}
+                                        className="flex-1 border rounded-lg p-2.5 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                                    >
+                                        <option value="">Select Category</option>
+                                    </select>
+                                    <button type="button" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-bold transition-colors">+ Add</button>
+                                </div>
                             </div>
                         </div>
-                    </>
+
+                        {/* Tabs */}
+                        <div className="flex border-b pt-2">
+                            {['Inventory', 'Hisab', 'GST'].map(tab => (
+                                <button
+                                    key={tab}
+                                    type="button"
+                                    onClick={() => setItemSubTab(tab.toLowerCase())}
+                                    className={`px-8 py-2.5 text-sm font-bold border-b-2 transition-all ${itemSubTab === tab.toLowerCase() ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="min-h-[250px] py-2">
+                            {itemSubTab === 'inventory' && (
+                                <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-between group">
+                                            <span className="text-sm font-medium text-gray-700">Tag Number Mode</span>
+                                            <div className="flex gap-6">
+                                                {['Random Generate', 'With Prefix'].map(mode => (
+                                                    <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="radio"
+                                                            name="tagNumberMode"
+                                                            value={mode.includes('Random') ? 'Random' : 'Prefix'}
+                                                            checked={(formData.tagNumberMode || 'Random') === (mode.includes('Random') ? 'Random' : 'Prefix')}
+                                                            onChange={handleInputChange}
+                                                            className="text-primary-600 w-4 h-4"
+                                                        />
+                                                        <span className="text-xs text-gray-600">{mode}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between group border-b border-gray-50 pb-2">
+                                            <span className="text-sm font-medium text-gray-700">Is MRP Item?</span>
+                                            <div className="flex gap-8">
+                                                {[true, false].map(val => (
+                                                    <label key={val.toString()} className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="radio"
+                                                            name="isMRPItem"
+                                                            value={val}
+                                                            checked={!!formData.isMRPItem === val}
+                                                            onChange={() => setFormData(prev => ({ ...prev, isMRPItem: val }))}
+                                                            className="text-primary-600 w-4 h-4"
+                                                        />
+                                                        <span className="text-xs text-gray-600">{val ? 'Yes' : 'No'}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 pt-2">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Unit (UoM)</label>
+                                                <select name="unit" value={formData.unit || 'Piece'} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                                    <option value="Piece">Piece</option>
+                                                    <option value="Gram">Gram</option>
+                                                    <option value="Carat">Carat</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Metal Type</label>
+                                                <select name="metal" value={formData.metal || 'Gold'} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                                    <option value="Gold">Gold</option>
+                                                    <option value="Silver">Silver</option>
+                                                    <option value="Platinum">Platinum</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Min. Touch</label>
+                                                <input type="number" name="minTouch" placeholder="0.00" value={formData.minTouch || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Max. Touch</label>
+                                                <input type="number" name="maxTouch" placeholder="0.00" value={formData.maxTouch || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-between py-1 group border-b border-gray-50 pb-3">
+                                            <span className="text-sm font-medium text-gray-700">Unit in Reports?</span>
+                                            <div className="flex gap-8">
+                                                {['Yes', 'No'].map(val => (
+                                                    <label key={val} className="flex items-center gap-2 cursor-pointer">
+                                                        <input
+                                                            type="radio"
+                                                            name="unitInReports"
+                                                            checked={(formData.unitInReports !== false && val === 'Yes') || (formData.unitInReports === false && val === 'No')}
+                                                            onChange={() => setFormData(prev => ({ ...prev, unitInReports: val === 'Yes' }))}
+                                                            className="text-primary-600 w-4 h-4"
+                                                        />
+                                                        <span className="text-xs text-gray-600">{val}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Maintain Stock?</label>
+                                            <select name="maintainStock" value={formData.maintainStock || 'Grams'} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                                <option value="Grams">Grams</option>
+                                                <option value="Pieces">Pieces</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Min. Stock Level</label>
+                                                <input type="number" name="minStockLevel" placeholder="0" value={formData.minStockLevel || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Max. Stock Level</label>
+                                                <input type="number" name="maxStockLevel" placeholder="1000" value={formData.maxStockLevel || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Preferred Vendor</label>
+                                            <input name="preferredVendor" placeholder="Search vendor..." value={formData.preferredVendor || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Default Salesman</label>
+                                            <select name="defaultSalesman" value={formData.defaultSalesman || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                                <option value="">Select Salesman</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {itemSubTab === 'hisab' && (
+                                <div className="text-center py-12 text-gray-400">Settings for Hisab calculations will appear here.</div>
+                            )}
+
+                            {itemSubTab === 'gst' && (
+                                <div className="text-center py-12 text-gray-400">GST and Tax settings for this item.</div>
+                            )}
+                        </div>
+
+                        <div className="pt-4 border-t">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                            <textarea
+                                name="remarks"
+                                value={formData.remarks || ''}
+                                onChange={handleInputChange}
+                                rows={2}
+                                className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                                placeholder="Enter any additional notes..."
+                            />
+                        </div>
+                    </div>
                 );
             case 'parties':
-                // We need to fetch groups to select from
-                return <PartyForm formData={formData} setFormData={setFormData} handleInputChange={handleInputChange} handleNestedInputChange={handleNestedInputChange} />;
+                return <PartyForm
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleInputChange={handleInputChange}
+                    handleNestedInputChange={handleNestedInputChange}
+                    partySubTab={partySubTab}
+                    setPartySubTab={setPartySubTab}
+                />;
             default:
                 return null;
         }
@@ -164,7 +366,12 @@ const Masters = () => {
             <div className="flex justify-between items-center">
                 <h1 className="text-xl font-bold font-serif text-gray-900">Masters Management</h1>
                 <button
-                    onClick={() => { setFormData(activeTab === 'items' ? { metal: 'Gold' } : {}); setShowModal(true); }}
+                    onClick={() => {
+                        setFormData(activeTab === 'items' ? { metal: 'Gold' } : {});
+                        setItemSubTab('inventory');
+                        setPartySubTab('general');
+                        setShowModal(true);
+                    }}
                     className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
                 >
                     <Plus size={20} />
@@ -242,11 +449,11 @@ const Masters = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-fade-in">
-                        <h2 className="text-xl font-bold font-serif mb-4">Add New {singularizeActiveTab(activeTab)}</h2>
+                    <div className={`bg-white rounded-xl shadow-xl ${['items', 'parties'].includes(activeTab) ? 'max-w-4xl' : 'max-w-lg'} w-full p-6 animate-fade-in max-h-[90vh] overflow-y-auto`}>
+                        <h2 className="text-xl font-bold font-serif mb-4 pb-2 border-b">Add New {singularizeActiveTab(activeTab)}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {renderFormInfo()}
-                            <div className="flex justify-end gap-3 mt-6">
+                            <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
@@ -270,7 +477,7 @@ const Masters = () => {
 };
 
 // Sub-component for Party Form to handle group fetching
-const PartyForm = ({ formData, handleInputChange, handleNestedInputChange }) => {
+const PartyForm = ({ formData, setFormData, handleInputChange, handleNestedInputChange, partySubTab, setPartySubTab }) => {
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
@@ -282,55 +489,193 @@ const PartyForm = ({ formData, handleInputChange, handleNestedInputChange }) => 
             });
     }, []);
 
+    const tabs = [
+        { id: 'general', label: 'General' },
+        { id: 'gst', label: 'GST & Taxes' },
+        { id: 'contact', label: 'Contact & Address' },
+        { id: 'bank', label: 'Bank Details' }
+    ];
+
     return (
-        <div className="space-y-3">
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Party Name</label>
-                <input required name="name" value={formData.name || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2" />
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Account Group</label>
-                <select required name="group" value={formData.group || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2">
-                    <option value="">Select Group</option>
-                    {(Array.isArray(groups) ? groups : []).map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
-                </select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <input name="phone" value={formData.phone || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                    <input name="city" value={formData.city || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2" />
-                </div>
-            </div>
-            {/* Opening Balances */}
-            <div className="border-t pt-2 mt-2">
-                <p className="text-sm font-bold text-gray-900 mb-2">Opening Balances</p>
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs text-gray-500">Metal Wt</label>
-                        <input
-                            type="number"
-                            value={formData.openingBalance?.metal?.weight || 0}
-                            onChange={(e) => handleNestedInputChange('openingBalance', 'metal', { ...formData.openingBalance?.metal, weight: e.target.value })}
-                            className="w-full border rounded-lg p-2 text-sm"
-                        />
+        <div className="space-y-6">
+            {/* Header section */}
+            <div className="grid grid-cols-3 gap-6 pb-6 border-b">
+                <div className="col-span-2 space-y-4">
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Display Name & Code <span className="text-red-500">*</span></label>
+                            <div className="flex gap-2">
+                                <input required name="name" placeholder="Company / Full Name" value={formData.name || ''} onChange={handleInputChange} className="flex-1 border rounded-lg p-2.5 focus:ring-2 focus:ring-primary-500 outline-none" />
+                                <input name="partyCode" placeholder="0000" value={formData.partyCode || ''} onChange={handleInputChange} className="w-24 border rounded-lg p-2.5 bg-gray-50 text-gray-500 outline-none" readOnly />
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        <label className="block text-xs text-gray-500">Amount</label>
-                        <input
-                            type="number"
-                            value={formData.openingBalance?.amount?.value || 0}
-                            onChange={(e) => handleNestedInputChange('openingBalance', 'amount', { ...formData.openingBalance?.amount, value: e.target.value })}
-                            className="w-full border rounded-lg p-2 text-sm"
-                        />
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Unique Name <span className="text-red-500">*</span></label>
+                        <input required name="uniqueName" placeholder="Unique Name" value={formData.uniqueName || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-primary-500 outline-none" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Group <span className="text-red-500">*</span></label>
+                        <div className="flex gap-3">
+                            <select required name="group" value={formData.group || ''} onChange={handleInputChange} className="flex-1 border rounded-lg p-2.5 focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="">Select Group</option>
+                                {(Array.isArray(groups) ? groups : []).map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
+                            </select>
+                            <button type="button" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg font-bold">+ Add</button>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Sub Tabs */}
+            <div className="flex border-b">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setPartySubTab(tab.id)}
+                        className={`px-6 py-2.5 text-sm font-bold border-b-2 transition-all ${partySubTab === tab.id ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-12 gap-8 min-h-[300px]">
+                {/* Main Tab Content */}
+                <div className="col-span-7">
+                    {partySubTab === 'general' && (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Address</label>
+                                <textarea name="address" rows={3} value={formData.address || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-[2]">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">City & PIN</label>
+                                    <div className="flex gap-2">
+                                        <input name="city" placeholder="City" value={formData.city || ''} onChange={handleInputChange} className="flex-[2] border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                        <input name="pin" placeholder="PIN" value={formData.pin || ''} onChange={handleInputChange} className="w-20 border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">State <span className="text-red-500">*</span></label>
+                                    <select name="state" value={formData.state || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500">
+                                        <option value="">Select State</option>
+                                        <option value="Maharashtra">Maharashtra</option>
+                                        <option value="Gujarat">Gujarat</option>
+                                        <option value="Rajasthan">Rajasthan</option>
+                                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-[2]">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contact No.</label>
+                                    <div className="flex gap-2">
+                                        <input name="whatsappNumber" placeholder="WhatsApp" value={formData.whatsappNumber || ''} onChange={handleInputChange} className="flex-1 border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                        <input name="otherNumber" placeholder="Other No." value={formData.otherNumber || ''} onChange={handleInputChange} className="flex-1 border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Email</label>
+                                    <input type="email" name="email" placeholder="Email Address" value={formData.email || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Cash Limit</label>
+                                    <input type="number" name="cashLimit" value={formData.cashLimit || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                </div>
+                                <div className="flex flex-col justify-center">
+                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Bill-by-bill ref?</span>
+                                    <div className="flex gap-4">
+                                        {[true, false].map(val => (
+                                            <label key={val.toString()} className="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" name="billByBillRef" checked={!!formData.billByBillRef === val} onChange={() => setFormData(p => ({ ...p, billByBillRef: val }))} className="text-primary-600 focus:ring-primary-500" />
+                                                <span className="text-sm">{val ? 'Yes' : 'No'}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Due Days</label>
+                                    <input type="number" name="dueDays" placeholder="0" value={formData.dueDays || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {partySubTab !== 'general' && (
+                        <div className="flex items-center justify-center h-full text-gray-400 italic">
+                            {(tabs.find(t => t.id === partySubTab)?.label || 'Selected tab')} fields will be added in the next update.
+                        </div>
+                    )}
+                </div>
+
+                {/* Sidebar - Opening Balances */}
+                <div className="col-span-5 bg-blue-50/50 rounded-xl p-6 border border-blue-100">
+                    <h3 className="text-sm font-bold text-blue-900 mb-4 border-b border-blue-100 pb-2">Opening Balances</h3>
+                    <div className="space-y-4">
+                        {['Gold', 'Silver', 'Cash'].map(type => {
+                            const field = type.toLowerCase();
+                            const isCash = field === 'cash';
+                            return (
+                                <div key={type} className="space-y-1">
+                                    <label className="block text-xs font-bold text-blue-700/60 uppercase tracking-wider">{type}</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            placeholder={isCash ? '0.00' : '0.000'}
+                                            value={isCash ? (formData.openingBalance?.cash?.value || '') : (formData.openingBalance?.[field]?.weight || '')}
+                                            onChange={(e) => handleNestedInputChange('openingBalance', field, {
+                                                ...(formData.openingBalance?.[field] || {}),
+                                                [isCash ? 'value' : 'weight']: e.target.value
+                                            })}
+                                            className="flex-1 border-blue-200 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none"
+                                        />
+                                        <select
+                                            value={formData.openingBalance?.[field]?.type || 'Cr'}
+                                            onChange={(e) => handleNestedInputChange('openingBalance', field, {
+                                                ...(formData.openingBalance?.[field] || {}),
+                                                type: e.target.value
+                                            })}
+                                            className="w-24 border-blue-200 rounded-lg p-2 text-xs font-bold bg-white"
+                                        >
+                                            <option value="Cr">Credit</option>
+                                            <option value="Dr">Debit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        <div className="pt-4 mt-4 border-t border-blue-100">
+                            <label className="block text-xs font-bold text-blue-700/60 uppercase tracking-wider mb-1.5">W.e.f. Date</label>
+                            <input
+                                type="date"
+                                value={formData.wefDate || ''}
+                                onChange={handleInputChange}
+                                name="wefDate"
+                                className="w-full border-blue-200 rounded-lg p-2 text-sm focus:ring-blue-500 outline-none"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Remarks section */}
+            <div className="pt-6 border-t">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Remarks (Notes)</label>
+                <textarea
+                    name="remarks"
+                    rows={2}
+                    value={formData.remarks || ''}
+                    onChange={handleInputChange}
+                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    placeholder="Enter any additional notes about this party..."
+                />
             </div>
         </div>
     );
-}
+};
 
 export default Masters;

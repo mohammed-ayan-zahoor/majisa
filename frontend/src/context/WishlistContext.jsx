@@ -17,28 +17,32 @@ export const WishlistProvider = ({ children }) => {
     // Load customer from local storage on mount
     useEffect(() => {
         const loadCustomer = async () => {
-            const savedCustomer = localStorage.getItem('majisa_customer_v2');
-            if (savedCustomer) {
-                const parsed = JSON.parse(savedCustomer);
-                setCustomer(parsed);
-                // Fetch fresh wishlist for customer
-                if (parsed._id) {
-                    try {
-                        const { data } = await api.get(`/customers/${parsed._id}/wishlist`);
-                        setWishlist(data.map(p => p._id));
-                    } catch (error) {
-                        console.error('Failed to sync customer wishlist');
-                        // Fix for Stale Session (404 Not Found)
-                        if (error.response && error.response.status === 404) {
-                            console.warn('Customer not found (404). Clearing stale session.');
-                            localStorage.removeItem('majisa_customer_v2');
-                            localStorage.removeItem('majisa_customer');
-                            setCustomer(null);
+            try {
+                const savedCustomer = localStorage.getItem('majisa_customer_v2');
+                if (savedCustomer) {
+                    const parsed = JSON.parse(savedCustomer);
+                    setCustomer(parsed);
+
+                    if (parsed._id) {
+                        try {
+                            const { data } = await api.get(`/customers/${parsed._id}/wishlist`);
+                            setWishlist(data.map(p => p._id));
+                        } catch (error) {
+                            console.error('Failed to sync customer wishlist');
+                            if (error.response?.status === 404) {
+                                console.warn('Customer not found (404). Clearing stale session.');
+                                localStorage.removeItem('majisa_customer_v2');
+                                localStorage.removeItem('majisa_customer');
+                                setCustomer(null);
+                            }
                         }
                     }
                 }
+            } catch (err) {
+                console.error("Error loading customer from storage", err);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         loadCustomer();
     }, []);
