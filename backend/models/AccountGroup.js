@@ -15,6 +15,21 @@ const accountGroupSchema = mongoose.Schema({
     description: {
         type: String,
         default: ''
+    },
+    under: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AccountGroup',
+        default: null
+    },
+    code: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true
+    },
+    isReserved: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true

@@ -8,7 +8,7 @@ const Voucher = require('../models/Voucher');
 // @access  Private/Admin
 const createAccountGroup = async (req, res) => {
     try {
-        const { name, type, description } = req.body;
+        const { name, type, description, under, code } = req.body;
 
         const groupExists = await AccountGroup.findOne({ name });
         if (groupExists) {
@@ -18,7 +18,9 @@ const createAccountGroup = async (req, res) => {
         const group = await AccountGroup.create({
             name,
             type,
-            description
+            description,
+            under: under || null,
+            code
         });
 
         res.status(201).json(group);
@@ -32,7 +34,7 @@ const createAccountGroup = async (req, res) => {
 // @access  Private/Admin
 const getAccountGroups = async (req, res) => {
     try {
-        const groups = await AccountGroup.find({});
+        const groups = await AccountGroup.find({}).populate('under', 'name');
         res.json(groups);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -231,13 +233,136 @@ const getPartyLedger = async (req, res) => {
     }
 };
 
+// @desc    Update an account group
+// @route   PUT /api/accounts/groups/:id
+// @access  Private/Admin
+const updateAccountGroup = async (req, res) => {
+    try {
+        const { name, type, description, under, code } = req.body;
+        const group = await AccountGroup.findById(req.params.id);
+
+        if (group) {
+            group.name = name || group.name;
+            group.type = type || group.type;
+            group.description = description || group.description;
+            group.under = under || group.under;
+            group.code = code || group.code;
+
+            const updatedGroup = await group.save();
+            res.json(updatedGroup);
+        } else {
+            res.status(404).json({ message: 'Account Group not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete an account group
+// @route   DELETE /api/accounts/groups/:id
+// @access  Private/Admin
+const deleteAccountGroup = async (req, res) => {
+    try {
+        const group = await AccountGroup.findById(req.params.id);
+        if (group) {
+            // Check if any party uses this group
+            const partyExists = await AccountParty.findOne({ group: req.params.id });
+            if (partyExists) {
+                return res.status(400).json({ message: 'Cannot delete group as it is assigned to parties' });
+            }
+            await group.deleteOne();
+            res.json({ message: 'Account Group removed' });
+        } else {
+            res.status(404).json({ message: 'Account Group not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update an account item
+// @route   PUT /api/accounts/items/:id
+// @access  Private/Admin
+const updateAccountItem = async (req, res) => {
+    try {
+        const item = await AccountItem.findById(req.params.id);
+        if (item) {
+            Object.assign(item, req.body);
+            const updatedItem = await item.save();
+            res.json(updatedItem);
+        } else {
+            res.status(404).json({ message: 'Account Item not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete an account item
+// @route   DELETE /api/accounts/items/:id
+// @access  Private/Admin
+const deleteAccountItem = async (req, res) => {
+    try {
+        const item = await AccountItem.findById(req.params.id);
+        if (item) {
+            await item.deleteOne();
+            res.json({ message: 'Account Item removed' });
+        } else {
+            res.status(404).json({ message: 'Account Item not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update an account party
+// @route   PUT /api/accounts/parties/:id
+// @access  Private/Admin
+const updateAccountParty = async (req, res) => {
+    try {
+        const party = await AccountParty.findById(req.params.id);
+        if (party) {
+            Object.assign(party, req.body);
+            const updatedParty = await party.save();
+            res.json(updatedParty);
+        } else {
+            res.status(404).json({ message: 'Account Party not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete an account party
+// @route   DELETE /api/accounts/parties/:id
+// @access  Private/Admin
+const deleteAccountParty = async (req, res) => {
+    try {
+        const party = await AccountParty.findById(req.params.id);
+        if (party) {
+            await party.deleteOne();
+            res.json({ message: 'Account Party removed' });
+        } else {
+            res.status(404).json({ message: 'Account Party not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createAccountGroup,
     getAccountGroups,
+    updateAccountGroup,
+    deleteAccountGroup,
     createAccountItem,
     getAccountItems,
+    updateAccountItem,
+    deleteAccountItem,
     createAccountParty,
     getAccountParties,
+    updateAccountParty,
+    deleteAccountParty,
     createVoucher,
     getVouchers,
     getPartyLedger

@@ -33,3 +33,6 @@ yarn-error.log*
 *.sw?
 
 majisa_backup  
+
+#ignore all the files from .agent
+.agent/

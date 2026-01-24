@@ -23,6 +23,9 @@ const Masters = () => {
 
     // Form States
     const [formData, setFormData] = useState({});
+    const [allGroups, setAllGroups] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editId, setEditId] = useState(null);
     const [itemSubTab, setItemSubTab] = useState('inventory');
     const [partySubTab, setPartySubTab] = useState('general');
 
@@ -35,7 +38,13 @@ const Masters = () => {
         try {
             const endpoint = `/accounts/${activeTab}`; // groups, items, parties
             const response = await api.get(endpoint);
-            setData(Array.isArray(response.data) ? response.data : []);
+            const fetchedData = Array.isArray(response.data) ? response.data : [];
+            setData(fetchedData);
+
+            // Sync allGroups if we are on the groups tab
+            if (activeTab === 'groups') {
+                setAllGroups(fetchedData);
+            }
         } catch (error) {
             console.error(error);
             toast.error("Failed to fetch data");
@@ -71,19 +80,73 @@ const Masters = () => {
         e.preventDefault();
         try {
             const endpoint = `/accounts/${activeTab}`;
-            await api.post(endpoint, formData);
-            toast.success("Created successfully");
+            if (isEditing) {
+                await api.put(`${endpoint}/${editId}`, formData);
+                toast.success("Updated successfully");
+            } else {
+                await api.post(endpoint, formData);
+                toast.success("Created successfully");
+            }
             setShowModal(false);
             setFormData({});
+            setIsEditing(false);
+            setEditId(null);
             fetchData();
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || "Failed to create");
+            toast.error(error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'}`);
         }
     };
 
+    const handleEdit = (item) => {
+        setFormData(item);
+        setIsEditing(true);
+        setEditId(item._id);
+        setShowModal(true);
+    };
+
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div className="flex flex-col gap-3 p-1">
+                <p className="text-sm font-medium text-gray-900">Are you sure you want to delete this?</p>
+                <div className="flex gap-2 justify-end">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1 text-xs border rounded-md hover:bg-gray-50 bg-white"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await api.delete(`/accounts/${activeTab}/${id}`);
+                                toast.success("Deleted successfully");
+                                fetchData();
+                            } catch (error) {
+                                console.error(error);
+                                toast.error(error.response?.data?.message || "Failed to delete");
+                            }
+                        }}
+                        className="px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 5000,
+            position: 'top-center',
+            style: {
+                minWidth: '250px',
+                border: '1px solid #fee2e2',
+                borderRadius: '12px'
+            }
+        });
+    };
+
     const headers = {
-        groups: ['Name', 'Type', 'Description'],
+        groups: ['Name', 'Code', 'Under', 'Type', 'Description'],
         items: ['Name', 'Metal', 'Purity', 'Opening Stock'],
         parties: ['Name', 'Group', 'City', 'Phone', 'Op. Metal', 'Op. Amount']
     };
@@ -100,8 +163,36 @@ const Masters = () => {
                                 name="name"
                                 value={formData.name || ''}
                                 onChange={handleInputChange}
-                                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
                             />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Group Code</label>
+                                <input
+                                    name="code"
+                                    placeholder="e.g. CURAST"
+                                    value={formData.code || ''}
+                                    onChange={handleInputChange}
+                                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Under Group</label>
+                                <select
+                                    name="under"
+                                    value={formData.under || ''}
+                                    onChange={handleInputChange}
+                                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
+                                >
+                                    <option value="">Primary</option>
+                                    {(Array.isArray(allGroups) ? allGroups : [])
+                                        .filter(g => g._id !== editId) // Prevent circular reference
+                                        .map(g => (
+                                            <option key={g._id} value={g._id}>{g.name}</option>
+                                        ))}
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
@@ -370,6 +461,8 @@ const Masters = () => {
                         setFormData(activeTab === 'items' ? { metal: 'Gold' } : {});
                         setItemSubTab('inventory');
                         setPartySubTab('general');
+                        setIsEditing(false);
+                        setEditId(null);
                         setShowModal(true);
                     }}
                     className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
@@ -404,8 +497,16 @@ const Masters = () => {
                                             {activeTab === 'groups' && (
                                                 <>
                                                     <td className="px-4 py-3 font-medium">{item.name}</td>
-                                                    <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs ${item.type === 'Asset' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{item.type}</span></td>
-                                                    <td className="px-4 py-3 text-gray-500">{item.description}</td>
+                                                    <td className="px-4 py-3 text-gray-400 font-mono text-xs">{item.code || '-'}</td>
+                                                    <td className="px-4 py-3 text-primary-600 italic">
+                                                        {typeof item.under === 'object' ? item.under?.name : (data.find(g => g._id === item.under)?.name || '-')}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className={`px-2 py-1 rounded text-xs ${['Asset', 'Income'].includes(item.type) ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                            {item.type}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-gray-500 truncate max-w-[200px]">{item.description}</td>
                                                 </>
                                             )}
                                             {activeTab === 'items' && (
@@ -427,8 +528,18 @@ const Masters = () => {
                                                 </>
                                             )}
                                             <td className="px-4 py-3 text-right flex justify-end gap-2">
-                                                <button className="p-1 text-gray-400 hover:text-primary-600"><Edit2 size={16} /></button>
-                                                <button className="p-1 text-gray-400 hover:text-red-600"><Trash2 size={16} /></button>
+                                                <button
+                                                    onClick={() => handleEdit(item)}
+                                                    className="p-1 text-gray-400 hover:text-primary-600"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(item._id)}
+                                                    className="p-1 text-gray-400 hover:text-red-600"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
@@ -450,7 +561,7 @@ const Masters = () => {
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className={`bg-white rounded-xl shadow-xl ${['items', 'parties'].includes(activeTab) ? 'max-w-4xl' : 'max-w-lg'} w-full p-6 animate-fade-in max-h-[90vh] overflow-y-auto`}>
-                        <h2 className="text-xl font-bold font-serif mb-4 pb-2 border-b">Add New {singularizeActiveTab(activeTab)}</h2>
+                        <h2 className="text-xl font-bold font-serif mb-4 pb-2 border-b">{isEditing ? 'Edit' : 'Add New'} {singularizeActiveTab(activeTab)}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {renderFormInfo()}
                             <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
