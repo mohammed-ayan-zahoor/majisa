@@ -39,6 +39,10 @@ const accountItemSchema = mongoose.Schema({
     maxStockLevel: { type: Number, default: 0 },
     preferredVendor: { type: String },
     defaultSalesman: { type: String },
+    defaultWastage: { type: Number, default: 0 },
+    laborCharge: { type: Number, default: 0 },
+    hsnCode: { type: String },
+    gstRate: { type: Number, default: 3 },
     remarks: { type: String },
     openingStock: {
         weight: { type: Number, default: 0 },

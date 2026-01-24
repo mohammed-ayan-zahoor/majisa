@@ -54,11 +54,7 @@ const createAccountItem = async (req, res) => {
         }
 
         const item = await AccountItem.create({
-            name,
-            metal,
-            purity,
-            defaultWastage,
-            openingStock
+            ...req.body
         });
 
         res.status(201).json(item);
@@ -92,12 +88,7 @@ const createAccountParty = async (req, res) => {
         }
 
         const party = await AccountParty.create({
-            name,
-            group,
-            address,
-            phone,
-            city,
-            openingBalance
+            ...req.body
         });
 
         res.status(201).json(party);
@@ -238,21 +229,52 @@ const getPartyLedger = async (req, res) => {
 // @access  Private/Admin
 const updateAccountGroup = async (req, res) => {
     try {
-        const { name, type, description, under, code } = req.body;
         const group = await AccountGroup.findById(req.params.id);
-
-        if (group) {
-            group.name = name || group.name;
-            group.type = type || group.type;
-            group.description = description || group.description;
-            group.under = under || group.under;
-            group.code = code || group.code;
-
-            const updatedGroup = await group.save();
-            res.json(updatedGroup);
-        } else {
-            res.status(404).json({ message: 'Account Group not found' });
+        if (!group) {
+            return res.status(404).json({ message: 'Account Group not found' });
         }
+
+        // 1. Enforce name uniqueness (excluding current group)
+        if (req.body.hasOwnProperty('name')) {
+            const nameExists = await AccountGroup.findOne({
+                name: req.body.name,
+                _id: { $ne: req.params.id }
+            });
+            if (nameExists) {
+                return res.status(400).json({ message: 'Another group with this name already exists' });
+            }
+            group.name = req.body.name;
+        }
+
+        // 2. Prevent circular hierarchy
+        if (req.body.hasOwnProperty('under')) {
+            const newUnderId = req.body.under || null;
+
+            if (newUnderId) {
+                if (newUnderId.toString() === req.params.id) {
+                    return res.status(400).json({ message: 'A group cannot be its own parent' });
+                }
+
+                // Traverse parents of newUnder to ensure current group is not an ancestor
+                let currentParentId = newUnderId;
+                while (currentParentId) {
+                    if (currentParentId.toString() === req.params.id) {
+                        return res.status(400).json({ message: 'Circular hierarchy detected: candidate parent is a descendant' });
+                    }
+                    const parent = await AccountGroup.findById(currentParentId);
+                    currentParentId = parent ? parent.under : null;
+                }
+            }
+            group.under = newUnderId;
+        }
+
+        // 3. Update other fields only if they exist in req.body (allow falsy values)
+        if (req.body.hasOwnProperty('type')) group.type = req.body.type;
+        if (req.body.hasOwnProperty('description')) group.description = req.body.description;
+        if (req.body.hasOwnProperty('code')) group.code = req.body.code;
+
+        const updatedGroup = await group.save();
+        res.json(updatedGroup);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -269,6 +291,12 @@ const deleteAccountGroup = async (req, res) => {
             const partyExists = await AccountParty.findOne({ group: req.params.id });
             if (partyExists) {
                 return res.status(400).json({ message: 'Cannot delete group as it is assigned to parties' });
+            }
+
+            // Check if any child groups exist
+            const childGroupExists = await AccountGroup.findOne({ under: req.params.id });
+            if (childGroupExists) {
+                return res.status(400).json({ message: 'Cannot delete group as it has child groups' });
             }
             await group.deleteOne();
             res.json({ message: 'Account Group removed' });
@@ -287,7 +315,20 @@ const updateAccountItem = async (req, res) => {
     try {
         const item = await AccountItem.findById(req.params.id);
         if (item) {
-            Object.assign(item, req.body);
+            const allowedFields = [
+                'name', 'itemType', 'metal', 'purity', 'category', 'unit',
+                'tagNumberMode', 'isMRPItem', 'unitInReports', 'maintainStock',
+                'minTouch', 'maxTouch', 'minStockLevel', 'maxStockLevel',
+                'preferredVendor', 'defaultSalesman', 'defaultWastage',
+                'laborCharge', 'hsnCode', 'gstRate', 'remarks', 'openingStock'
+            ];
+
+            allowedFields.forEach(field => {
+                if (req.body[field] !== undefined) {
+                    item[field] = req.body[field];
+                }
+            });
+
             const updatedItem = await item.save();
             res.json(updatedItem);
         } else {
@@ -305,6 +346,11 @@ const deleteAccountItem = async (req, res) => {
     try {
         const item = await AccountItem.findById(req.params.id);
         if (item) {
+            // Check if any vouchers reference this item
+            const voucherExists = await Voucher.findOne({ 'items.item': req.params.id });
+            if (voucherExists) {
+                return res.status(400).json({ message: 'Cannot delete item as it is used in vouchers' });
+            }
             await item.deleteOne();
             res.json({ message: 'Account Item removed' });
         } else {
@@ -322,7 +368,21 @@ const updateAccountParty = async (req, res) => {
     try {
         const party = await AccountParty.findById(req.params.id);
         if (party) {
-            Object.assign(party, req.body);
+            const allowedFields = [
+                'name', 'group', 'uniqueName', 'address', 'pin', 'state',
+                'phone', 'whatsappNumber', 'otherNumber', 'email', 'city',
+                'cashLimit', 'billByBillRef', 'dueDays', 'wefDate', 'gstType',
+                'gstin', 'pan', 'website', 'contactNotes', 'bankName',
+                'ifscCode', 'accountNumber', 'bankBranch', 'openingBalance',
+                'remarks'
+            ];
+
+            allowedFields.forEach(field => {
+                if (req.body[field] !== undefined) {
+                    party[field] = req.body[field];
+                }
+            });
+
             const updatedParty = await party.save();
             res.json(updatedParty);
         } else {
@@ -340,6 +400,11 @@ const deleteAccountParty = async (req, res) => {
     try {
         const party = await AccountParty.findById(req.params.id);
         if (party) {
+            // Check if any vouchers reference this party
+            const voucherExists = await Voucher.findOne({ party: req.params.id });
+            if (voucherExists) {
+                return res.status(400).json({ message: 'Cannot delete party as it is used in vouchers' });
+            }
             await party.deleteOne();
             res.json({ message: 'Account Party removed' });
         } else {

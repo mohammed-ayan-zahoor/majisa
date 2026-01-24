@@ -32,7 +32,6 @@ yarn-error.log*
 *.sln
 *.sw?
 
-majisa_backup  
-
+majisa_backup
 #ignore all the files from .agent
 .agent/

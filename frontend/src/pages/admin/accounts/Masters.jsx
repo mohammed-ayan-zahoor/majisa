@@ -24,6 +24,7 @@ const Masters = () => {
     // Form States
     const [formData, setFormData] = useState({});
     const [allGroups, setAllGroups] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
     const [itemSubTab, setItemSubTab] = useState('inventory');
@@ -44,6 +45,12 @@ const Masters = () => {
             // Sync allGroups if we are on the groups tab
             if (activeTab === 'groups') {
                 setAllGroups(fetchedData);
+            }
+
+            // Fetch categories if we are on items tab
+            if (activeTab === 'items') {
+                const catRes = await api.get('/categories');
+                setCategories(Array.isArray(catRes.data) ? catRes.data : []);
             }
         } catch (error) {
             console.error(error);
@@ -105,7 +112,7 @@ const Masters = () => {
         setShowModal(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = (id, tabAtInvocation = activeTab) => {
         toast((t) => (
             <div className="flex flex-col gap-3 p-1">
                 <p className="text-sm font-medium text-gray-900">Are you sure you want to delete this?</p>
@@ -120,7 +127,7 @@ const Masters = () => {
                         onClick={async () => {
                             toast.dismiss(t.id);
                             try {
-                                await api.delete(`/accounts/${activeTab}/${id}`);
+                                await api.delete(`/accounts/${tabAtInvocation}/${id}`);
                                 toast.success("Deleted successfully");
                                 fetchData();
                             } catch (error) {
@@ -144,7 +151,6 @@ const Masters = () => {
             }
         });
     };
-
     const headers = {
         groups: ['Name', 'Code', 'Under', 'Type', 'Description'],
         items: ['Name', 'Metal', 'Purity', 'Opening Stock'],
@@ -269,8 +275,20 @@ const Masters = () => {
                                         className="flex-1 border rounded-lg p-2.5 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                                     >
                                         <option value="">Select Category</option>
+                                        {categories.map(cat => (
+                                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                        ))}
                                     </select>
-                                    <button type="button" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-bold transition-colors">+ Add</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setActiveTab('groups'); // Assuming categories might be managed elsewhere, but for now redirecting or adding logic
+                                            toast.error("Category management coming soon");
+                                        }}
+                                        className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-bold transition-colors"
+                                    >
+                                        + Add
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -353,6 +371,23 @@ const Masters = () => {
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Purity (K)</label>
+                                                <input type="number" name="purity" placeholder="e.g. 22" value={formData.purity || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Opening Stock (Gms)</label>
+                                                <input
+                                                    type="number"
+                                                    placeholder="0.000"
+                                                    value={formData.openingStock?.weight || ''}
+                                                    onChange={(e) => handleNestedInputChange('openingStock', 'weight', e.target.value)}
+                                                    className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
                                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Min. Touch</label>
                                                 <input type="number" name="minTouch" placeholder="0.00" value={formData.minTouch || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
                                             </div>
@@ -417,11 +452,39 @@ const Masters = () => {
                             )}
 
                             {itemSubTab === 'hisab' && (
-                                <div className="text-center py-12 text-gray-400">Settings for Hisab calculations will appear here.</div>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Default Wastage (%)</label>
+                                            <input type="number" name="defaultWastage" placeholder="0.00" value={formData.defaultWastage || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Labor Charge / gm</label>
+                                            <input type="number" name="laborCharge" placeholder="0.00" value={formData.laborCharge || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                        </div>
+                                    </div>
+                                </div>
                             )}
 
                             {itemSubTab === 'gst' && (
-                                <div className="text-center py-12 text-gray-400">GST and Tax settings for this item.</div>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">HSN Code</label>
+                                            <input name="hsnCode" placeholder="7113" value={formData.hsnCode || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">GST Rate (%)</label>
+                                            <select name="gstRate" value={formData.gstRate || '3'} onChange={handleInputChange} className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                                <option value="0">0%</option>
+                                                <option value="3">3%</option>
+                                                <option value="5">5%</option>
+                                                <option value="12">12%</option>
+                                                <option value="18">18%</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
                         </div>
 
@@ -512,19 +575,20 @@ const Masters = () => {
                                             {activeTab === 'items' && (
                                                 <>
                                                     <td className="px-4 py-3 font-medium">{item.name}</td>
-                                                    <td className="px-4 py-3">{item.metal}</td>
-                                                    <td className="px-4 py-3">{item.purity}</td>
-                                                    <td className="px-4 py-3">{item.openingStock?.weight || 0}</td>
+                                                    <td className="px-4 py-3 text-gray-500">{typeof item.category === 'object' ? item.category?.name : (categories.find(c => c._id === item.category)?.name || '-')}</td>
+                                                    <td className="px-4 py-3">{item.metal} {item.purity && `(${item.purity}K)`}</td>
+                                                    <td className="px-4 py-3 font-mono">{item.openingStock?.weight || 0} g</td>
+                                                    <td className="px-4 py-3">{item.unit || 'Piece'}</td>
                                                 </>
                                             )}
                                             {activeTab === 'parties' && (
                                                 <>
                                                     <td className="px-4 py-3 font-medium">{item.name}</td>
-                                                    <td className="px-4 py-3 text-primary-600">{item.group?.name}</td>
-                                                    <td className="px-4 py-3">{item.city}</td>
-                                                    <td className="px-4 py-3">{item.phone}</td>
-                                                    <td className="px-4 py-3">{item.openingBalance?.metal?.weight || 0}</td>
-                                                    <td className="px-4 py-3">{item.openingBalance?.amount?.value || 0}</td>
+                                                    <td className="px-4 py-3 text-primary-600">{typeof item.group === 'object' ? item.group?.name : (allGroups.find(g => g._id === item.group)?.name || '-')}</td>
+                                                    <td className="px-4 py-3">{item.city || '-'}</td>
+                                                    <td className="px-4 py-3">{item.phone || item.whatsappNumber || '-'}</td>
+                                                    <td className="px-4 py-3 font-mono text-orange-600">{item.openingBalance?.gold?.weight || 0} g</td>
+                                                    <td className="px-4 py-3 font-mono text-green-600">₹{item.openingBalance?.cash?.value || 0}</td>
                                                 </>
                                             )}
                                             <td className="px-4 py-3 text-right flex justify-end gap-2">
@@ -632,7 +696,15 @@ const PartyForm = ({ formData, setFormData, handleInputChange, handleNestedInput
                                 <option value="">Select Group</option>
                                 {(Array.isArray(groups) ? groups : []).map(g => <option key={g._id} value={g._id}>{g.name}</option>)}
                             </select>
-                            <button type="button" className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg font-bold">+ Add</button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    toast.error("Please add groups from the Groups tab first");
+                                }}
+                                className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg font-bold"
+                            >
+                                + Add
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -716,9 +788,65 @@ const PartyForm = ({ formData, setFormData, handleInputChange, handleNestedInput
                             </div>
                         </div>
                     )}
-                    {partySubTab !== 'general' && (
-                        <div className="flex items-center justify-center h-full text-gray-400 italic">
-                            {(tabs.find(t => t.id === partySubTab)?.label || 'Selected tab')} fields will be added in the next update.
+                    {partySubTab === 'gst' && (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">GST Registration Type</label>
+                                <select name="gstType" value={formData.gstType || 'Unregistered'} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                    <option value="Unregistered">Unregistered</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Composition">Composition</option>
+                                    <option value="Consumer">Consumer</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">GSTIN / UIN</label>
+                                <input name="gstin" placeholder="27XXXXX..." value={formData.gstin || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">PAN Number</label>
+                                <input name="pan" placeholder="ABCDE1234F" value={formData.pan || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            </div>
+                        </div>
+                    )}
+                    {partySubTab === 'contact' && (
+                        <div className="space-y-4">
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Primary Phone</label>
+                                    <input name="phone" placeholder="98XXXXXXXX" value={formData.phone || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Website</label>
+                                    <input name="website" placeholder="www.example.com" value={formData.website || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Notes for Contact</label>
+                                <textarea name="contactNotes" rows={3} value={formData.contactNotes || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            </div>
+                        </div>
+                    )}
+                    {partySubTab === 'bank' && (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Bank Name</label>
+                                    <input name="bankName" placeholder="SBI / HDFC / etc" value={formData.bankName || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">IFSC Code</label>
+                                    <input name="ifscCode" placeholder="IFSC0001234" value={formData.ifscCode || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Account Number</label>
+                                <input name="accountNumber" placeholder="XXXXXXXXXXXXXXXX" value={formData.accountNumber || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Branch</label>
+                                <input name="bankBranch" placeholder="Main Branch" value={formData.bankBranch || ''} onChange={handleInputChange} className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                            </div>
                         </div>
                     )}
                 </div>

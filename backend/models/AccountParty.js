@@ -30,6 +30,19 @@ const accountPartySchema = mongoose.Schema({
     },
     dueDays: Number,
     wefDate: Date,
+    gstType: {
+        type: String,
+        enum: ['Unregistered', 'Regular', 'Composition', 'Consumer'],
+        default: 'Unregistered'
+    },
+    gstin: String,
+    pan: String,
+    website: String,
+    contactNotes: String,
+    bankName: String,
+    ifscCode: String,
+    accountNumber: String,
+    bankBranch: String,
     openingBalance: {
         gold: {
             weight: { type: Number, default: 0 },
