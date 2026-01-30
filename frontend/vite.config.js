@@ -8,12 +8,12 @@ export default defineConfig({
     react(),
     viteCompression()
   ],
+  esbuild: {
+    drop: ['console', 'debugger'], // Remove console/debugger in production
+  },
   build: {
     chunkSizeWarningLimit: 1000,
     minify: 'esbuild', // Use esbuild for speed (default)
-    esbuild: {
-      drop: ['console', 'debugger'], // Remove console/debugger in production
-    },
     rollupOptions: {
       output: {
         manualChunks(id) {
