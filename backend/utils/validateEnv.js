@@ -1,5 +1,5 @@
 const requiredEnvVars = [
-    'MONGODB_URI',
+    'MONGO_URI',
     'JWT_SECRET',
     'CLOUDINARY_CLOUD_NAME',
     'CLOUDINARY_API_KEY',
@@ -39,8 +39,8 @@ const validateEnv = () => {
     }
 
     // Validate MongoDB URI format
-    if (!process.env.MONGODB_URI.startsWith('mongodb')) {
-        console.error('❌ MONGODB_URI must start with "mongodb://" or "mongodb+srv://"');
+    if (!process.env.MONGO_URI.startsWith('mongodb')) {
+        console.error('❌ MONGO_URI must start with "mongodb://" or "mongodb+srv://"');
         process.exit(1);
     }
 
