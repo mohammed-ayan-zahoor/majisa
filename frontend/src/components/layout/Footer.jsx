@@ -46,8 +46,11 @@ const Footer = () => {
 
                 </div>
 
-                <div className="border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
+                <div className="border-t border-gray-800 pt-8 flex flex-col items-center gap-2 text-center text-xs text-gray-500">
                     <p>&copy; {new Date().getFullYear()} Majisa Jewellers. All rights reserved.</p>
+                    <p className="mt-1">
+                        Built with <span className="text-red-500">❤️</span> by <a href="https://mohammed-ayan-zahoor.3ftech.in" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors font-medium">Mohammed Ayan Zahoor</a>
+                    </p>
                 </div>
             </div>
         </footer>
