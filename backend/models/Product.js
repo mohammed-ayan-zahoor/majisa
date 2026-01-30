@@ -84,6 +84,14 @@ productSchema.pre('save', async function () {
     }
 });
 
+// Indexes for performance optimization
+productSchema.index({ category: 1, isFeatured: -1 }); // Category filtering + featured
+productSchema.index({ isNewArrival: -1, createdAt: -1 }); // New arrivals queries
+productSchema.index({ productCode: 1 }, { unique: true }); // Unique constraint
+productSchema.index({ views: -1, sales: -1, rating: -1 }); // Ranking algorithm
+productSchema.index({ name: 'text', description: 'text' }); // Text search
+productSchema.index({ createdAt: -1 }); // Sort by newest
+
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;

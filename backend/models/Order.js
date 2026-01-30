@@ -68,6 +68,13 @@ const orderSchema = mongoose.Schema({
     timestamps: true,
 });
 
+// Indexes for performance optimization
+orderSchema.index({ user: 1, createdAt: -1 }); // User order history
+orderSchema.index({ status: 1 }); // Order status filtering
+orderSchema.index({ createdAt: -1 }); // Recent orders
+orderSchema.index({ goldsmith: 1, status: 1 }); // Goldsmith assignments
+orderSchema.index({ vendor: 1, status: 1 }); // Vendor orders
+
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;

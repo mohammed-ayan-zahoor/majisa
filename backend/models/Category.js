@@ -27,6 +27,10 @@ const categorySchema = mongoose.Schema({
     timestamps: true,
 });
 
+// Indexes for performance optimization
+categorySchema.index({ name: 1 }, { unique: true }); // Unique category names
+categorySchema.index({ displayOrder: 1 }); // For custom ordering feature
+
 const Category = mongoose.model('Category', categorySchema);
 
 module.exports = Category;

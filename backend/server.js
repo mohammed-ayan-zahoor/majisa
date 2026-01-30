@@ -4,6 +4,10 @@ const dotenv = require('dotenv');
 // Load env vars
 dotenv.config();
 
+// Validate environment variables
+const validateEnv = require('./utils/validateEnv');
+validateEnv();
+
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -23,7 +27,19 @@ const app = express();
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(cors());
+
+// CORS Configuration
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? ['https://majisa.co.in', 'https://www.majisa.co.in']
+        : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000'],
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -38,6 +54,23 @@ app.use(helmet({
     },
     crossOriginEmbedderPolicy: false
 }));
+
+// Rate Limiting
+const { authLimiter, apiLimiter, publicLimiter } = require('./middleware/rateLimitMiddleware');
+
+// Apply strict limits to auth endpoints (must be before routes)
+app.use('/api/users/login', authLimiter);
+app.use('/api/users/register', authLimiter);
+app.use('/api/users/forgot-password', authLimiter);
+
+// Apply moderate limits to protected API endpoints
+app.use('/api/products', apiLimiter);
+app.use('/api/orders', apiLimiter);
+app.use('/api/categories', apiLimiter);
+app.use('/api/customers', apiLimiter);
+
+// Global fallback for other routes
+app.use('/api/', publicLimiter);
 
 
 // Health Check Endpoint
@@ -201,8 +234,55 @@ app.get('/*splat', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+    // Generate unique error ID for tracking
+    const errorId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+    // Determine error status code
+    const statusCode = err.statusCode || err.status || 500;
+
+    // Log error details server-side (with sensitive data redacted)
+    console.error(`[ERROR ${errorId}]`, {
+        timestamp: new Date().toISOString(),
+        statusCode,
+        message: err.message,
+        method: req.method,
+        url: req.url,
+        ip: req.ip,
+        userId: req.user?._id || 'anonymous',
+        // Only include stack trace in development
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+
+    // TODO: Send to error tracking service (Sentry, LogRocket, etc.)
+    // if (process.env.NODE_ENV === 'production') {
+    //     Sentry.captureException(err);
+    // }
+
+    // Categorize error type
+    let errorType = 'ServerError';
+    if (statusCode >= 400 && statusCode < 500) {
+        errorType = 'ClientError';
+    } else if (statusCode >= 500) {
+        errorType = 'ServerError';
+    }
+
+    // Send appropriate response based on environment
+    const response = {
+        error: errorType,
+        message: process.env.NODE_ENV === 'production'
+            ? 'An error occurred while processing your request'
+            : err.message,
+        errorId,
+        timestamp: new Date().toISOString(),
+        // Include additional details in development
+        ...(process.env.NODE_ENV === 'development' && {
+            path: req.url,
+            method: req.method,
+            stack: err.stack
+        })
+    };
+
+    res.status(statusCode).json(response);
 });
 
 // Port configuration

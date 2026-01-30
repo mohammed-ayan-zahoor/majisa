@@ -107,6 +107,12 @@ userSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
+// Indexes for performance optimization
+userSchema.index({ email: 1 }, { unique: true }); // Login queries
+userSchema.index({ role: 1, status: 1 }); // Admin user filtering
+userSchema.index({ resetPasswordToken: 1, resetPasswordExpire: 1 }); // Password reset
+userSchema.index({ referralCode: 1 }, { unique: true, sparse: true }); // Referral lookups
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
