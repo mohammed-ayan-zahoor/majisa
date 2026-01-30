@@ -17,15 +17,22 @@ async function migrateCategoryOrder() {
             process.exit(0);
         }
 
-        // Check if migration is needed
-        const needsMigration = categories.every(cat => cat.displayOrder === 0);
+        // Check if migration is needed by detecting duplicate displayOrder values
+        // If multiple categories have the same displayOrder, they need proper sequential order
+        const displayOrders = categories.map(cat => cat.displayOrder);
+        const uniqueOrders = new Set(displayOrders);
+        const hasDuplicates = displayOrders.length !== uniqueOrders.size;
 
-        if (!needsMigration) {
-            console.log('⏭️  Categories already have displayOrder values. Skipping migration.');
+        if (!hasDuplicates) {
+            console.log('⏭️  Categories already have unique displayOrder values. Skipping migration.');
+            const sorted = await Category.find({}).sort({ displayOrder: 1 });
+            sorted.forEach(cat => {
+                console.log(`  ${cat.displayOrder + 1}. ${cat.name} (displayOrder: ${cat.displayOrder})`);
+            });
             process.exit(0);
         }
 
-        console.log('🔄 Setting sequential displayOrder for all categories...');
+        console.log(`⚠️  Found duplicate displayOrder values. Running migration...`);
 
         // Use bulkWrite for atomic operation
         const bulkOps = categories.map((cat, index) => ({
