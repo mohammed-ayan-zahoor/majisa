@@ -26,6 +26,36 @@ const Products = () => {
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
     const [hasDragged, setHasDragged] = useState(false);
+    const [showCategoryStrip, setShowCategoryStrip] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+
+    // Auto-hide category strip on scroll down, show on scroll up
+    useEffect(() => {
+        let ticking = false;
+
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const currentScrollY = window.scrollY;
+
+                    // Show if scrolling up, hide if scrolling down
+                    // Only hide after scrolling past 100px to avoid flickering at the top
+                    if (currentScrollY < lastScrollY) {
+                        setShowCategoryStrip(true);
+                    } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                        setShowCategoryStrip(false);
+                    }
+
+                    setLastScrollY(currentScrollY);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
 
     // 1. Fetch Categories using shared hook (cached)
     const { data: categories = [], isLoading: categoriesLoading } = useCategories();
@@ -104,7 +134,7 @@ const Products = () => {
             </div>
 
             {/* Sticky Categories & Search Bar */}
-            <div className="sticky top-[72px] lg:top-[88px] z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 py-4 transition-all duration-300">
+            <div className={`sticky top-[72px] lg:top-[88px] z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 py-4 transition-transform duration-300 ${showCategoryStrip ? 'translate-y-0' : '-translate-y-full'}`}>
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center gap-4 justify-between">
 
