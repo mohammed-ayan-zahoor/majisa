@@ -1,5 +1,2 @@
-# Ignore all log files
-*.log
-
-# Ignore log directories
-logs/
+# Ignore everything in this directory
+*

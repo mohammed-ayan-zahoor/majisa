@@ -30,15 +30,16 @@ class ErrorBoundary extends React.Component {
         // }
 
         // Track error count to detect error loops
+        // Track error count to detect error loops
         this.setState(prevState => ({
             errorInfo,
             errorCount: prevState.errorCount + 1
-        }));
-
-        // If too many errors, something is seriously wrong
-        if (this.state.errorCount > 5) {
-            console.error('Too many errors detected. Possible error loop.');
-        }
+        }), () => {
+            // Check overflow inside callback with the updated state
+            if (this.state.errorCount > 5) {
+                console.error('Too many errors detected. Possible error loop.');
+            }
+        });
     }
 
     handleReset = () => {

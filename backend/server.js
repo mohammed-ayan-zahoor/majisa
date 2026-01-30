@@ -235,20 +235,40 @@ app.get('/*splat', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     // Generate unique error ID for tracking
-    const errorId = Date.now().toString(36) + Math.random().toString(36).substr(2);
-
+    const errorId = Date.now().toString(36) + Math.random().toString(36).substring(2);
     // Determine error status code
     const statusCode = err.statusCode || err.status || 500;
 
-    // Log error details server-side (with sensitive data redacted)
+    // Privacy-conscious logging configuration
+    const enableIpLogging = process.env.ENABLE_IP_LOGGING === 'true';
+    const enableAuditMode = process.env.ENABLE_AUDIT_MODE === 'true';
+
+    // Pseudonymize user ID (hash first/last 4 chars for privacy)
+    const getPseudonymizedUserId = (userId) => {
+        if (!userId) return 'anonymous';
+        const id = userId.toString();
+        if (id.length <= 8) return '****';
+        return `${id.substring(0, 4)}...${id.substring(id.length - 4)}`;
+    };
+
+    // Log error details server-side
+    // Sensitive data handling:
+    // - IP address: Only logged if ENABLE_IP_LOGGING=true or ENABLE_AUDIT_MODE=true
+    // - User ID: Pseudonymized by default (shows first/last 4 chars), full ID only in ENABLE_AUDIT_MODE=true
+    // - Stack traces: Only included in development mode (NODE_ENV=development)
+    // - Request body/headers: Never logged (to prevent credential leakage)
     console.error(`[ERROR ${errorId}]`, {
         timestamp: new Date().toISOString(),
         statusCode,
         message: err.message,
         method: req.method,
         url: req.url,
-        ip: req.ip,
-        userId: req.user?._id || 'anonymous',
+        // Conditionally include IP address
+        ...(enableIpLogging || enableAuditMode ? { ip: req.ip } : {}),
+        // Pseudonymized user ID by default, full ID only in audit mode
+        userId: enableAuditMode
+            ? req.user?._id || 'anonymous'
+            : getPseudonymizedUserId(req.user?._id),
         // Only include stack trace in development
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });

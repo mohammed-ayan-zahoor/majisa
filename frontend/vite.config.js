@@ -1,21 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import viteCompression from 'vite-plugin-compression';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    viteCompression()
+  ],
   build: {
     chunkSizeWarningLimit: 1000,
-    minify: 'terser', // Use terser for better compression
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.logs in production
-        drop_debugger: true, // Remove debugger statements
-        pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove specific console methods
-      },
-      format: {
-        comments: false, // Remove all comments
-      },
+    minify: 'esbuild', // Use esbuild for speed (default)
+    esbuild: {
+      drop: ['console', 'debugger'], // Remove console/debugger in production
     },
     rollupOptions: {
       output: {
@@ -46,8 +43,5 @@ export default defineConfig({
       },
     },
   },
-  server: {
-    // Enable compression in dev server
-    compress: true,
-  },
+
 })

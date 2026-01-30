@@ -15,7 +15,6 @@ const protect = async (req, res, next) => {
             // Verify token with strict options
             const decoded = jwt.verify(token, process.env.JWT_SECRET, {
                 algorithms: ['HS256'], // Only allow HS256
-                maxAge: process.env.JWT_EXPIRE || '7d', // Enforce max lifetime
             });
 
             // Additional validation: Check if user still exists

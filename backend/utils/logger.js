@@ -1,6 +1,16 @@
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const path = require('path');
+const fs = require('fs');
+
+// Define absolute log directory path (used by both transports and directory creation)
+// This ensures logs are always written to backend/logs regardless of where the node process is started
+const LOG_DIR = path.resolve(path.join(__dirname, '../logs'));
+
+// Create logs directory if it doesn't exist
+if (!fs.existsSync(LOG_DIR)) {
+    fs.mkdirSync(LOG_DIR, { recursive: true });
+}
 
 // Define log format
 const logFormat = winston.format.combine(
@@ -25,7 +35,7 @@ const logFormat = winston.format.combine(
 
 // Daily rotate file transport for all logs
 const dailyRotateFileTransport = new DailyRotateFile({
-    filename: path.join('logs', 'application-%DATE%.log'),
+    filename: path.join(LOG_DIR, 'application-%DATE%.log'),
     datePattern: 'YYYY-MM-DD',
     maxSize: '20m', // Rotate if file exceeds 20MB
     maxFiles: '14d', // Keep logs for 14 days
@@ -34,7 +44,7 @@ const dailyRotateFileTransport = new DailyRotateFile({
 
 // Daily rotate file transport for errors only
 const errorRotateFileTransport = new DailyRotateFile({
-    filename: path.join('logs', 'error-%DATE%.log'),
+    filename: path.join(LOG_DIR, 'error-%DATE%.log'),
     datePattern: 'YYYY-MM-DD',
     level: 'error',
     maxSize: '20m',
@@ -68,13 +78,6 @@ if (process.env.NODE_ENV !== 'production') {
             })
         )
     }));
-}
-
-// Create logs directory if it doesn't exist
-const fs = require('fs');
-const logsDir = path.join(__dirname, '../logs');
-if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
 }
 
 // Stream object for Morgan (HTTP request logging)
