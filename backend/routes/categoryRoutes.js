@@ -6,6 +6,7 @@ const {
     createCategory,
     updateCategory,
     deleteCategory,
+    moveCategory,
 } = require('../controllers/categoryController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -20,5 +21,9 @@ router
     .get(cacheSuccess, getCategoryById)
     .put(protect, admin, clearCache, updateCategory)
     .delete(protect, admin, clearCache, deleteCategory);
+
+router
+    .route('/:id/move')
+    .put(protect, admin, clearCache, moveCategory);
 
 module.exports = router;

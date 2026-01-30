@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, X, Save, Layers, Upload } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, X, Save, Layers, Upload, ChevronUp, ChevronsUp, ChevronDown, ChevronsDown } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useCategories } from '../../hooks/useCategories';
@@ -129,6 +129,15 @@ const Categories = () => {
         });
     };
 
+    const handleMove = async (id, direction) => {
+        try {
+            await api.put(`/categories/${id}/move`, { direction });
+            queryClient.invalidateQueries({ queryKey: ['categories'] });
+        } catch (error) {
+            toast.error(error.response?.data || 'Failed to move category');
+        }
+    };
+
     const filteredCategories = categories.filter(c =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -241,6 +250,49 @@ const Categories = () => {
                                 {(!category.customFields || category.customFields.length === 0) && (
                                     <span className="text-xs text-gray-400 italic">No custom fields</span>
                                 )}
+                            </div>
+
+                            {/* Order Controls */}
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+                                        Position #{filteredCategories.indexOf(category) + 1}
+                                    </span>
+                                    <div className="flex gap-1">
+                                        <button
+                                            onClick={() => handleMove(category._id, 'top')}
+                                            disabled={filteredCategories.indexOf(category) === 0}
+                                            className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                            title="Move to top"
+                                        >
+                                            <ChevronsUp size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleMove(category._id, 'up')}
+                                            disabled={filteredCategories.indexOf(category) === 0}
+                                            className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                            title="Move up"
+                                        >
+                                            <ChevronUp size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleMove(category._id, 'down')}
+                                            disabled={filteredCategories.indexOf(category) === filteredCategories.length - 1}
+                                            className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                            title="Move down"
+                                        >
+                                            <ChevronDown size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleMove(category._id, 'bottom')}
+                                            disabled={filteredCategories.indexOf(category) === filteredCategories.length - 1}
+                                            className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                                            title="Move to bottom"
+                                        >
+                                            <ChevronsDown size={14} />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

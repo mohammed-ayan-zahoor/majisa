@@ -13,6 +13,10 @@ const categorySchema = mongoose.Schema({
     description: {
         type: String,
     },
+    displayOrder: {
+        type: Number,
+        default: 0,
+    },
     customFields: [{
         name: { type: String, required: true },
         type: { type: String, required: true, enum: ['text', 'number', 'dropdown', 'color'] },

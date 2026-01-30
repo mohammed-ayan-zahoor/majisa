@@ -29,7 +29,7 @@ const extractPublicId = (url) => {
 // @route   GET /api/categories
 // @access  Public
 const getCategories = async (req, res) => {
-    const categories = await Category.find({});
+    const categories = await Category.find({}).sort({ displayOrder: 1 });
     res.json(categories);
 };
 
@@ -126,10 +126,73 @@ const deleteCategory = async (req, res) => {
     }
 };
 
+// @desc    Move a category up/down/top/bottom
+// @route   PUT /api/categories/:id/move
+// @access  Private/Admin
+const moveCategory = async (req, res) => {
+    const { direction } = req.body;
+
+    if (!['up', 'down', 'top', 'bottom'].includes(direction)) {
+        return res.status(400).send('Invalid direction. Must be: up, down, top, or bottom');
+    }
+
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+        return res.status(404).send('Category not found');
+    }
+
+    const allCategories = await Category.find({}).sort({ displayOrder: 1 });
+    const currentIndex = allCategories.findIndex(cat => cat._id.toString() === req.params.id);
+
+    if (currentIndex === -1) {
+        return res.status(404).send('Category not found in list');
+    }
+
+    try {
+        if (direction === 'up' && currentIndex > 0) {
+            // Swap with previous item
+            const prevCategory = allCategories[currentIndex - 1];
+            const tempOrder = category.displayOrder;
+            category.displayOrder = prevCategory.displayOrder;
+            prevCategory.displayOrder = tempOrder;
+            await category.save();
+            await prevCategory.save();
+        }
+        else if (direction === 'down' && currentIndex < allCategories.length - 1) {
+            // Swap with next item
+            const nextCategory = allCategories[currentIndex + 1];
+            const tempOrder = category.displayOrder;
+            category.displayOrder = nextCategory.displayOrder;
+            nextCategory.displayOrder = tempOrder;
+            await category.save();
+            await nextCategory.save();
+        }
+        else if (direction === 'top' && currentIndex > 0) {
+            // Move to top: set to first item's order - 1
+            const firstCategory = allCategories[0];
+            category.displayOrder = firstCategory.displayOrder - 1;
+            await category.save();
+        }
+        else if (direction === 'bottom' && currentIndex < allCategories.length - 1) {
+            // Move to bottom: set to last item's order + 1
+            const lastCategory = allCategories[allCategories.length - 1];
+            category.displayOrder = lastCategory.displayOrder + 1;
+            await category.save();
+        }
+
+        res.json({ message: 'Category moved successfully' });
+    } catch (error) {
+        console.error('Error moving category:', error);
+        res.status(500).send('Failed to move category');
+    }
+};
+
 module.exports = {
     getCategories,
     getCategoryById,
     createCategory,
     updateCategory,
     deleteCategory,
+    moveCategory,
 };

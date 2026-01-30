@@ -54,9 +54,12 @@ const createAccountItem = async (req, res) => {
         }
 
         const item = await AccountItem.create({
-            ...req.body
+            name,
+            metal,
+            purity,
+            defaultWastage,
+            openingStock
         });
-
         res.status(201).json(item);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -88,9 +91,13 @@ const createAccountParty = async (req, res) => {
         }
 
         const party = await AccountParty.create({
-            ...req.body
+            name,
+            group,
+            address,
+            phone,
+            city,
+            openingBalance
         });
-
         res.status(201).json(party);
     } catch (error) {
         res.status(500).json({ message: error.message });

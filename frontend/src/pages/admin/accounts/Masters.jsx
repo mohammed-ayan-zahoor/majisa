@@ -129,7 +129,10 @@ const Masters = () => {
                             try {
                                 await api.delete(`/accounts/${tabAtInvocation}/${id}`);
                                 toast.success("Deleted successfully");
-                                fetchData();
+                                // Only refresh if still on the same tab
+                                if (tabAtInvocation === activeTab) {
+                                    fetchData();
+                                }
                             } catch (error) {
                                 console.error(error);
                                 toast.error(error.response?.data?.message || "Failed to delete");
@@ -153,7 +156,7 @@ const Masters = () => {
     };
     const headers = {
         groups: ['Name', 'Code', 'Under', 'Type', 'Description'],
-        items: ['Name', 'Metal', 'Purity', 'Opening Stock'],
+        items: ['Name', 'Category', 'Metal (Purity)', 'Opening Stock', 'Unit'],
         parties: ['Name', 'Group', 'City', 'Phone', 'Op. Metal', 'Op. Amount']
     };
 
@@ -282,7 +285,6 @@ const Masters = () => {
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            setActiveTab('groups'); // Assuming categories might be managed elsewhere, but for now redirecting or adding logic
                                             toast.error("Category management coming soon");
                                         }}
                                         className="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-bold transition-colors"
