@@ -6,7 +6,7 @@ const Footer = () => {
     return (
         <footer className="bg-gray-900 text-gray-300 pt-16 pb-8">
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                     {/* Brand Info */}
                     <div>
                         <h3 className="text-2xl font-serif font-bold text-white mb-4">MAJISA JEWELLERS</h3>
@@ -44,24 +44,6 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Contact Info */}
-                    <div>
-                        <h4 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">Contact Us</h4>
-                        <ul className="space-y-4 text-sm">
-                            <li className="flex items-start gap-3">
-                                <MapPin size={18} className="text-primary-500 shrink-0 mt-0.5" />
-                                <span>123 Jewellery Market, Sarafa Bazaar,<br />Mumbai, Maharashtra 400002</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Phone size={18} className="text-primary-500 shrink-0" />
-                                <span>+91 98765 43210</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Mail size={18} className="text-primary-500 shrink-0" />
-                                <span>support@majisajewellers.com</span>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
 
                 <div className="border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
