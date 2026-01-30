@@ -256,12 +256,12 @@ const Categories = () => {
                             <div className="mt-3 pt-3 border-t border-gray-100">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
-                                        Position #{filteredCategories.indexOf(category) + 1}
+                                        Position #{categories.indexOf(category) + 1}
                                     </span>
                                     <div className="flex gap-1">
                                         <button
                                             onClick={() => handleMove(category._id, 'top')}
-                                            disabled={filteredCategories.indexOf(category) === 0}
+                                            disabled={categories.indexOf(category) === 0}
                                             className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
                                             title="Move to top"
                                         >
@@ -269,7 +269,7 @@ const Categories = () => {
                                         </button>
                                         <button
                                             onClick={() => handleMove(category._id, 'up')}
-                                            disabled={filteredCategories.indexOf(category) === 0}
+                                            disabled={categories.indexOf(category) === 0}
                                             className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
                                             title="Move up"
                                         >
@@ -277,7 +277,7 @@ const Categories = () => {
                                         </button>
                                         <button
                                             onClick={() => handleMove(category._id, 'down')}
-                                            disabled={filteredCategories.indexOf(category) === filteredCategories.length - 1}
+                                            disabled={categories.indexOf(category) === categories.length - 1}
                                             className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
                                             title="Move down"
                                         >
@@ -285,7 +285,7 @@ const Categories = () => {
                                         </button>
                                         <button
                                             onClick={() => handleMove(category._id, 'bottom')}
-                                            disabled={filteredCategories.indexOf(category) === filteredCategories.length - 1}
+                                            disabled={categories.indexOf(category) === categories.length - 1}
                                             className="p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
                                             title="Move to bottom"
                                         >

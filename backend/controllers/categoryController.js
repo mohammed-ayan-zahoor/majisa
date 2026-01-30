@@ -151,22 +151,40 @@ const moveCategory = async (req, res) => {
 
     try {
         if (direction === 'up' && currentIndex > 0) {
-            // Swap with previous item
+            // Swap with previous item atomically
             const prevCategory = allCategories[currentIndex - 1];
-            const tempOrder = category.displayOrder;
-            category.displayOrder = prevCategory.displayOrder;
-            prevCategory.displayOrder = tempOrder;
-            await category.save();
-            await prevCategory.save();
+            await Category.bulkWrite([
+                {
+                    updateOne: {
+                        filter: { _id: category._id },
+                        update: { $set: { displayOrder: prevCategory.displayOrder } }
+                    }
+                },
+                {
+                    updateOne: {
+                        filter: { _id: prevCategory._id },
+                        update: { $set: { displayOrder: category.displayOrder } }
+                    }
+                }
+            ]);
         }
         else if (direction === 'down' && currentIndex < allCategories.length - 1) {
-            // Swap with next item
+            // Swap with next item atomically
             const nextCategory = allCategories[currentIndex + 1];
-            const tempOrder = category.displayOrder;
-            category.displayOrder = nextCategory.displayOrder;
-            nextCategory.displayOrder = tempOrder;
-            await category.save();
-            await nextCategory.save();
+            await Category.bulkWrite([
+                {
+                    updateOne: {
+                        filter: { _id: category._id },
+                        update: { $set: { displayOrder: nextCategory.displayOrder } }
+                    }
+                },
+                {
+                    updateOne: {
+                        filter: { _id: nextCategory._id },
+                        update: { $set: { displayOrder: category.displayOrder } }
+                    }
+                }
+            ]);
         }
         else if (direction === 'top' && currentIndex > 0) {
             // Move to top: set to first item's order - 1
