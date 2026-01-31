@@ -8,7 +8,7 @@ const Voucher = require('../models/Voucher');
 // @access  Private/Admin
 const createAccountGroup = async (req, res) => {
     try {
-        const { name, type, description, under, code } = req.body;
+        const { name, type, description, code } = req.body;
 
         const groupExists = await AccountGroup.findOne({ name });
         if (groupExists) {
@@ -19,7 +19,6 @@ const createAccountGroup = async (req, res) => {
             name,
             type,
             description,
-            under: under || null,
             code
         });
 
@@ -34,7 +33,7 @@ const createAccountGroup = async (req, res) => {
 // @access  Private/Admin
 const getAccountGroups = async (req, res) => {
     try {
-        const groups = await AccountGroup.find({}).populate('under', 'name');
+        const groups = await AccountGroup.find({});
         res.json(groups);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -253,27 +252,7 @@ const updateAccountGroup = async (req, res) => {
             group.name = req.body.name;
         }
 
-        // 2. Prevent circular hierarchy
-        if (req.body.hasOwnProperty('under')) {
-            const newUnderId = req.body.under || null;
-
-            if (newUnderId) {
-                if (newUnderId.toString() === req.params.id) {
-                    return res.status(400).json({ message: 'A group cannot be its own parent' });
-                }
-
-                // Traverse parents of newUnder to ensure current group is not an ancestor
-                let currentParentId = newUnderId;
-                while (currentParentId) {
-                    if (currentParentId.toString() === req.params.id) {
-                        return res.status(400).json({ message: 'Circular hierarchy detected: candidate parent is a descendant' });
-                    }
-                    const parent = await AccountGroup.findById(currentParentId);
-                    currentParentId = parent ? parent.under : null;
-                }
-            }
-            group.under = newUnderId;
-        }
+        // Circular hierarchy check removed (under field removed)
 
         // 3. Update other fields only if they exist in req.body (allow falsy values)
         if (req.body.hasOwnProperty('type')) group.type = req.body.type;
@@ -300,11 +279,13 @@ const deleteAccountGroup = async (req, res) => {
                 return res.status(400).json({ message: 'Cannot delete group as it is assigned to parties' });
             }
 
-            // Check if any child groups exist
+            // Child group check removed
+            /* 
             const childGroupExists = await AccountGroup.findOne({ under: req.params.id });
             if (childGroupExists) {
                 return res.status(400).json({ message: 'Cannot delete group as it has child groups' });
             }
+            */
             await group.deleteOne();
             res.json({ message: 'Account Group removed' });
         } else {

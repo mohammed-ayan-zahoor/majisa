@@ -37,7 +37,7 @@ const Ledger = () => {
         // Ensure we handle Dr/Cr for opening balance correctly if stored
         // Assuming stored values are just numbers, positive = Dr (Receivable), Negative = Cr (Payable)?? 
         // Or we just use strict Dr/Cr columns.
-        // Let's assume standard accounting: Asset (Customer) -> Debit is positive.
+        // Standard accounting: Customer -> Debit is positive.
 
         const processed = (Array.isArray(transactions) ? transactions : []).map(txn => {
             let metalDr = 0, metalCr = 0;
