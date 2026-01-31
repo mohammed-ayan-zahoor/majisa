@@ -3,6 +3,7 @@ const sendEmail = require('../utils/sendEmail');
 const { addEmailToQueue } = require('../queues/emailQueue');
 const { createNotification } = require('./notificationController');
 const { addOrderToCleanupQueue } = require('../queues/orderCleanupQueue');
+const Product = require('../models/Product');
 
 // @desc    Create new order
 // @route   POST /api/orders
