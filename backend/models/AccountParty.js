@@ -15,34 +15,8 @@ const accountPartySchema = mongoose.Schema({
         type: String,
         trim: true
     },
-    address: String,
-    pin: String,
-    state: String,
-    phone: String,
-    whatsappNumber: String,
-    otherNumber: String,
-    email: String,
     city: String,
-    cashLimit: Number,
-    billByBillRef: {
-        type: Boolean,
-        default: false
-    },
-    dueDays: Number,
-    wefDate: Date,
-    gstType: {
-        type: String,
-        enum: ['Unregistered', 'Regular', 'Composition', 'Consumer'],
-        default: 'Unregistered'
-    },
-    gstin: String,
-    pan: String,
-    website: String,
-    contactNotes: String,
-    bankName: String,
-    ifscCode: String,
-    accountNumber: String,
-    bankBranch: String,
+    // Address, PIN, State, Phone, GSTIN, Bank Details removed as per client request
     openingBalance: {
         gold: {
             weight: { type: Number, default: 0 },

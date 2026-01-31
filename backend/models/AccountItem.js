@@ -21,28 +21,15 @@ const accountItemSchema = mongoose.Schema({
         default: 100
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category'
+        type: String,
+        enum: ['Gold', 'Silver', 'Cash'],
+        default: 'Gold'
     },
     unit: { type: String, default: 'Piece' },
-    tagNumberMode: {
-        type: String,
-        enum: ['Random', 'Prefix'],
-        default: 'Random'
-    },
-    isMRPItem: { type: Boolean, default: false },
-    unitInReports: { type: Boolean, default: true },
-    maintainStock: { type: String, default: 'Grams' },
-    minTouch: { type: Number, default: 0 },
-    maxTouch: { type: Number, default: 0 },
     minStockLevel: { type: Number, default: 0 },
-    maxStockLevel: { type: Number, default: 0 },
-    preferredVendor: { type: String },
-    defaultSalesman: { type: String },
+    // maxStockLevel removed
     defaultWastage: { type: Number, default: 0 },
     laborCharge: { type: Number, default: 0 },
-    hsnCode: { type: String },
-    gstRate: { type: Number, default: 3 },
     remarks: { type: String },
     openingStock: {
         weight: { type: Number, default: 0 },

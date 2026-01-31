@@ -9,18 +9,14 @@ const accountGroupSchema = mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['Asset', 'Liability', 'Income', 'Expense'],
+        enum: ['Income', 'Expense'],
         required: true
     },
     description: {
         type: String,
         default: ''
     },
-    under: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'AccountGroup',
-        default: null
-    },
+    // under field removed as per client request (no nesting)
     code: {
         type: String,
         unique: true,
