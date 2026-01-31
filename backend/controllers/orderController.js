@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const sendEmail = require('../utils/sendEmail');
 const { addEmailToQueue } = require('../queues/emailQueue');
 const { createNotification } = require('./notificationController');
+const { addOrderToCleanupQueue } = require('../queues/orderCleanupQueue');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -134,7 +135,16 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findById(req.params.id);
 
     if (order) {
-        if (status) order.status = status;
+        if (status) {
+            order.status = status;
+            if (status === 'Completed') {
+                order.completedAt = Date.now();
+                // Schedule deletion
+                // TODO: Change to 2 * 24 * 60 * 60 * 1000 (2 days) after testing
+                const delay = 5000; // 5 seconds for testing
+                await addOrderToCleanupQueue({ orderId: order._id }, delay);
+            }
+        }
         if (goldsmithId) order.goldsmith = goldsmithId;
 
         const updatedOrder = await order.save();

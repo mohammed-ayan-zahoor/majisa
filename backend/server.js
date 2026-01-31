@@ -325,6 +325,7 @@ const startServer = async () => {
             if (await isRedisAvailable()) {
                 console.log('Redis is available. Initializing Background Workers...');
                 require('./workers/emailWorker');
+                require('./workers/orderCleanupWorker');
             } else {
                 console.warn('Redis is unavailable. Background workers (Email) skipped.');
             }
