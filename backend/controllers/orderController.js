@@ -140,8 +140,8 @@ const updateOrderStatus = async (req, res) => {
             if (status === 'Completed' && order.status !== 'Completed') {
                 order.completedAt = Date.now();
                 // Schedule deletion
-                // TODO: Change to 2 * 24 * 60 * 60 * 1000 (2 days) after testing
-                const delay = 5000; // 5 seconds for testing
+                // Schedule deletion (2 days)
+                const delay = 2 * 24 * 60 * 60 * 1000; // 48 hours
                 try {
                     await addOrderToCleanupQueue({ orderId: order._id }, delay);
                 } catch (queueError) {
