@@ -91,4 +91,4 @@ const addOrderToCleanupQueue = async (orderData, delay) => {
     }
 };
 
-module.exports = { orderCleanupQueue, addOrderToCleanupQueue };
+module.exports = { getOrderCleanupQueue, addOrderToCleanupQueue };

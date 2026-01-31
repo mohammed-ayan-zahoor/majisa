@@ -136,14 +136,19 @@ const updateOrderStatus = async (req, res) => {
 
     if (order) {
         if (status) {
-            order.status = status;
-            if (status === 'Completed') {
+            if (status === 'Completed' && order.status !== 'Completed') {
                 order.completedAt = Date.now();
                 // Schedule deletion
                 // TODO: Change to 2 * 24 * 60 * 60 * 1000 (2 days) after testing
                 const delay = 5000; // 5 seconds for testing
-                await addOrderToCleanupQueue({ orderId: order._id }, delay);
+                try {
+                    await addOrderToCleanupQueue({ orderId: order._id }, delay);
+                } catch (queueError) {
+                    console.error(`Failed to schedule cleanup for order ${order._id}:`, queueError);
+                    // Continue with order update even if queue failure
+                }
             }
+            order.status = status;
         }
         if (goldsmithId) order.goldsmith = goldsmithId;
 
